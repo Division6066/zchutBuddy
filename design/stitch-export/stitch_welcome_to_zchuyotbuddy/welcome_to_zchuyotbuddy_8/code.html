@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html class="light" dir="rtl" lang="he"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZchuyotBuddy Profile Setup</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Heebo:wght@400;500;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#6741d9", // Purple from logo
+                        "primary-light": "#8a6bd6",
+                        "primary-bg": "#f3f0ff", // Very light purple bg
+                        "accent": "#ff9f43", // Subtle complementary accent
+                        "background-light": "#ffffff",
+                        "text-dark": "#1f1f2e",
+                        "text-subtle": "#5c5c6d",
+                        "surface-purple": "#2b1c4e", // Dark purple for contrast elements
+                        "success-bg": "#e6fcf5",
+                        "success-text": "#0ca678",
+                    },
+                    fontFamily: {
+                        "display": ["Heebo", "Manrope", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "2xl": "2.5rem", "full": "9999px"},
+                    boxShadow: {
+                        "soft": "0 10px 40px -10px rgba(103, 65, 217, 0.08)",
+                        "card": "0 4px 20px -2px rgba(0, 0, 0, 0.05)",
+                        "glow": "0 0 20px rgba(103, 65, 217, 0.4)"
+                    }
+                },
+            },
+        }
+    </script>
+<style>.no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }.toggle-checkbox:checked {
+            right: 0;
+            border-color: #6741d9;
+        }
+        .toggle-checkbox:checked + .toggle-label {
+            background-color: #6741d9;
+        }
+        input[type="text"], input[type="email"], select {
+             font-size: 16px !important;}
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light font-display antialiased overflow-hidden text-text-dark selection:bg-primary/20">
+<div class="relative flex h-screen w-full flex-col overflow-y-auto overflow-x-hidden md:max-w-md md:mx-auto md:border-x md:border-gray-100 no-scrollbar bg-white">
+<div class="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[100px] pointer-events-none"></div>
+<div class="absolute bottom-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-primary/5 blur-[80px] pointer-events-none"></div>
+<div class="flex items-center justify-between p-6 pt-12 z-20">
+<button class="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-text-dark hover:bg-gray-100 transition-colors">
+<span class="material-symbols-outlined text-[24px]">arrow_forward</span>
+</button>
+<div class="w-10 h-10"></div> 
+</div>
+<div class="flex-1 flex flex-col px-6 relative z-10 w-full -mt-2">
+<div class="text-right mb-8">
+<div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary mb-4 shadow-sm">
+<span class="material-symbols-outlined text-[26px]">person_edit</span>
+</div>
+<h1 class="text-text-dark text-[28px] font-extrabold leading-tight mb-2">
+                הגדרת פרופיל
+            </h1>
+<p class="text-text-subtle text-[15px] font-medium leading-relaxed">
+                כדי שנוכל לעזור לך לממש את הזכויות שלך, נצטרך להכיר אותך קצת יותר. המידע נשמר באופן מאובטח.
+            </p>
+</div>
+<div class="flex flex-col gap-5">
+<div class="bg-white border border-gray-100 rounded-2xl p-4 shadow-card flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+<span class="material-symbols-outlined">visibility_off</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="text-sm font-bold text-text-dark">מצב אנונימי</span>
+<span class="text-xs text-text-subtle">ללא שמירת שם או פרטים מזהים</span>
+</div>
+</div>
+<label class="flex items-center cursor-pointer relative" for="anonymous-toggle">
+<input class="sr-only peer" id="anonymous-toggle" type="checkbox"/>
+<div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary" dir="ltr"></div>
+</label>
+</div>
+<div class="space-y-4">
+<div class="space-y-1.5">
+<label class="text-sm font-bold text-text-dark pr-1">שם מלא</label>
+<input class="w-full px-4 py-3.5 rounded-xl bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 transition-all text-right placeholder-gray-400 font-medium" placeholder="השם שלך" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="text-sm font-bold text-text-dark pr-1">שנת לידה</label>
+<div class="relative">
+<select class="w-full px-4 py-3.5 rounded-xl bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 transition-all text-right appearance-none font-medium text-text-dark">
+<option disabled="" selected="" value="">בחירת שנה</option>
+<option value="1990">1990</option>
+<option value="1991">1991</option>
+<option value="1992">1992</option>
+</select>
+<div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
+<span class="material-symbols-outlined">expand_more</span>
+</div>
+</div>
+</div>
+<div class="pt-2">
+<label class="flex items-center p-3 border border-primary/20 bg-primary/5 rounded-xl cursor-pointer transition-colors hover:bg-primary/10">
+<input class="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-offset-0 ml-3" type="checkbox"/>
+<div class="flex-1 text-right">
+<span class="block text-sm font-bold text-primary-dark">אני מסייע/ת לבן משפחה</span>
+<span class="block text-xs text-text-subtle mt-0.5">הזכויות הן עבור מישהו אחר</span>
+</div>
+<span class="material-symbols-outlined text-primary/60">family_restroom</span>
+</label>
+</div>
+</div>
+<div class="flex gap-2 items-start mt-2 p-3 bg-gray-50 rounded-xl">
+<span class="material-symbols-outlined text-text-subtle text-[18px] mt-0.5">lock</span>
+<p class="text-xs text-text-subtle leading-relaxed text-right">
+                    המידע שלך מוצפן ומאובטח. אנחנו לא משתפים את המידע עם צד שלישי ללא הסכמתך המפורשת.
+                </p>
+</div>
+</div>
+</div>
+<div class="p-6 pb-10 w-full z-10 bg-white mt-auto border-t border-gray-50">
+<button class="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-light hover:shadow-primary/40 active:scale-[0.98]">
+<span class="text-lg font-bold tracking-tight ml-2">המשך</span>
+<span class="material-symbols-outlined transition-transform group-hover:-translate-x-1 rotate-180">arrow_forward</span>
+</button>
+<div class="mt-4 flex justify-center gap-2" dir="ltr">
+<div class="w-2 h-2 rounded-full bg-primary shadow-sm shadow-primary/30"></div>
+<div class="w-2 h-2 rounded-full bg-gray-200"></div>
+<div class="w-2 h-2 rounded-full bg-gray-200"></div>
+</div>
+</div>
+</div>
+
+</body></html>

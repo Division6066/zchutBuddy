@@ -68,7 +68,7 @@ function NavbarContent() {
   };
 
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+    <nav className="bg-gradient-to-l from-primary to-primary/90 border-b border-primary/20 sticky top-0 z-50 backdrop-blur-sm">
       <div className="container mx-auto px-6 py-4">
         <div className="flex justify-between items-center">
           {/* Navigation Links - Right Side (RTL) */}
@@ -78,32 +78,28 @@ function NavbarContent() {
               className="flex items-center gap-2 hover:scale-105 transition-transform"
               aria-label="דף הבית"
             >
-              <BrandLogo size={24} />
-              <span className="text-lg font-extrabold text-text-dark tracking-tight">ZchuyotBuddy</span>
+              <div className="brightness-0 invert">
+                <BrandLogo size={24} />
+              </div>
+              <span className="text-lg font-extrabold text-white tracking-tight">ZchuyotBuddy</span>
             </Link>
             <Link
               href="/onboarding"
-              className="text-sm font-medium text-text-dark hover:text-primary transition-colors"
+              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
             >
-              Onboarding
+              איך זה עובד?
             </Link>
             <Link
               href="/pricing"
-              className="text-sm font-medium text-text-dark hover:text-primary transition-colors"
+              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
             >
-              Pricing
+              למי זה מתאים?
             </Link>
             <Link
-              href="/app"
-              className="text-sm font-medium text-text-dark hover:text-primary transition-colors"
+              href="/about"
+              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
             >
-              App
-            </Link>
-            <Link
-              href="/settings"
-              className="text-sm font-medium text-text-dark hover:text-primary transition-colors"
-            >
-              Settings
+              אודות
             </Link>
           </div>
 
@@ -116,10 +112,10 @@ function NavbarContent() {
                   onClick={() => setIsOpen(!isOpen)}
                   className="flex items-center gap-2 hover:bg-accent rounded-lg px-3 py-2 h-auto"
                 >
-                  <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                    <User className="w-4 h-4 text-primary-foreground" />
+                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                    <User className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm font-medium text-white">
                     שלום, {user.firstName || user.emailAddresses[0]?.emailAddress.split("@")[0]}
                   </span>
                 </Button>
@@ -160,9 +156,9 @@ function NavbarContent() {
                   });
                   setShowSignInModal(true);
                 }}
-                className="bg-primary text-white hover:bg-[#5b38c4] font-semibold px-6 py-2 rounded-xl shadow-lg shadow-primary/20 transition-all"
+                className="bg-white text-primary hover:bg-white/90 font-semibold px-6 py-2 rounded-xl shadow-lg shadow-black/10 transition-all"
               >
-                התחברות
+                התחבר/הרשם
               </Button>
             )}
           </div>
@@ -184,7 +180,7 @@ export default function Navbar() {
   // If Clerk is not available, render navbar without auth features
   if (!hasValidClerkKey) {
     return (
-      <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 backdrop-blur-sm bg-white/95">
+      <nav className="bg-gradient-to-l from-primary to-primary/90 border-b border-primary/20 sticky top-0 z-50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
             <div className="flex gap-6 items-center">
@@ -193,32 +189,28 @@ export default function Navbar() {
                 className="flex items-center gap-2 hover:scale-105 transition-transform"
                 aria-label="דף הבית"
               >
+                <div className="brightness-0 invert">
                 <BrandLogo size={24} />
-                <span className="text-lg font-extrabold text-text-dark tracking-tight">ZchuyotBuddy</span>
+              </div>
+                <span className="text-lg font-extrabold text-white tracking-tight">ZchuyotBuddy</span>
               </Link>
               <Link
                 href="/onboarding"
-                className="text-sm font-medium text-text-dark hover:text-primary transition-colors hover:underline underline-offset-4 decoration-2"
+                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
               >
-                Onboarding
+                איך זה עובד?
               </Link>
               <Link
                 href="/pricing"
-                className="text-sm font-medium text-text-dark hover:text-primary transition-colors hover:underline underline-offset-4 decoration-2"
+                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
               >
-                Pricing
+                למי זה מתאים?
               </Link>
               <Link
-                href="/app"
-                className="text-sm font-medium text-text-dark hover:text-primary transition-colors hover:underline underline-offset-4 decoration-2"
+                href="/about"
+                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
               >
-                App
-              </Link>
-              <Link
-                href="/settings"
-                className="text-sm font-medium text-text-dark hover:text-primary transition-colors hover:underline underline-offset-4 decoration-2"
-              >
-                Settings
+                אודות
               </Link>
             </div>
           </div>

@@ -1,0 +1,12 @@
+<svg width="180" height="180" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#635BFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#524bd6;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Shield shape -->
+  <path d="M256 32L192 64L128 96C128 96 128 192 128 256C128 320 192 384 256 448C320 384 384 320 384 256C384 192 384 96 384 96L320 64L256 32Z" fill="url(#shieldGradient)" stroke="none"/>
+  <!-- Checkmark -->
+  <path d="M200 256L240 296L312 224" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
