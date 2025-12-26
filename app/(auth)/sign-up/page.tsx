@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import BrandLogo from "@/components/BrandLogo";
 
 export default function SignUpPage() {
@@ -17,14 +17,17 @@ export default function SignUpPage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-primary-bg/30 flex items-center justify-center px-4" dir="rtl">
+    <div
+      className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-primary-bg/30 flex items-center justify-center px-4"
+      dir="rtl"
+    >
       <div className="w-full max-w-md">
         <div className="rounded-2xl bg-white/80 backdrop-blur-sm p-8 shadow-2xl border border-gray-100">
           <div className="flex items-center justify-center gap-3 mb-6">
             <BrandLogo size={32} />
             <span className="text-2xl font-extrabold text-text-dark">ZchuyotBuddy</span>
           </div>
-          
+
           <h1 className="text-3xl font-bold text-text-dark mb-2 text-center">הרשמה</h1>
           <p className="text-text-subtle text-center mb-8">Sign Up</p>
 
@@ -35,13 +38,13 @@ export default function SignUpPage() {
 
           <div className="space-y-3">
             <button
-              disabled
+              disabled={true}
               className="w-full bg-gray-100 text-gray-400 py-3 px-4 rounded-lg font-semibold cursor-not-allowed"
             >
               צור חשבון / Create Account
             </button>
             <button
-              disabled
+              disabled={true}
               className="w-full bg-gray-100 text-gray-400 py-3 px-4 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-3"
             >
               <span>המשך עם Google / Continue with Google</span>
@@ -50,7 +53,10 @@ export default function SignUpPage() {
 
           <p className="mt-6 text-center text-sm text-text-subtle">
             כבר יש לכם חשבון?{" "}
-            <Link href="/sign-in" className="text-primary hover:text-primary-light font-semibold transition">
+            <Link
+              href="/sign-in"
+              className="text-primary hover:text-primary-light font-semibold transition"
+            >
               התחברו כאן / Sign in here
             </Link>
           </p>

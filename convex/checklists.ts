@@ -161,4 +161,3 @@ export const deleteChecklist = mutation({
     await ctx.db.delete(checklistId);
   },
 });
-

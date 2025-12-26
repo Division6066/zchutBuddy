@@ -12,14 +12,6 @@ export default function BrandLogo({ size = 24, variant = "logo", className = "" 
 
   // Use Image for SVG files (Next.js handles SVGs in Image component)
   return (
-    <Image
-      src={src}
-      alt={alt}
-      width={size}
-      height={size}
-      className={className}
-      priority
-    />
+    <Image src={src} alt={alt} width={size} height={size} className={className} priority={true} />
   );
 }
-

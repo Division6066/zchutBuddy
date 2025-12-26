@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Rubik, Manrope, Heebo } from "next/font/google";
+import { Heebo, Manrope, Rubik } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { Providers } from "@/components/providers/providers";
@@ -33,13 +33,12 @@ export const metadata: Metadata = {
       { url: "/icons/icon-512.svg", type: "image/svg+xml" },
       { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
     ],
-    apple: [
-      { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
-    ],
+    apple: [{ url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" }],
     shortcut: "/icons/icon-192.svg",
   },
   other: {
-    "material-symbols": "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200",
+    "material-symbols":
+      "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200",
   },
 };
 

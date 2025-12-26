@@ -4,7 +4,9 @@
  * Query OpenRouter API to get list of available free models
  */
 
-const apiKey = process.env.OPENROUTER_API_KEY || "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";
+const apiKey =
+  process.env.OPENROUTER_API_KEY ||
+  "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";
 
 async function getModels() {
   console.log("🔍 Fetching available models from OpenRouter...\n");
@@ -61,24 +63,15 @@ async function getModels() {
 
     // Look for specific models we're interested in
     console.log("\n\n🔎 LOOKING FOR SPECIFIC MODELS:\n");
-    const targetModels = [
-      "meta-llama",
-      "deepseek",
-      "google/gemini",
-      "mistralai/mistral",
-    ];
+    const targetModels = ["meta-llama", "deepseek", "google/gemini", "mistralai/mistral"];
 
     targetModels.forEach((searchTerm) => {
-      const matches = models.filter((m) =>
-        m.id.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const matches = models.filter((m) => m.id.toLowerCase().includes(searchTerm.toLowerCase()));
       if (matches.length > 0) {
         console.log(`\n${searchTerm}:`);
         matches.forEach((m) => {
           const isFree = m.pricing?.prompt === "0" || m.id?.includes(":free");
-          console.log(
-            `  ${isFree ? "🆓" : "💰"} ${m.id} ${isFree ? "(FREE)" : ""}`
-          );
+          console.log(`  ${isFree ? "🆓" : "💰"} ${m.id} ${isFree ? "(FREE)" : ""}`);
         });
       }
     });
@@ -88,4 +81,3 @@ async function getModels() {
 }
 
 getModels();
-

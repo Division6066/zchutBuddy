@@ -1,12 +1,14 @@
 "use client";
 
 import { useSignIn, useUser } from "@clerk/nextjs";
+import { UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { debug } from "@/lib/debug";
+import { useGuestAuth } from "@/lib/guest-auth";
 
 interface SignInModalProps {
   open: boolean;
@@ -16,6 +18,7 @@ interface SignInModalProps {
 export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
   const { signIn, setActive } = useSignIn();
   const { isSignedIn } = useUser();
+  const { loginAsGuest } = useGuestAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,6 +26,21 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
   const [error, setError] = useState("");
   const hasRedirectedRef = useRef(false);
   const isRedirectingRef = useRef(false);
+
+  const handleGuestLogin = () => {
+    debug.info({
+      location: "SignInModal.tsx:handleGuestLogin",
+      message: "Guest login initiated",
+    });
+    loginAsGuest();
+    onOpenChange(false);
+    // Redirect to app
+    if (typeof window !== "undefined") {
+      window.location.href = "/app";
+    } else {
+      router.push("/app");
+    }
+  };
 
   // Watch for auth state change as fallback (only if handleSubmit redirect didn't work)
   useEffect(() => {
@@ -51,7 +69,7 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
       }, 300);
     }
   }, [isSignedIn, open, onOpenChange, router]);
-  
+
   // Reset redirect flag when modal closes (but not if we're actively redirecting)
   useEffect(() => {
     if (!open && !isRedirectingRef.current) {
@@ -86,16 +104,16 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
           hasSessionId: !!result.createdSessionId,
         },
       });
-      
+
       // Explicit console log for debugging
-      console.log('[DEBUG] After signIn.create:', {
+      console.log("[DEBUG] After signIn.create:", {
         status: result.status,
         hasSessionId: !!result.createdSessionId,
         statusType: typeof result.status,
       });
 
       if (result.status === "complete") {
-        console.log('[DEBUG] Login status is COMPLETE - proceeding with redirect');
+        console.log("[DEBUG] Login status is COMPLETE - proceeding with redirect");
         // Prevent multiple redirects
         if (hasRedirectedRef.current || isRedirectingRef.current) {
           debug.warn({
@@ -114,23 +132,21 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
         isRedirectingRef.current = true;
 
         // Set active session
-        console.log('[DEBUG] Before setActive');
+        console.log("[DEBUG] Before setActive");
         try {
           await setActive({ session: result.createdSessionId });
           debug.info({
             location: "SignInModal.tsx:handleSubmit",
             message: "setActive completed successfully",
           });
-          console.log('[DEBUG] setActive completed successfully');
+          console.log("[DEBUG] setActive completed successfully");
         } catch (setActiveError) {
           debug.error({
             location: "SignInModal.tsx:handleSubmit",
             message: "setActive error",
             data: {
               errorMessage:
-                setActiveError instanceof Error
-                  ? setActiveError.message
-                  : String(setActiveError),
+                setActiveError instanceof Error ? setActiveError.message : String(setActiveError),
             },
           });
           // Continue anyway - the session might still be set
@@ -140,34 +156,41 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
           location: "SignInModal.tsx:handleSubmit",
           message: "Login successful, closing modal and redirecting",
           data: {
-            currentPath:
-              typeof window !== "undefined" ? window.location.pathname : "server",
+            currentPath: typeof window !== "undefined" ? window.location.pathname : "server",
           },
         });
-        
-        console.log('[DEBUG] After setActive - closing modal and redirecting');
-        console.log('[DEBUG] About to redirect:', {
+
+        console.log("[DEBUG] After setActive - closing modal and redirecting");
+        console.log("[DEBUG] About to redirect:", {
           currentUrl: typeof window !== "undefined" ? window.location.href : "server",
           currentPath: typeof window !== "undefined" ? window.location.pathname : "server",
         });
 
         // Close modal first
         onOpenChange(false);
-        
+
         // Redirect immediately - don't wait for animation
         // The redirect will happen regardless of modal state
-        console.log('[DEBUG] Executing redirect to /app IMMEDIATELY');
-        console.log('[DEBUG] Current URL before redirect:', typeof window !== "undefined" ? window.location.href : "server");
-        console.log('[DEBUG] Window object exists:', typeof window !== "undefined");
-        console.log('[DEBUG] window.location exists:', typeof window !== "undefined" && typeof window.location !== "undefined");
-        
+        console.log("[DEBUG] Executing redirect to /app IMMEDIATELY");
+        console.log(
+          "[DEBUG] Current URL before redirect:",
+          typeof window !== "undefined" ? window.location.href : "server"
+        );
+        console.log("[DEBUG] Window object exists:", typeof window !== "undefined");
+        console.log(
+          "[DEBUG] window.location exists:",
+          typeof window !== "undefined" && typeof window.location !== "undefined"
+        );
+
         try {
           if (typeof window !== "undefined" && window.location) {
             console.log('[DEBUG] Setting window.location.replace("/app") NOW');
             // Use replace to prevent back button issues
             window.location.replace("/app");
-            console.log('[DEBUG] window.location.replace("/app") executed - page should navigate now');
-            
+            console.log(
+              '[DEBUG] window.location.replace("/app") executed - page should navigate now'
+            );
+
             // If we're still here after 100ms, try href as backup
             setTimeout(() => {
               if (window.location.pathname !== "/app") {
@@ -180,12 +203,13 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
             router.push("/app");
           }
         } catch (redirectError) {
-          console.error('[DEBUG] ERROR during redirect:', redirectError);
+          console.error("[DEBUG] ERROR during redirect:", redirectError);
           debug.error({
             location: "SignInModal.tsx:handleSubmit",
             message: "Redirect error",
             data: {
-              errorMessage: redirectError instanceof Error ? redirectError.message : String(redirectError),
+              errorMessage:
+                redirectError instanceof Error ? redirectError.message : String(redirectError),
             },
           });
           // Final fallback
@@ -195,7 +219,7 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
             router.push("/app");
           }
         }
-        
+
         // Log after redirect attempt (this may not execute if redirect works)
         debug.info({
           location: "SignInModal.tsx:handleSubmit",
@@ -384,6 +408,15 @@ export default function SignInModal({ open, onOpenChange }: SignInModalProps) {
                 <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
               </svg>
               <span>המשך עם Apple</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="w-full bg-gray-700 text-white py-3 px-4 rounded-lg font-semibold hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition-all flex items-center justify-center gap-3 border border-gray-600"
+            >
+              <UserCircle className="w-5 h-5" />
+              <span>המשך כאורח</span>
             </button>
           </div>
 

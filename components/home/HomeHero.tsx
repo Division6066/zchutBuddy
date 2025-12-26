@@ -9,25 +9,25 @@ export default function HomeHero() {
         <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center mb-12">
           {/* Text content - Left side on desktop (RTL) */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-right space-y-5 order-2 lg:order-1">
-            <h1 
+            <h1
               id="hero-heading"
               className="text-text-dark tracking-tight text-[32px] md:text-[40px] lg:text-[48px] font-extrabold leading-[1.15]"
             >
               ה-GPS לזכויות שלך -<br />
               <span className="text-primary relative inline-block pb-1">
                 וטייס-משנה לניירת
-                <svg 
-                  className="absolute w-full h-2.5 bottom-0 right-0 text-primary/30" 
-                  preserveAspectRatio="none" 
+                <svg
+                  className="absolute w-full h-2.5 bottom-0 right-0 text-primary/30"
+                  preserveAspectRatio="none"
                   viewBox="0 0 100 10"
                   aria-hidden="true"
                 >
-                  <path 
-                    d="M0 5 Q 50 10 100 5" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeLinecap="round" 
-                    strokeWidth="3" 
+                  <path
+                    d="M0 5 Q 50 10 100 5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeWidth="3"
                   />
                 </svg>
               </span>
@@ -46,4 +46,3 @@ export default function HomeHero() {
     </section>
   );
 }
-

@@ -4,22 +4,24 @@ export default function HeroBadges() {
   return (
     <>
       {/* Status badge - bottom right (RTL) */}
-      <div 
-        className="absolute -bottom-6 right-4 md:right-12 bg-white rounded-2xl p-4 shadow-lg flex items-center gap-3 animate-bounce z-20 border border-gray-50" 
+      <div
+        className="absolute -bottom-6 right-4 md:right-12 bg-white rounded-2xl p-4 shadow-lg flex items-center gap-3 animate-bounce z-20 border border-gray-50"
         style={{ animationDuration: "3s" }}
         aria-label="סטטוס: הזכויות הובטחו"
       >
         <div className="bg-green-50 p-2.5 rounded-xl text-green-500 flex items-center justify-center">
-          <Icon name="verified" size={22} className="text-green-500" filled />
+          <Icon name="verified" size={22} className="text-green-500" filled={true} />
         </div>
         <div className="flex flex-col pr-2">
-          <span className="text-[10px] text-text-subtle font-bold uppercase tracking-wider mb-0.5">סטטוס</span>
+          <span className="text-[10px] text-text-subtle font-bold uppercase tracking-wider mb-0.5">
+            סטטוס
+          </span>
           <span className="text-sm text-text-dark font-bold leading-none">הזכויות הובטחו</span>
         </div>
       </div>
 
       {/* Document badge - top left (RTL) */}
-      <div 
+      <div
         className="absolute top-6 left-4 md:left-12 bg-white rounded-full py-2.5 px-4 shadow-lg flex items-center gap-2.5 transform -rotate-3 border border-gray-50 z-20"
         aria-label="ניירת: הושלמה"
       >
@@ -31,4 +33,3 @@ export default function HeroBadges() {
     </>
   );
 }
-

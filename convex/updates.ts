@@ -71,7 +71,10 @@ export const createUpdateItem = mutation({
     severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
     tags: v.array(v.string()),
   },
-  handler: async (ctx, { sourceId, prevSnapshotId, newSnapshotId, diffSummary, severity, tags }) => {
+  handler: async (
+    ctx,
+    { sourceId, prevSnapshotId, newSnapshotId, diffSummary, severity, tags }
+  ) => {
     const now = Date.now();
 
     return await ctx.db.insert("updateItems", {
@@ -197,4 +200,3 @@ export const getUpdateById = query({
     return { ...update, source };
   },
 });
-

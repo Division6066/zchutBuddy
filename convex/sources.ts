@@ -17,7 +17,7 @@ export const listSources = query({
 
     // Check if admin (for MVP, we'll allow authenticated users to list sources)
     // In production, add admin check here
-    
+
     let query = ctx.db.query("sources");
 
     if (isActive !== undefined) {
@@ -130,7 +130,7 @@ export const getSourcesToCrawl = query({
   handler: async (ctx, { frequency }) => {
     return await ctx.db
       .query("sources")
-      .withIndex("by_active_frequency", (q) => 
+      .withIndex("by_active_frequency", (q) =>
         q.eq("isActive", true).eq("crawlFrequency", frequency)
       )
       .collect();
@@ -146,4 +146,3 @@ export const getById = query({
     return await ctx.db.get(sourceId);
   },
 });
-

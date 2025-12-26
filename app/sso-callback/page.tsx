@@ -10,10 +10,8 @@ export default function SSOCallback() {
       location: "sso-callback/page.tsx",
       message: "SSOCallback component rendered",
       data: {
-        currentPath:
-          typeof window !== "undefined" ? window.location.pathname : "server",
-        searchParams:
-          typeof window !== "undefined" ? window.location.search : "server",
+        currentPath: typeof window !== "undefined" ? window.location.pathname : "server",
+        searchParams: typeof window !== "undefined" ? window.location.search : "server",
       },
     });
   }, []);

@@ -13,7 +13,7 @@ export const createQuery = mutation({
     const identity = await ctx.auth.getUserIdentity();
     const now = Date.now();
 
-    let userId = undefined;
+    let userId;
 
     if (identity) {
       // Get the user record
@@ -99,4 +99,3 @@ export const countRecentAnonQueries = query({
     return queries.length;
   },
 });
-

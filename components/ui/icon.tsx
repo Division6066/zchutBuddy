@@ -11,15 +11,14 @@ export function Icon({ name, className, size = 24, filled = false }: IconProps) 
   return (
     <span
       className={cn("material-symbols-outlined", className)}
-      style={{ 
+      style={{
         fontSize: size,
-        fontVariationSettings: filled 
+        fontVariationSettings: filled
           ? "'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24"
-          : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24"
+          : "'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24",
       }}
     >
       {name}
     </span>
   );
 }
-

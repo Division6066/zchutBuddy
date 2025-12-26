@@ -7,9 +7,7 @@ export default function PrivacyPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-text-dark mb-4">
             מדיניות פרטיות
           </h1>
-          <p className="text-sm text-text-subtle">
-            עודכן לאחרונה: דצמבר 2025
-          </p>
+          <p className="text-sm text-text-subtle">עודכן לאחרונה: דצמבר 2025</p>
         </div>
 
         {/* Content */}
@@ -17,8 +15,8 @@ export default function PrivacyPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">1. מבוא</h2>
             <p className="text-text-subtle leading-relaxed mb-4">
-              ZchuyotBuddy ("אנחנו", "שלנו") מחויבת להגן על פרטיותכם. מדיניות פרטיות זו מסבירה 
-              כיצד אנו אוספים, משתמשים ומגנים על המידע שלכם כאשר אתם משתמשים בשירות שלנו.
+              ZchuyotBuddy ("אנחנו", "שלנו") מחויבת להגן על פרטיותכם. מדיניות פרטיות זו מסבירה כיצד
+              אנו אוספים, משתמשים ומגנים על המידע שלכם כאשר אתם משתמשים בשירות שלנו.
             </p>
           </section>
 
@@ -51,8 +49,8 @@ export default function PrivacyPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">4. אבטחת מידע</h2>
             <p className="text-text-subtle leading-relaxed">
-              אנו מיישמים אמצעי אבטחה טכניים וארגוניים מתאימים להגנה על המידע שלכם מפני גישה, 
-              שינוי, חשיפה או השמדה לא מורשים. זה כולל הצפנה, בקרות גישה וניטור אבטחה רציף.
+              אנו מיישמים אמצעי אבטחה טכניים וארגוניים מתאימים להגנה על המידע שלכם מפני גישה, שינוי,
+              חשיפה או השמדה לא מורשים. זה כולל הצפנה, בקרות גישה וניטור אבטחה רציף.
             </p>
           </section>
 
@@ -73,8 +71,11 @@ export default function PrivacyPage() {
           <section className="mb-8">
             <h2 className="text-2xl font-bold mb-4">6. יצירת קשר</h2>
             <p className="text-text-subtle leading-relaxed">
-              לכל שאלה בנוגע למדיניות הפרטיות שלנו, אנא צרו קשר בכתובת: 
-              <a href="mailto:privacy@zchuyotbuddy.com" className="text-primary hover:underline mr-1">
+              לכל שאלה בנוגע למדיניות הפרטיות שלנו, אנא צרו קשר בכתובת:
+              <a
+                href="mailto:privacy@zchuyotbuddy.com"
+                className="text-primary hover:underline mr-1"
+              >
                 privacy@zchuyotbuddy.com
               </a>
             </p>
@@ -84,4 +85,3 @@ export default function PrivacyPage() {
     </div>
   );
 }
-

@@ -29,8 +29,7 @@ class DebugLogger {
   constructor() {
     const enabled =
       process.env.NEXT_PUBLIC_DEBUG_ENABLED === "true" ||
-      (typeof window !== "undefined" &&
-        window.location.hostname === "localhost");
+      (typeof window !== "undefined" && window.location.hostname === "localhost");
     const endpoint = process.env.NEXT_PUBLIC_DEBUG_ENDPOINT;
     this.sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     this.config = {
@@ -126,4 +125,3 @@ class DebugLogger {
 
 // Export singleton instance
 export const debug = new DebugLogger();
-

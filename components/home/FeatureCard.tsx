@@ -19,10 +19,17 @@ const iconTextClasses = {
   orange: "text-orange-500",
 };
 
-export default function FeatureCard({ icon, title, description, iconColor = "primary" }: FeatureCardProps) {
+export default function FeatureCard({
+  icon,
+  title,
+  description,
+  iconColor = "primary",
+}: FeatureCardProps) {
   return (
     <article className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all hover:scale-[1.02]">
-      <div className={`w-12 h-12 rounded-xl ${iconColorClasses[iconColor]} flex items-center justify-center mb-4`}>
+      <div
+        className={`w-12 h-12 rounded-xl ${iconColorClasses[iconColor]} flex items-center justify-center mb-4`}
+      >
         <Icon name={icon} size={24} className={iconTextClasses[iconColor]} />
       </div>
       <h3 className="text-text-dark font-bold text-lg mb-2">{title}</h3>
@@ -30,4 +37,3 @@ export default function FeatureCard({ icon, title, description, iconColor = "pri
     </article>
   );
 }
-

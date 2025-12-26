@@ -4,9 +4,9 @@ import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import SignInModal from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
-import SignInModal from "@/components/SignInModal";
 
 export default function HomePrimaryCta() {
   const { isSignedIn } = useAuth();
@@ -31,7 +31,7 @@ export default function HomePrimaryCta() {
           <div className="w-2 h-2 rounded-full bg-gray-200" />
           <div className="w-2 h-2 rounded-full bg-gray-200" />
         </div>
-        
+
         {/* Primary CTA Button */}
         <Button
           onClick={handlePrimaryClick}
@@ -39,9 +39,13 @@ export default function HomePrimaryCta() {
           aria-label={isSignedIn ? "עבור לאפליקציה" : "התחבר כדי להתחיל"}
         >
           <span className="text-[17px] font-bold tracking-tight ml-2">צא לדרך עכשיו</span>
-          <Icon name="arrow_forward" size={20} className="transition-transform group-hover:translate-x-1" />
+          <Icon
+            name="arrow_forward"
+            size={20}
+            className="transition-transform group-hover:translate-x-1"
+          />
         </Button>
-        
+
         {/* Secondary help link */}
         <Link
           href="/onboarding"
@@ -61,4 +65,3 @@ export default function HomePrimaryCta() {
     </>
   );
 }
-

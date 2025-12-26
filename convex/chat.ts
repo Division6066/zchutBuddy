@@ -1,5 +1,5 @@
-import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { mutation, query } from "./_generated/server";
 
 // Save a chat message
 export const saveMessage = mutation({
@@ -75,4 +75,3 @@ export const clearChatHistory = mutation({
     await Promise.all(messages.map((msg) => ctx.db.delete(msg._id)));
   },
 });
-

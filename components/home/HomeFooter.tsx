@@ -13,7 +13,9 @@ export default function HomeFooter() {
             aria-label="דף הבית - ZchuyotBuddy"
           >
             <BrandLogo size={24} />
-            <span className="text-lg font-extrabold text-text-dark tracking-tight">ZchuyotBuddy</span>
+            <span className="text-lg font-extrabold text-text-dark tracking-tight">
+              ZchuyotBuddy
+            </span>
           </Link>
 
           {/* Navigation Links */}
@@ -91,4 +93,3 @@ export default function HomeFooter() {
     </footer>
   );
 }
-

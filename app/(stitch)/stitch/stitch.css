@@ -1,0 +1,79 @@
+/* Stitch Design System - Scoped CSS for preview routes */
+
+/* Additional status colors not in main theme */
+.stitch-preview {
+  --status-green-bg: #e6f8ef;
+  --status-green-text: #0f766e;
+  --status-blue-bg: #e0f2fe;
+  --status-blue-text: #0369a1;
+  --success-bg: #ecfdf5;
+  --success-text: #059669;
+  --warning-bg: #fffbeb;
+  --warning-text: #d97706;
+  --card-border: #e5e7eb;
+}
+
+/* Material Symbols icon styling for filled variant */
+.stitch-preview .check-icon {
+  font-variation-settings:
+    "FILL" 1,
+    "wght" 700,
+    "GRAD" 0,
+    "opsz" 24;
+}
+
+/* RTL flip utility for icons */
+.stitch-preview .rtl-flip {
+  transform: scaleX(-1);
+}
+
+/* Mobile container styling */
+.stitch-preview .stitch-mobile-container {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+@media (min-width: 768px) {
+  .stitch-preview .stitch-mobile-container {
+    max-width: 28rem;
+    margin-left: auto;
+    margin-right: auto;
+    border-left-width: 1px;
+    border-right-width: 1px;
+    border-color: rgb(243 244 246);
+  }
+}
+
+/* Soft shadow effects from Stitch */
+.stitch-preview .shadow-soft {
+  box-shadow: 0 10px 40px -10px rgba(103, 65, 217, 0.15);
+}
+
+.stitch-preview .shadow-card {
+  box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05);
+}
+
+.stitch-preview .shadow-glow {
+  box-shadow: 0 0 20px rgba(103, 65, 217, 0.4);
+}
+
+/* Toggle checkbox styling */
+.stitch-preview .toggle-checkbox:checked {
+  right: 0;
+  border-color: #6741d9;
+}
+
+.stitch-preview .toggle-checkbox:checked + .toggle-label {
+  background-color: #6741d9;
+}
+
+/* Prevent zoom on mobile inputs */
+.stitch-preview input[type="text"],
+.stitch-preview input[type="email"],
+.stitch-preview select {
+  font-size: 16px;
+}

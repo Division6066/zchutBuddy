@@ -1,306 +1,308 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
 
-import { useState, useEffect } from "react";
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
+export const metadata: Metadata = {
+  title: "מרחב עבודה | ZchuyotBuddy",
+  description: "ניהול תיקים חכם - לוח בקרה אישי",
+};
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-  answerHe?: string;
-  answerEn?: string;
-}
+const progressCards = [
+  {
+    title: "תביעת נכות כללית",
+    progress: 84,
+    status: "השלמת מסמכים רפואיים",
+    primary: true,
+  },
+  {
+    title: "ניידות",
+    progress: 12,
+    status: "איסוף ראשוני",
+    primary: false,
+  },
+];
 
-interface ChatResponse {
-  mode: "answer" | "clarify";
-  clarifying_questions?: Array<{ he: string; en: string }>;
-  answer?: { he: string; en: string };
-}
+const nextSteps = [
+  {
+    icon: "upload_file",
+    title: "העלאת סיכום ביקור",
+    description: "יש להעלות את סיכום הביקור האחרון אצל הנוירולוג מבית החולים איכילוב.",
+    status: "לביצוע",
+    action: "העלה מסמך",
+    actionIcon: "add_a_photo",
+    active: true,
+  },
+  {
+    icon: "gavel",
+    title: "וועדה רפואית",
+    description: "ממתין לזימון תור",
+    active: false,
+  },
+];
 
+const documents = [
+  { icon: "description", title: "תיקייה רפואית", subtitle: "12 מסמכים", color: "purple" },
+  { icon: "edit_note", title: "הערות אישיות", subtitle: "3 פתקים", color: "orange" },
+  { icon: "calculate", title: "מחשבון זכויות", subtitle: "בדוק זכאות", color: "green" },
+];
+
+const navItems = [
+  { icon: "dashboard", label: "ראשי", href: "/app", active: true },
+  { icon: "assignment", label: "משימות", href: "/app", active: false },
+  { icon: "chat_bubble", label: "צ'אט", href: "/chat", active: false },
+  { icon: "person", label: "פרופיל", href: "/settings", active: false },
+];
+
+/**
+ * Dashboard/Workspace Page
+ * Based on Stitch design: welcome_to_zchuyotbuddy_1
+ */
 export default function AppPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [lastResponse, setLastResponse] = useState<ChatResponse | null>(null);
-
-  // Convex hooks for chat history (with error handling for demo mode)
-  const chatHistory = useQuery(api.chat.getChatHistory, { limit: 100 });
-  const saveMessage = useMutation(api.chat.saveMessage);
-  const clearHistory = useMutation(api.chat.clearChatHistory);
-
-  // Load chat history from Convex
-  useEffect(() => {
-    if (chatHistory && chatHistory.length > 0) {
-      const loadedMessages: Message[] = chatHistory.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-        answerHe: msg.answerHe,
-        answerEn: msg.answerEn,
-      }));
-      setMessages(loadedMessages);
-    }
-  }, [chatHistory]);
-
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-
-    const userMessage: Message = { role: "user", content: input.trim() };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
-    setInput("");
-    setLoading(true);
-    setError(null);
-    setLastResponse(null);
-
-    try {
-      // Save user message to Convex (if available)
-      try {
-        await saveMessage({
-          role: "user",
-          content: userMessage.content,
-        });
-      } catch (convexError) {
-        // Silently fail if Convex is not available (demo mode)
-        console.log("Chat history not available (demo mode)");
-      }
-
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: userMessage.content,
-          history: messages.map((m) => ({ role: m.role, content: m.content })),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!data.ok) {
-        setError(data.error?.message || "Error occurred");
-        if (data.error?.raw) {
-          setLastResponse({ mode: "answer", answer: { he: data.error.raw, en: data.error.raw } });
-        }
-        return;
-      }
-
-      setLastResponse(data.data);
-      
-      // Add assistant response to messages and save to Convex
-      if (data.data.mode === "answer" && data.data.answer) {
-        const assistantMessage: Message = {
-          role: "assistant",
-          content: `${data.data.answer.he}\n\n${data.data.answer.en}`,
-          answerHe: data.data.answer.he,
-          answerEn: data.data.answer.en,
-        };
-        setMessages([...newMessages, assistantMessage]);
-
-        // Save assistant message to Convex (if available)
-        try {
-          await saveMessage({
-            role: "assistant",
-            content: assistantMessage.content,
-            answerHe: data.data.answer.he,
-            answerEn: data.data.answer.en,
-            mode: "answer",
-          });
-        } catch (convexError) {
-          // Silently fail if Convex is not available (demo mode)
-          console.log("Chat history not available (demo mode)");
-        }
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Network error");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClearHistory = async () => {
-    if (confirm("האם אתה בטוח שברצונך למחוק את היסטוריית הצ'אט? / Are you sure you want to clear chat history?")) {
-      try {
-        // Try to clear from Convex (if available)
-        try {
-          await clearHistory({});
-        } catch (convexError) {
-          // Silently fail if Convex is not available (demo mode)
-          console.log("Chat history not available (demo mode)");
-        }
-        // Always clear local state
-        setMessages([]);
-        setLastResponse(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to clear history");
-      }
-    }
-  };
-
-  const handleQuestionClick = (question: { he: string; en: string }) => {
-    setInput(question.he);
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      sendMessage();
-    }
-  };
-
   return (
-    <div className="relative flex h-screen w-full flex-col overflow-hidden bg-gray-50/50">
-      {/* Background gradient */}
-      <div className="absolute top-[-10%] right-[-20%] h-[40%] w-[60%] rounded-full bg-primary/5 blur-[80px] pointer-events-none" />
-
-      {/* Disclaimer Banner */}
-      <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 text-center text-xs text-amber-800 z-30">
-        <div className="font-bold mb-1">מידע זה הוא למטרות הסברה בלבד. יש לאמת מול מקורות רשמיים ולהתייעץ עם מומחה במקרים מורכבים.</div>
-        <div className="text-amber-700">This information is for informational purposes only. Verify with official sources and consult a professional for complex cases.</div>
-      </div>
+    <div
+      className="relative flex min-h-screen w-full flex-col overflow-hidden no-scrollbar bg-gray-50/50"
+      dir="rtl"
+      lang="he"
+    >
+      {/* Background decoration */}
+      <div
+        className="absolute top-[-10%] right-[-20%] w-[60%] h-[40%] rounded-full bg-primary/5 blur-[80px] pointer-events-none"
+        aria-hidden="true"
+      />
 
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-gray-100 z-20">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-            <Icon name="smart_toy" size={22} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-gray-900 font-bold text-xl leading-tight">ZchuyotBuddy Chat</h1>
-            <p className="text-gray-600 text-xs font-medium">צ'אט עם עוזר זכויות</p>
-          </div>
+      <header className="flex flex-col pt-12 px-6 pb-4 bg-white sticky top-0 z-20 shadow-sm/50">
+        <div className="flex items-center justify-between mb-6">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <span className="material-symbols-outlined text-[22px]" aria-hidden="true">
+                shield_person
+              </span>
+            </div>
+            <div>
+              <h1 className="text-text-dark font-bold text-xl leading-tight">מרחב עבודה</h1>
+              <p className="text-text-subtle text-xs font-medium">ניהול תיקים חכם</p>
+            </div>
+          </Link>
+          <button
+            type="button"
+            className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-text-subtle hover:bg-gray-100 hover:text-primary transition-colors"
+            aria-label="התראות"
+          >
+            <span className="material-symbols-outlined">notifications</span>
+          </button>
         </div>
-        {messages.length > 0 && (
-          <Button
-            onClick={handleClearHistory}
-            variant="ghost"
-            className="text-gray-600 hover:text-gray-900 text-sm"
-          >
-            <Icon name="delete_outline" size={18} className="ml-2" />
-            נקה היסטוריה / Clear
-          </Button>
-        )}
-      </div>
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4 pb-24">
-        {messages.length === 0 && !lastResponse && (
-          <div className="flex flex-col items-center justify-center h-full text-center">
-            <Icon name="chat_bubble" size={48} className="text-gray-300 mb-4" />
-            <p className="text-lg font-medium mb-2 text-gray-900">שלום! איך אוכל לעזור?</p>
-            <p className="text-sm text-gray-600">Hello! How can I help you?</p>
-          </div>
-        )}
-
-        {/* Message History */}
-        {messages.map((msg, idx) => (
-          <div
-            key={idx}
-            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-          >
+        {/* Progress cards slider */}
+        <div className="flex gap-3 overflow-x-auto no-scrollbar pb-2 -mx-6 px-6">
+          {progressCards.map((card) => (
             <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                msg.role === "user"
-                  ? "bg-primary text-white"
-                  : "bg-white border border-gray-100"
-              }`}
+              key={card.title}
+              className={`min-w-[280px] ${
+                card.primary ? "bg-primary text-white" : "bg-white border border-gray-100"
+              } p-4 rounded-2xl ${
+                card.primary ? "shadow-lg shadow-primary/20" : "shadow-sm"
+              } relative overflow-hidden flex flex-col justify-between h-[140px]`}
             >
-              {msg.role === "assistant" && msg.answerHe && msg.answerEn ? (
-                <div className="space-y-3">
-                  <div dir="rtl" className="text-sm text-gray-900 whitespace-pre-wrap">
-                    <div className="text-xs font-bold text-primary mb-1">עברית</div>
-                    {msg.answerHe}
-                  </div>
-                  <div dir="ltr" className="text-sm text-gray-900 whitespace-pre-wrap">
-                    <div className="text-xs font-bold text-primary mb-1">English</div>
-                    {msg.answerEn}
-                  </div>
-                </div>
-              ) : (
-                <div className={`whitespace-pre-wrap text-sm ${msg.role === "user" ? "text-white" : "text-gray-900"}`}>
-                  {msg.content}
-                </div>
+              {card.primary && (
+                <div
+                  className="absolute right-[-10px] top-[-10px] w-24 h-24 bg-white/10 rounded-full blur-xl"
+                  aria-hidden="true"
+                />
               )}
-            </div>
-          </div>
-        ))}
-
-        {/* Clarifying Questions */}
-        {lastResponse?.mode === "clarify" && lastResponse.clarifying_questions && (
-          <div className="space-y-2">
-            <div className="text-sm font-bold text-gray-900 mb-2">בחר שאלה להמשך / Choose a question:</div>
-            {lastResponse.clarifying_questions.map((q, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleQuestionClick(q)}
-                className="w-full text-right bg-white border border-gray-200 rounded-xl px-4 py-3 hover:border-primary hover:bg-primary-bg/20 transition-colors"
-              >
-                <div className="text-sm font-medium text-gray-900 mb-1">{q.he}</div>
-                <div className="text-xs text-gray-600">{q.en}</div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Answer Display */}
-        {lastResponse?.mode === "answer" && lastResponse.answer && (
-          <div className="space-y-4">
-            {/* Hebrew Answer */}
-            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3" dir="rtl">
-              <div className="text-xs font-bold text-primary mb-2">עברית</div>
-              <div className="text-sm text-gray-900 whitespace-pre-wrap">{lastResponse.answer.he}</div>
-            </div>
-            {/* English Answer */}
-            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3" dir="ltr">
-              <div className="text-xs font-bold text-primary mb-2">English</div>
-              <div className="text-sm text-gray-900 whitespace-pre-wrap">{lastResponse.answer.en}</div>
-            </div>
-          </div>
-        )}
-
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-800 text-sm">
-            <div className="font-bold mb-1">שגיאה / Error:</div>
-            <div>{error}</div>
-          </div>
-        )}
-
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-white border border-gray-100 rounded-2xl px-4 py-3">
-              <div className="flex items-center gap-2 text-text-subtle text-sm">
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-75" />
-                <div className="w-2 h-2 bg-primary rounded-full animate-pulse delay-150" />
-                <span className="mr-2">מחשב...</span>
+              <div className="flex justify-between items-start relative z-10">
+                <div
+                  className={`${
+                    card.primary ? "bg-white/20 backdrop-blur-md" : "bg-gray-100 text-text-subtle"
+                  } px-2.5 py-1 rounded-lg text-[11px] font-bold`}
+                >
+                  {card.title}
+                </div>
+                {card.primary && (
+                  <span className="material-symbols-outlined text-white/80" aria-hidden="true">
+                    more_horiz
+                  </span>
+                )}
+              </div>
+              <div className="relative z-10">
+                <div
+                  className={`text-3xl font-bold mb-1 ${card.primary ? "text-white" : "text-text-dark"}`}
+                  style={{ fontFamily: "Manrope, sans-serif" }}
+                >
+                  {card.progress}%
+                </div>
+                <div
+                  className={`text-sm font-medium ${card.primary ? "text-white/90" : "text-text-subtle"}`}
+                >
+                  {card.status}
+                </div>
+                <div
+                  className={`w-full ${card.primary ? "bg-black/20" : "bg-gray-100"} h-1.5 rounded-full mt-3 overflow-hidden`}
+                >
+                  <div
+                    className={`${card.primary ? "bg-white" : "bg-accent"} h-full rounded-full`}
+                    style={{ width: `${card.progress}%` }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Input Area */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 p-4 z-30">
-        <div className="flex gap-2 max-w-4xl mx-auto">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyPress}
-            placeholder="שאל שאלה... / Ask a question..."
-            className="flex-1 min-h-[60px] max-h-[120px] px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:border-primary resize-none text-sm text-gray-900 placeholder:text-gray-500 bg-white"
-            dir="auto"
-          />
-          <Button
-            onClick={sendMessage}
-            disabled={!input.trim() || loading}
-            className="h-[60px] px-6 rounded-xl bg-primary text-white hover:bg-primary-light disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Icon name="send" size={20} />
-          </Button>
+          ))}
         </div>
-      </div>
+      </header>
+
+      {/* Main content */}
+      <main className="flex-1 overflow-y-auto px-6 py-6 space-y-8 pb-24">
+        {/* Next steps section */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-text-dark flex items-center gap-2">
+              <span className="material-symbols-outlined text-primary" aria-hidden="true">
+                timeline
+              </span>
+              הצעדים הבאים
+            </h2>
+            <button type="button" className="text-xs font-bold text-primary cursor-pointer">
+              הצג הכל
+            </button>
+          </div>
+          <div className="relative pl-2">
+            <div
+              className="absolute right-[27px] top-4 bottom-4 w-[2px] bg-gray-100"
+              aria-hidden="true"
+            />
+            {nextSteps.map((step) => (
+              <div key={step.title} className="relative flex items-start gap-4 mb-6">
+                <div
+                  className={`relative z-10 flex-shrink-0 w-14 h-14 rounded-2xl ${
+                    step.active
+                      ? "bg-white border-2 border-primary shadow-soft"
+                      : "bg-gray-50 border border-gray-100"
+                  } flex items-center justify-center`}
+                >
+                  <span
+                    className={`material-symbols-outlined ${step.active ? "text-primary" : "text-gray-400"} text-[24px]`}
+                    aria-hidden="true"
+                  >
+                    {step.icon}
+                  </span>
+                </div>
+                {step.active ? (
+                  <div className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-bold text-text-dark text-sm">{step.title}</h3>
+                      <span className="bg-[#e0f2fe] text-[#0369a1] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {step.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-text-subtle mb-3 leading-relaxed">
+                      {step.description}
+                    </p>
+                    <button
+                      type="button"
+                      className="w-full py-2 rounded-xl bg-primary text-white text-xs font-bold flex items-center justify-center gap-2 hover:bg-primary-light transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[16px]" aria-hidden="true">
+                        {step.actionIcon}
+                      </span>
+                      {step.action}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex-1 py-2">
+                    <h3 className="font-bold text-text-subtle text-sm mb-1">{step.title}</h3>
+                    <p className="text-xs text-gray-400">{step.description}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Documents section */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-text-dark flex items-center gap-2">
+              <span className="material-symbols-outlined text-accent" aria-hidden="true">
+                folder_open
+              </span>
+              מסמכים ועזרים
+            </h2>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            {documents.map((doc) => (
+              <Link
+                key={doc.title}
+                href="/documents"
+                className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm hover:border-primary/30 transition-colors cursor-pointer group text-right"
+              >
+                <div
+                  className={`w-10 h-10 rounded-full ${
+                    doc.color === "purple"
+                      ? "bg-purple-50 text-primary"
+                      : doc.color === "orange"
+                        ? "bg-orange-50 text-accent"
+                        : "bg-green-50 text-green-600"
+                  } flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}
+                >
+                  <span className="material-symbols-outlined" aria-hidden="true">
+                    {doc.icon}
+                  </span>
+                </div>
+                <div className="font-bold text-text-dark text-sm mb-1">{doc.title}</div>
+                <div className="text-xs text-text-subtle">{doc.subtitle}</div>
+              </Link>
+            ))}
+            <button
+              type="button"
+              className="bg-gray-50 border border-dashed border-gray-300 p-4 rounded-2xl flex flex-col items-center justify-center text-center cursor-pointer hover:bg-gray-100 transition-colors"
+            >
+              <span className="material-symbols-outlined text-gray-400 mb-2" aria-hidden="true">
+                add
+              </span>
+              <span className="text-xs font-bold text-gray-400">הוסף קיצור דרך</span>
+            </button>
+          </div>
+        </section>
+      </main>
+
+      {/* Bottom navigation */}
+      <nav className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 px-6 py-3 pb-6 z-30 flex justify-between items-center text-xs font-medium text-gray-400">
+        {navItems.slice(0, 2).map((item) => (
+          <Link
+            key={item.icon}
+            href={item.href}
+            className={`flex flex-col items-center gap-1 ${item.active ? "text-primary" : "hover:text-primary"} transition-colors`}
+          >
+            <span className="material-symbols-outlined text-[24px]" aria-hidden="true">
+              {item.icon}
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+        <div className="w-12" />
+        {navItems.slice(2).map((item) => (
+          <Link
+            key={item.icon}
+            href={item.href}
+            className={`flex flex-col items-center gap-1 ${item.active ? "text-primary" : "hover:text-primary"} transition-colors`}
+          >
+            <span className="material-symbols-outlined text-[24px]" aria-hidden="true">
+              {item.icon}
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+
+        {/* Center AI button */}
+        <div className="absolute left-1/2 -translate-x-1/2 -top-6">
+          <Link
+            href="/chat"
+            className="w-14 h-14 rounded-full bg-surface-purple text-white shadow-lg shadow-primary/40 flex items-center justify-center hover:scale-105 transition-transform active:scale-95"
+            aria-label="עוזר AI"
+          >
+            <span className="material-symbols-outlined text-[28px]">smart_toy</span>
+          </Link>
+        </div>
+      </nav>
     </div>
   );
 }

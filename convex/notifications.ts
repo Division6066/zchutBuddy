@@ -239,10 +239,7 @@ export const getUsersForDigest = query({
     const settings = await ctx.db
       .query("notificationSettings")
       .filter((q) =>
-        q.and(
-          q.eq(q.field("emailEnabled"), true),
-          q.eq(q.field("digestFrequency"), frequency)
-        )
+        q.and(q.eq(q.field("emailEnabled"), true), q.eq(q.field("digestFrequency"), frequency))
       )
       .collect();
 
@@ -257,4 +254,3 @@ export const getUsersForDigest = query({
     return users.filter(Boolean);
   },
 });
-

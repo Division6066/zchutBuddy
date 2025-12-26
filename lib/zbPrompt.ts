@@ -39,4 +39,3 @@ Example clarify response:
 
 Remember: Return ONLY valid JSON, no other text.`;
 }
-

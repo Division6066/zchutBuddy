@@ -1,24 +1,29 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import { LogOut, User, Home } from "lucide-react";
+import { Home, LogOut, User, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import BrandLogo from "@/components/BrandLogo";
 import SignInModal from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import BrandLogo from "@/components/BrandLogo";
 import { debug } from "@/lib/debug";
+import { useGuestAuth } from "@/lib/guest-auth";
 
 function NavbarContent() {
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
+  const { isGuest, guestUser, logoutGuest } = useGuestAuth();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const hasRedirectedRef = useRef(false);
+
+  // Determine if any user (Clerk or guest) is logged in
+  const isAnyUserLoggedIn = isSignedIn || isGuest;
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,8 +41,8 @@ function NavbarContent() {
   useEffect(() => {
     if (isSignedIn && !hasRedirectedRef.current && showSignInModal) {
       // Only redirect if we're still on the home page (fallback mechanism)
-      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '';
-      if (currentPath === '/' || currentPath === '') {
+      const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
+      if (currentPath === "/" || currentPath === "") {
         debug.info({
           location: "Navbar.tsx:useEffect",
           message: "Fallback: User signed in detected in Navbar - redirecting to /app",
@@ -46,7 +51,7 @@ function NavbarContent() {
         hasRedirectedRef.current = true;
         setShowSignInModal(false);
         // Use window.location.replace for reliable redirect
-        if (typeof window !== 'undefined') {
+        if (typeof window !== "undefined") {
           window.location.replace("/app");
         } else {
           router.replace("/app");
@@ -63,8 +68,16 @@ function NavbarContent() {
   }, [showSignInModal]);
 
   const handleSignOut = async () => {
-    await signOut();
+    if (isGuest) {
+      logoutGuest();
+    } else {
+      await signOut();
+    }
     setIsOpen(false);
+    // Redirect to home after logout
+    if (typeof window !== "undefined") {
+      window.location.href = "/";
+    }
   };
 
   return (
@@ -105,7 +118,7 @@ function NavbarContent() {
 
           {/* User Profile or Sign In - Left Side (RTL) */}
           <div className="mr-auto">
-            {isSignedIn && user ? (
+            {isAnyUserLoggedIn ? (
               <div className="relative" ref={dropdownRef}>
                 <Button
                   variant="ghost"
@@ -113,10 +126,14 @@ function NavbarContent() {
                   className="flex items-center gap-2 hover:bg-accent rounded-lg px-3 py-2 h-auto"
                 >
                   <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    <User className="w-4 h-4 text-white" />
+                    {isGuest ? (
+                      <UserCircle className="w-4 h-4 text-white" />
+                    ) : (
+                      <User className="w-4 h-4 text-white" />
+                    )}
                   </div>
                   <span className="text-sm font-medium text-white">
-                    שלום, {user.firstName || user.emailAddresses[0]?.emailAddress.split("@")[0]}
+                    שלום, {isGuest ? guestUser?.name : (user?.firstName || user?.emailAddresses[0]?.emailAddress.split("@")[0])}
                   </span>
                 </Button>
 
@@ -125,14 +142,32 @@ function NavbarContent() {
                     <CardContent className="p-0">
                       <div className="px-4 py-4 border-b border-border bg-muted/50">
                         <p className="text-sm font-semibold text-foreground mb-1">
-                          {user.firstName || user.emailAddresses[0]?.emailAddress.split("@")[0]}
+                          {isGuest ? guestUser?.name : (user?.firstName || user?.emailAddresses[0]?.emailAddress.split("@")[0])}
                         </p>
                         <p className="text-xs text-muted-foreground truncate">
-                          {user.emailAddresses[0]?.emailAddress}
+                          {isGuest ? "מצב אורח - נתונים נשמרים מקומית" : user?.emailAddresses[0]?.emailAddress}
                         </p>
+                        {isGuest && (
+                          <p className="text-xs text-orange-500 mt-1">
+                            התחבר לשמירת הנתונים שלך לצמיתות
+                          </p>
+                        )}
                       </div>
 
                       <div className="p-2">
+                        {isGuest && (
+                          <Button
+                            variant="ghost"
+                            onClick={() => {
+                              setIsOpen(false);
+                              setShowSignInModal(true);
+                            }}
+                            className="w-full justify-start px-3 py-2 text-right hover:bg-primary/10 text-primary rounded-md mb-1"
+                          >
+                            <User className="w-4 h-4 ml-2" />
+                            <span className="text-sm font-medium">התחבר / הרשם</span>
+                          </Button>
+                        )}
                         <Button
                           variant="ghost"
                           onClick={handleSignOut}
@@ -172,11 +207,12 @@ function NavbarContent() {
 }
 
 export default function Navbar() {
-  const hasValidClerkKey = typeof window !== 'undefined' 
-    ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && 
-      !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes('YOUR_CLERK')
-    : false;
-  
+  const hasValidClerkKey =
+    typeof window !== "undefined"
+      ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+        !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes("YOUR_CLERK")
+      : false;
+
   // If Clerk is not available, render navbar without auth features
   if (!hasValidClerkKey) {
     return (
@@ -190,9 +226,11 @@ export default function Navbar() {
                 aria-label="דף הבית"
               >
                 <div className="brightness-0 invert">
-                <BrandLogo size={24} />
-              </div>
-                <span className="text-lg font-extrabold text-white tracking-tight">ZchuyotBuddy</span>
+                  <BrandLogo size={24} />
+                </div>
+                <span className="text-lg font-extrabold text-white tracking-tight">
+                  ZchuyotBuddy
+                </span>
               </Link>
               <Link
                 href="/onboarding"
@@ -218,6 +256,6 @@ export default function Navbar() {
       </nav>
     );
   }
-  
+
   return <NavbarContent />;
 }

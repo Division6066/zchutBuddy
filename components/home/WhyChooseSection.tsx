@@ -3,7 +3,7 @@ import FeatureCard from "./FeatureCard";
 export default function WhyChooseSection() {
   return (
     <section className="w-full max-w-4xl mb-12 px-4" aria-labelledby="why-choose-heading">
-      <h2 
+      <h2
         id="why-choose-heading"
         className="text-text-dark text-center text-2xl md:text-3xl font-bold mb-8"
       >
@@ -32,4 +32,3 @@ export default function WhyChooseSection() {
     </section>
   );
 }
-
