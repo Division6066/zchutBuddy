@@ -1,13 +1,36 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import StitchBackground from "@/components/stitch/StitchBackground";
 
 export const metadata: Metadata = {
   title: "אודות | ZchuyotBuddy",
   description: "ה-GPS למימוש הזכויות שלך - אנחנו כאן לעזור לך לנווט בנבכי הבירוקרטיה",
 };
 
-const features = [
+/**
+ * i18n-ready copy constants
+ * Extract to a translation file when internationalizing
+ */
+const copy = {
+  pageTitle: "אודות",
+  backLabel: "חזרה",
+  brandName: "זכויותבאדי",
+  tagline: "ה-GPS למימוש הזכויות שלך",
+  description:
+    'אנחנו כאן כדי לעזור לך לנווט בנבכי הבירוקרטיה ולממש את מלוא הזכויות המגיעות לך. האפליקציה משמשת כ"טייס משנה" למילוי טפסים והגשת תביעות בצורה פשוטה וברורה.',
+  version: "גרסה 1.0.2",
+  copyright: "© 2024 ZchuyotBuddy",
+} as const;
+
+/**
+ * Feature card type definition
+ */
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const features: Feature[] = [
   {
     icon: "explore",
     title: "ניווט חכם",
@@ -25,7 +48,16 @@ const features = [
   },
 ];
 
-const links = [
+/**
+ * Navigation link type definition
+ */
+interface NavLink {
+  icon: string;
+  text: string;
+  href: string;
+}
+
+const links: NavLink[] = [
   { icon: "gavel", text: "תנאי שימוש", href: "/terms" },
   { icon: "policy", text: "מדיניות פרטיות", href: "/privacy" },
   { icon: "mail", text: "צור קשר", href: "#contact" },
@@ -37,112 +69,123 @@ const links = [
  */
 export default function AboutPage() {
   return (
-    <div
-      className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden no-scrollbar bg-white"
+    <main
       dir="rtl"
-      lang="he"
+      className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden bg-white font-display text-text-dark antialiased md:mx-auto md:max-w-md md:border-x md:border-gray-100"
     >
-      {/* Background decorations */}
-      <StitchBackground />
+      {/* Background blurs */}
+      <div
+        className="pointer-events-none absolute right-[-20%] top-[-20%] h-[60%] w-[80%] rounded-full bg-primary/5 blur-[120px]"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute bottom-[-10%] left-[-10%] h-[50%] w-[60%] rounded-full bg-primary/10 blur-[100px]"
+        aria-hidden="true"
+      />
 
       {/* Header */}
-      <header className="flex items-center justify-between p-6 pt-12 z-10 max-w-4xl mx-auto w-full">
+      <header className="z-10 flex items-center justify-between p-6 pt-12">
         <Link
           href="/"
-          className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-gray-100 text-text-dark transition-colors"
-          aria-label="חזרה"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-text-dark transition-colors hover:bg-gray-100"
+          aria-label={copy.backLabel}
         >
-          <span className="material-symbols-outlined">arrow_forward</span>
+          <span className="material-symbols-outlined" aria-hidden="true">
+            arrow_forward
+          </span>
         </Link>
-        <span className="text-text-dark font-bold text-lg">אודות</span>
-        <div className="w-10" />
+        <span className="text-lg font-bold text-text-dark">{copy.pageTitle}</span>
+        <div className="w-10" aria-hidden="true" />
       </header>
 
-      {/* Main content */}
-      <main className="flex-1 flex flex-col px-6 relative z-10 w-full overflow-y-auto pb-10 max-w-4xl mx-auto">
-        {/* Logo and title */}
-        <div className="flex flex-col items-center text-center mt-4 mb-10">
-          <div className="w-24 h-24 mb-6 relative">
-            <div className="absolute inset-0 bg-primary rounded-[2rem] shadow-glow flex items-center justify-center rotate-3 transform transition-transform hover:rotate-0">
-              <span className="material-symbols-outlined text-white text-[48px]" aria-hidden="true">
-                medical_services
-              </span>
-            </div>
-            <div className="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full shadow-md">
-              <span
-                className="material-symbols-outlined text-accent text-[20px]"
-                aria-hidden="true"
-              >
-                verified
-              </span>
-            </div>
+      {/* Hero Section - Logo and title */}
+      <section className="z-10 mt-4 mb-10 flex flex-col items-center px-6 text-center">
+        <div className="relative mb-6 h-24 w-24">
+          <div className="absolute inset-0 flex rotate-3 transform items-center justify-center rounded-[2rem] bg-primary shadow-glow transition-transform hover:rotate-0">
+            <span
+              className="material-symbols-outlined text-[48px] text-white"
+              aria-hidden="true"
+            >
+              medical_services
+            </span>
           </div>
-          <h1 className="text-text-dark tracking-tight text-2xl font-extrabold mb-2">זכויותבאדי</h1>
-          <p className="text-primary font-semibold text-sm bg-primary-bg px-3 py-1 rounded-full">
-            ה-GPS למימוש הזכויות שלך
-          </p>
+          <div className="absolute -bottom-2 -right-2 rounded-full bg-white p-1.5 shadow-md">
+            <span
+              className="material-symbols-outlined text-[20px] text-accent"
+              aria-hidden="true"
+            >
+              verified
+            </span>
+          </div>
+        </div>
+        <h1 className="mb-2 text-2xl font-extrabold tracking-tight text-text-dark">
+          {copy.brandName}
+        </h1>
+        <p className="rounded-full bg-primary-bg px-3 py-1 text-sm font-semibold text-primary">
+          {copy.tagline}
+        </p>
+      </section>
+
+      {/* Content Section */}
+      <section className="z-10 flex flex-1 flex-col space-y-6 overflow-y-auto px-6 pb-10">
+        {/* Description */}
+        <div className="px-2 text-center">
+          <p className="text-base leading-relaxed text-text-subtle">{copy.description}</p>
         </div>
 
-        {/* Description */}
-        <div className="space-y-6">
-          <div className="text-center px-2">
-            <p className="text-text-subtle text-base leading-relaxed">
-              אנחנו כאן כדי לעזור לך לנווט בנבכי הבירוקרטיה ולממש את מלוא הזכויות המגיעות לך.
-              האפליקציה משמשת כ&quot;טייס משנה&quot; למילוי טפסים והגשת תביעות בצורה פשוטה וברורה.
-            </p>
-          </div>
-
-          {/* Feature cards */}
-          <div className="grid gap-4 mt-8">
-            {features.map((feature) => (
-              <div
-                key={feature.icon}
-                className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-soft transition-shadow flex items-start gap-4"
-              >
-                <div className="bg-primary-bg p-3 rounded-xl text-primary shrink-0">
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    {feature.icon}
-                  </span>
-                </div>
-                <div>
-                  <h3 className="font-bold text-text-dark text-lg mb-1">{feature.title}</h3>
-                  <p className="text-text-subtle text-sm leading-relaxed">{feature.description}</p>
-                </div>
+        {/* Features Section */}
+        <div className="mt-8 grid gap-4">
+          {features.map((feature) => (
+            <article
+              key={feature.icon}
+              className="flex items-start gap-4 rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-shadow hover:shadow-soft"
+            >
+              <div className="shrink-0 rounded-xl bg-primary-bg p-3 text-primary">
+                <span className="material-symbols-outlined" aria-hidden="true">
+                  {feature.icon}
+                </span>
               </div>
-            ))}
-          </div>
+              <div>
+                <h2 className="mb-1 text-lg font-bold text-text-dark">{feature.title}</h2>
+                <p className="text-sm leading-relaxed text-text-subtle">{feature.description}</p>
+              </div>
+            </article>
+          ))}
+        </div>
 
-          {/* Links */}
-          <div className="mt-8 pt-6 border-t border-gray-100 space-y-1">
-            {links.map((link) => (
-              <Link
-                key={link.icon}
-                href={link.href}
-                className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
-              >
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-text-subtle" aria-hidden="true">
-                    {link.icon}
-                  </span>
-                  <span className="text-text-dark font-medium">{link.text}</span>
-                </div>
+        {/* Navigation Links */}
+        <nav className="mt-8 space-y-1 border-t border-gray-100 pt-6" aria-label="דפים נוספים">
+          {links.map((link) => (
+            <Link
+              key={link.icon}
+              href={link.href}
+              className="group flex w-full items-center justify-between rounded-xl p-4 transition-colors hover:bg-gray-50"
+            >
+              <div className="flex items-center gap-3">
                 <span
-                  className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors rotate-180"
+                  className="material-symbols-outlined text-text-subtle"
                   aria-hidden="true"
                 >
-                  arrow_forward
+                  {link.icon}
                 </span>
-              </Link>
-            ))}
-          </div>
+                <span className="font-medium text-text-dark">{link.text}</span>
+              </div>
+              <span
+                className="material-symbols-outlined rotate-180 text-gray-300 transition-colors group-hover:text-primary"
+                aria-hidden="true"
+              >
+                arrow_forward
+              </span>
+            </Link>
+          ))}
+        </nav>
 
-          {/* Footer */}
-          <div className="text-center pt-8 pb-4">
-            <p className="text-xs text-text-subtle">גרסה 1.0.2</p>
-            <p className="text-xs text-gray-400 mt-1">© 2024 ZchuyotBuddy</p>
-          </div>
-        </div>
-      </main>
-    </div>
+        {/* Footer */}
+        <footer className="pb-4 pt-8 text-center">
+          <p className="text-xs text-text-subtle">{copy.version}</p>
+          <p className="mt-1 text-xs text-gray-400">{copy.copyright}</p>
+        </footer>
+      </section>
+    </main>
   );
 }
