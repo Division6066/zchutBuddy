@@ -8,11 +8,25 @@ export const metadata: Metadata = {
 
 const pages = [
   {
-    title: "דף הבית",
+    title: "דף הבית (עברית)",
     description: "עמוד הנחיתה הראשי - ברוכים הבאים",
     href: "/stitch/home",
     icon: "home",
     screen: "Screen 10",
+  },
+  {
+    title: "Home (English)",
+    description: "Welcome landing page - English version",
+    href: "/stitch/home-en",
+    icon: "home",
+    screen: "Screen 9",
+  },
+  {
+    title: "Welcome (English)",
+    description: "Onboarding welcome - English variant",
+    href: "/stitch/welcome-en",
+    icon: "waving_hand",
+    screen: "Screen 2",
   },
   {
     title: "אונבורדינג - רדאר",
@@ -62,6 +76,92 @@ const pages = [
     href: "/stitch/about",
     icon: "info",
     screen: "Screen 5",
+  },
+  // Additional auth & onboarding pages (scaffolded)
+  {
+    title: "שכחתי סיסמה",
+    description: "איפוס סיסמה",
+    href: "/stitch/forgot-password",
+    icon: "lock_reset",
+    screen: "Auth",
+  },
+  {
+    title: "אונבורדינג - שלב 2",
+    description: "פרטים בסיסיים",
+    href: "/stitch/onboarding-step-2",
+    icon: "person",
+    screen: "Onboarding",
+  },
+  {
+    title: "אונבורדינג - שלב 3",
+    description: "מצב חיים",
+    href: "/stitch/onboarding-step-3",
+    icon: "home",
+    screen: "Onboarding",
+  },
+  {
+    title: "אונבורדינג - שלב 4",
+    description: "מוגבלויות ומצב רפואי",
+    href: "/stitch/onboarding-step-4",
+    icon: "accessible",
+    screen: "Onboarding",
+  },
+  {
+    title: "אונבורדינג - שלב 6",
+    description: "סיכום ואישור",
+    href: "/stitch/onboarding-step-6",
+    icon: "fact_check",
+    screen: "Onboarding",
+  },
+  // App screens (scaffolded)
+  {
+    title: "לוח בקרה ראשי",
+    description: "מרכז הפעילות - סטטוס זכויות ומשימות",
+    href: "/stitch/dashboard",
+    icon: "dashboard",
+    screen: "App",
+  },
+  {
+    title: "חיפוש זכויות",
+    description: "מצא את הזכויות המתאימות לך",
+    href: "/stitch/rights-finder",
+    icon: "search",
+    screen: "App",
+  },
+  {
+    title: "תוצאות חיפוש",
+    description: "הזכויות שנמצאו עבורך",
+    href: "/stitch/rights-answer",
+    icon: "list_alt",
+    screen: "App",
+  },
+  {
+    title: "רשימות משימות",
+    description: "מעקב אחר התקדמות מימוש הזכויות",
+    href: "/stitch/checklists",
+    icon: "checklist",
+    screen: "App",
+  },
+  {
+    title: "פירוט משימה",
+    description: "צפייה מפורטת בשלבי משימה",
+    href: "/stitch/checklists/detail",
+    icon: "task",
+    screen: "App",
+  },
+  {
+    title: "מצב יום",
+    description: "המשימות והתורים של היום",
+    href: "/stitch/today",
+    icon: "today",
+    screen: "App",
+  },
+  {
+    title: "פרופיל והגדרות",
+    description: "ניהול חשבון והעדפות",
+    href: "/stitch/settings",
+    icon: "settings",
+    screen: "App",
   },
 ];
 
