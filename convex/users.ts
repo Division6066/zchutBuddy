@@ -52,19 +52,45 @@ export const createOrUpdateUser = mutation({
     const userData = {
       email: identity.email || "",
       fullName: identity.name || identity.nickname || "User",
+      name: identity.name || identity.nickname || undefined,
       role: "user" as const,
       isActive: true,
       updatedAt: now,
     };
 
     if (existing) {
-      await ctx.db.patch(existing._id, userData);
+      // Only backfill new required fields if missing; do not overwrite manual tier/status edits.
+      const backfill: Partial<{
+        subscriptionTier: "free_trial" | "plus" | "pro" | "max";
+        subscriptionStatus: "active" | "expired" | "cancelled";
+        onboardingCompleted: boolean;
+        language: "he" | "en";
+      }> = {};
+
+      if (existing.subscriptionTier === undefined) {
+        backfill.subscriptionTier = "free_trial";
+      }
+      if (existing.subscriptionStatus === undefined) {
+        backfill.subscriptionStatus = "active";
+      }
+      if (existing.onboardingCompleted === undefined) {
+        backfill.onboardingCompleted = false;
+      }
+      if (existing.language === undefined) {
+        backfill.language = "he";
+      }
+
+      await ctx.db.patch(existing._id, { ...userData, ...backfill });
       return existing._id;
     }
 
     return await ctx.db.insert("users", {
       clerkId: identity.subject,
       ...userData,
+      subscriptionTier: "free_trial",
+      subscriptionStatus: "active",
+      onboardingCompleted: false,
+      language: "he",
       createdAt: now,
     });
   },

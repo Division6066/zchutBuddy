@@ -9,6 +9,8 @@ export default defineSchema({
     clerkId: v.string(),
     email: v.string(),
     fullName: v.optional(v.string()),
+    // New canonical display name (keep fullName for backwards compatibility)
+    name: v.optional(v.string()),
     role: v.union(v.literal("admin"), v.literal("user")),
     isActive: v.boolean(),
     // Plan fields (MVP - manual, no Stripe/Lemon yet)
@@ -17,6 +19,17 @@ export default defineSchema({
     planStartedAt: v.optional(v.number()), // Epoch ms
     planEndsAt: v.optional(v.number()), // Epoch ms (for trial/plus expiration)
     planUpdatedAt: v.optional(v.number()), // Epoch ms
+    // Subscription fields (new, used for gating features)
+    subscriptionTier: v.union(
+      v.literal("free_trial"),
+      v.literal("plus"),
+      v.literal("pro"),
+      v.literal("max")
+    ),
+    subscriptionStatus: v.union(v.literal("active"), v.literal("expired"), v.literal("cancelled")),
+    trialEndsAt: v.optional(v.number()), // Epoch ms (optional; omit for perpetual)
+    onboardingCompleted: v.boolean(),
+    language: v.union(v.literal("he"), v.literal("en")),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -51,6 +64,21 @@ export default defineSchema({
     tags: v.array(v.string()), // Topic tags for matching updates
     createdAt: v.number(),
     updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  // ============================================
+  // USER PROFILES (Onboarding profile details)
+  // ============================================
+  userProfiles: defineTable({
+    userId: v.id("users"),
+    ageRange: v.optional(v.string()),
+    city: v.optional(v.string()),
+    hmo: v.optional(v.string()),
+    employmentStatus: v.optional(v.string()),
+    isVeteran: v.optional(v.boolean()),
+    disabilities: v.optional(v.array(v.string())),
+    ministries: v.optional(v.array(v.string())),
+    isAnonymous: v.boolean(),
   }).index("by_user", ["userId"]),
 
   // ============================================
