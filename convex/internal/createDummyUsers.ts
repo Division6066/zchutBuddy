@@ -10,9 +10,6 @@ interface DummyUserConfig {
   email: string;
   name: string;
   subscriptionTier: "free_trial" | "plus" | "pro" | "max";
-  subscriptionStatus: "active" | "expired" | "cancelled";
-  trialEndsAt?: number;
-  onboardingCompleted: boolean;
 }
 
 interface DummyProfileConfig {
@@ -26,41 +23,30 @@ interface DummyProfileConfig {
   isAnonymous: boolean;
 }
 
-const FOURTEEN_DAYS_MS = 14 * 24 * 60 * 60 * 1000;
-
 const DUMMY_USERS: DummyUserConfig[] = [
   {
     clerkId: "dummy_free_trial_user",
     email: "free.trial@zchuyotbuddy.test",
     name: "משתמש ניסיון",
     subscriptionTier: "free_trial",
-    subscriptionStatus: "active",
-    trialEndsAt: Date.now() + FOURTEEN_DAYS_MS,
-    onboardingCompleted: true,
   },
   {
     clerkId: "dummy_plus_user",
     email: "plus.user@zchuyotbuddy.test",
     name: "משתמש פלוס",
     subscriptionTier: "plus",
-    subscriptionStatus: "active",
-    onboardingCompleted: true,
   },
   {
     clerkId: "dummy_pro_user",
     email: "pro.user@zchuyotbuddy.test",
     name: "משתמש פרו",
     subscriptionTier: "pro",
-    subscriptionStatus: "active",
-    onboardingCompleted: true,
   },
   {
     clerkId: "dummy_max_user",
     email: "max.user@zchuyotbuddy.test",
     name: "משתמש מקס",
     subscriptionTier: "max",
-    subscriptionStatus: "active",
-    onboardingCompleted: true,
   },
 ];
 
@@ -146,12 +132,7 @@ export const createDummyUsers = internalMutation({
         await ctx.db.patch(existingUser._id, {
           clerkId: userConfig.clerkId,
           name: userConfig.name,
-          fullName: userConfig.name,
           subscriptionTier: userConfig.subscriptionTier,
-          subscriptionStatus: userConfig.subscriptionStatus,
-          trialEndsAt: userConfig.trialEndsAt,
-          onboardingCompleted: userConfig.onboardingCompleted,
-          updatedAt: now,
         });
         userId = existingUser._id;
         summary.usersUpdated.push(userConfig.email);
@@ -161,16 +142,8 @@ export const createDummyUsers = internalMutation({
           clerkId: userConfig.clerkId,
           email: userConfig.email,
           name: userConfig.name,
-          fullName: userConfig.name,
-          role: "user",
-          isActive: true,
           subscriptionTier: userConfig.subscriptionTier,
-          subscriptionStatus: userConfig.subscriptionStatus,
-          trialEndsAt: userConfig.trialEndsAt,
-          onboardingCompleted: userConfig.onboardingCompleted,
-          language: "he",
           createdAt: now,
-          updatedAt: now,
         });
         summary.usersCreated.push(userConfig.email);
       }

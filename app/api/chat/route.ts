@@ -2,10 +2,10 @@
  * OpenRouter Chat API Route
  *
  * POST /api/chat
- * Body: { message: string, model?: string }
+ * Body: { message: string, sessionId?: string }
  * Response: Streaming plain text
  *
- * Default model: deepseek/deepseek-r1:free (free tier)
+ * Model: meta-llama/llama-3.2-3b-instruct:free
  */
 
 export const runtime = "edge";
@@ -25,7 +25,7 @@ export const runtime = "edge";
  */
 interface ChatRequestBody {
   message: string;
-  model?: string;
+  sessionId?: string;
 }
 
 /**
@@ -79,14 +79,14 @@ export async function POST(request: Request): Promise<Response> {
     return errorResponse("Missing or invalid 'message' field", 400);
   }
 
-  const { message, model = DEFAULT_MODEL } = body;
+  const { message } = body;
 
   // Build messages array for OpenRouter
   const messages = [
     {
       role: "system",
       content:
-        "אתה עוזר ידידותי שמסייע לאנשים להבין את הזכויות שלהם בישראל. ענה בעברית בצורה ברורה ומועילה.",
+        "You are ZchuyotBuddy, a helpful assistant for Israeli disability rights. Answer in Hebrew. Be concise and helpful. Focus on: disability benefits, Bituach Leumi, Ministry of Defense benefits, health fund rights, and municipal services.",
     },
     { role: "user", content: message },
   ];
@@ -102,7 +102,7 @@ export async function POST(request: Request): Promise<Response> {
         "X-Title": process.env.APP_TITLE || "ZchuyotBuddy",
       },
       body: JSON.stringify({
-        model,
+        model: DEFAULT_MODEL,
         messages,
         stream: true,
         temperature: 0.7,

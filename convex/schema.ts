@@ -3,40 +3,33 @@ import { v } from "convex/values";
 
 export default defineSchema({
   // ============================================
-  // USERS (extended with plan fields for MVP)
+  // USERS (Clerk-authenticated identities)
   // ============================================
   users: defineTable({
+    // Clerk subject (user) ID from ctx.auth.getUserIdentity().subject
     clerkId: v.string(),
     email: v.string(),
-    fullName: v.optional(v.string()),
-    // New canonical display name (keep fullName for backwards compatibility)
     name: v.optional(v.string()),
-    role: v.union(v.literal("admin"), v.literal("user")),
-    isActive: v.boolean(),
-    // Plan fields (MVP - manual, no Stripe/Lemon yet)
-    planTier: v.optional(v.union(v.literal("free"), v.literal("trial"), v.literal("plus"))),
-    planId: v.optional(v.string()), // Internal plan identifier, e.g. "mvp_plus_v1"
-    planStartedAt: v.optional(v.number()), // Epoch ms
-    planEndsAt: v.optional(v.number()), // Epoch ms (for trial/plus expiration)
-    planUpdatedAt: v.optional(v.number()), // Epoch ms
-    // Subscription fields (new, used for gating features)
+    imageUrl: v.optional(v.string()),
     subscriptionTier: v.union(
       v.literal("free_trial"),
       v.literal("plus"),
       v.literal("pro"),
       v.literal("max")
     ),
-    subscriptionStatus: v.union(v.literal("active"), v.literal("expired"), v.literal("cancelled")),
-    trialEndsAt: v.optional(v.number()), // Epoch ms (optional; omit for perpetual)
-    onboardingCompleted: v.boolean(),
-    language: v.union(v.literal("he"), v.literal("en")),
     createdAt: v.number(),
-    updatedAt: v.number(),
+    // Optional fields for backwards compatibility with existing data
+    fullName: v.optional(v.string()),
+    isActive: v.optional(v.boolean()),
+    language: v.optional(v.string()),
+    onboardingCompleted: v.optional(v.boolean()),
+    role: v.optional(v.string()),
+    subscriptionStatus: v.optional(v.string()),
+    updatedAt: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
   })
-    .index("by_clerk_id", ["clerkId"])
-    .index("by_email", ["email"])
-    .index("by_role", ["role"])
-    .index("by_plan_tier", ["planTier"]),
+    .index("by_clerkId", ["clerkId"])
+    .index("by_email", ["email"]),
 
   // ============================================
   // CHAT MESSAGES (existing)
@@ -52,6 +45,31 @@ export default defineSchema({
   })
     .index("by_user", ["userId"])
     .index("by_user_timestamp", ["userId", "timestamp"]),
+
+  // ============================================
+  // CHAT SESSIONS (Session-based conversations)
+  // ============================================
+  chatSessions: defineTable({
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_updatedAt", ["userId", "updatedAt"]),
+
+  // ============================================
+  // MESSAGES (Individual messages within sessions)
+  // ============================================
+  messages: defineTable({
+    sessionId: v.id("chatSessions"),
+    role: v.string(), // "user" | "assistant"
+    content: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_session", ["sessionId"])
+    .index("by_session_createdAt", ["sessionId", "createdAt"]),
 
   // ============================================
   // PROFILES (ProfileLite for impact matching)

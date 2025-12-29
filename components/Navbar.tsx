@@ -1,66 +1,80 @@
 "use client";
 
 import { useClerk, useUser } from "@clerk/nextjs";
-import { Home, LogOut, User, UserCircle } from "lucide-react";
+import { LogOut, Menu, User, UserCircle, X } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import BrandLogo from "@/components/BrandLogo";
 import SignInModal from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 import { debug } from "@/lib/debug";
 import { useGuestAuth } from "@/lib/guest-auth";
 
+const NAV_LINKS = [
+  { href: "/#how-it-works", label: "איך זה עובד?" },
+  { href: "/#features", label: "תכונות" },
+  { href: "/about", label: "אודות" },
+];
+
 function NavbarContent() {
+  const pathname = usePathname();
   const { isSignedIn, user } = useUser();
   const { signOut } = useClerk();
   const { isGuest, guestUser, logoutGuest } = useGuestAuth();
   const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [showSignInModal, setShowSignInModal] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [currentHash, setCurrentHash] = useState("");
+
+  const profileRef = useRef<HTMLDivElement>(null);
   const hasRedirectedRef = useRef(false);
 
-  // Determine if any user (Clerk or guest) is logged in
   const isAnyUserLoggedIn = isSignedIn || isGuest;
 
+  // Track hash changes for active link highlighting
+  useEffect(() => {
+    const updateHash = () => setCurrentHash(window.location.hash);
+    updateHash();
+    window.addEventListener("hashchange", updateHash);
+    return () => window.removeEventListener("hashchange", updateHash);
+  }, []);
+
+  // Close profile dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setProfileOpen(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Redirect to /app when user becomes signed in (after login) - fallback only
-  // Primary redirect should happen in SignInModal.handleSubmit
+  // Redirect to /dashboard when user becomes signed in
   useEffect(() => {
     if (isSignedIn && !hasRedirectedRef.current && showSignInModal) {
-      // Only redirect if we're still on the home page (fallback mechanism)
       const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
       if (currentPath === "/" || currentPath === "") {
         debug.info({
           location: "Navbar.tsx:useEffect",
-          message: "Fallback: User signed in detected in Navbar - redirecting to /app",
+          message: "Fallback: User signed in - redirecting to /dashboard",
           data: { isSignedIn, showSignInModal, currentPath },
         });
         hasRedirectedRef.current = true;
         setShowSignInModal(false);
-        // Use window.location.replace for reliable redirect
         if (typeof window !== "undefined") {
-          window.location.replace("/app");
+          window.location.replace("/dashboard");
         } else {
-          router.replace("/app");
+          router.replace("/dashboard");
         }
       }
     }
   }, [isSignedIn, showSignInModal, router]);
 
-  // Reset redirect flag when modal closes
   useEffect(() => {
     if (!showSignInModal) {
       hasRedirectedRef.current = false;
@@ -73,136 +87,243 @@ function NavbarContent() {
     } else {
       await signOut();
     }
-    setIsOpen(false);
-    // Redirect to home after logout
+    setProfileOpen(false);
     if (typeof window !== "undefined") {
       window.location.href = "/";
     }
   };
 
+  const isLinkActive = (href: string) => {
+    if (href.startsWith("/#")) {
+      // Hash link on home page
+      return pathname === "/" && currentHash === href.slice(1);
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
+
   return (
-    <nav className="bg-gradient-to-l from-primary to-primary/90 border-b border-primary/20 sticky top-0 z-50 backdrop-blur-sm">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex justify-between items-center">
-          {/* Navigation Links - Right Side (RTL) */}
-          <div className="flex gap-6 items-center">
+    <>
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
             <Link
               href="/"
-              className="flex items-center gap-2 hover:scale-105 transition-transform"
+              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
               aria-label="דף הבית"
             >
-              <div className="brightness-0 invert">
-                <BrandLogo size={24} />
+              <div className="w-9 h-9 rounded-xl bg-[#0d968b] flex items-center justify-center text-white shadow-lg shadow-[#0d968b]/30">
+                <span className="material-symbols-outlined text-[20px]">accessible</span>
               </div>
-              <span className="text-lg font-extrabold text-white tracking-tight">ZchuyotBuddy</span>
+              <span className="text-[#111817] font-extrabold text-lg tracking-tight hidden sm:inline">
+                ZchuyotBuddy
+              </span>
             </Link>
-            <Link
-              href="/onboarding"
-              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
-            >
-              איך זה עובד?
-            </Link>
-            <Link
-              href="/pricing"
-              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
-            >
-              למי זה מתאים?
-            </Link>
-            <Link
-              href="/about"
-              className="text-sm font-medium text-white hover:text-white/80 transition-colors"
-            >
-              אודות
-            </Link>
-          </div>
 
-          {/* User Profile or Sign In - Left Side (RTL) */}
-          <div className="mr-auto">
-            {isAnyUserLoggedIn ? (
-              <div className="relative" ref={dropdownRef}>
-                <Button
-                  variant="ghost"
-                  onClick={() => setIsOpen(!isOpen)}
-                  className="flex items-center gap-2 hover:bg-accent rounded-lg px-3 py-2 h-auto"
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex items-center gap-6">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "text-sm font-medium transition-colors",
+                    isLinkActive(link.href)
+                      ? "text-[#0d968b]"
+                      : "text-[#111817]/70 hover:text-[#0d968b]"
+                  )}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                    {isGuest ? (
-                      <UserCircle className="w-4 h-4 text-white" />
-                    ) : (
-                      <User className="w-4 h-4 text-white" />
-                    )}
-                  </div>
-                  <span className="text-sm font-medium text-white">
-                    שלום, {isGuest ? guestUser?.name : (user?.firstName || user?.emailAddresses[0]?.emailAddress.split("@")[0])}
-                  </span>
-                </Button>
+                  {link.label}
+                </Link>
+              ))}
+            </div>
 
-                {isOpen && (
-                  <Card className="absolute left-0 mt-2 w-72 shadow-lg border-border z-50">
-                    <CardContent className="p-0">
-                      <div className="px-4 py-4 border-b border-border bg-muted/50">
-                        <p className="text-sm font-semibold text-foreground mb-1">
-                          {isGuest ? guestUser?.name : (user?.firstName || user?.emailAddresses[0]?.emailAddress.split("@")[0])}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {isGuest ? "מצב אורח - נתונים נשמרים מקומית" : user?.emailAddresses[0]?.emailAddress}
-                        </p>
-                        {isGuest && (
-                          <p className="text-xs text-orange-500 mt-1">
-                            התחבר לשמירת הנתונים שלך לצמיתות
+            {/* Right side: Language toggle + CTA/Profile */}
+            <div className="flex items-center gap-3">
+              {/* Language Toggle */}
+              <div className="hidden sm:flex items-center text-sm text-[#111817]/60 gap-1">
+                <Link
+                  href="/home-en"
+                  className="hover:text-[#0d968b] transition-colors px-1"
+                >
+                  EN
+                </Link>
+                <span>|</span>
+                <Link
+                  href="/"
+                  className="hover:text-[#0d968b] transition-colors px-1 font-medium text-[#111817]"
+                >
+                  עב
+                </Link>
+              </div>
+
+              {/* Auth CTA or Profile */}
+              {isAnyUserLoggedIn ? (
+                <div className="relative" ref={profileRef}>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="flex items-center gap-2 hover:bg-gray-100 rounded-xl px-3 py-2 h-auto"
+                    aria-expanded={profileOpen}
+                    aria-haspopup="true"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-[#0d968b]/10 flex items-center justify-center">
+                      {isGuest ? (
+                        <UserCircle className="w-4 h-4 text-[#0d968b]" />
+                      ) : (
+                        <User className="w-4 h-4 text-[#0d968b]" />
+                      )}
+                    </div>
+                    <span className="text-sm font-medium text-[#111817] hidden sm:inline">
+                      {isGuest
+                        ? guestUser?.name
+                        : user?.firstName || user?.emailAddresses[0]?.emailAddress.split("@")[0]}
+                    </span>
+                  </Button>
+
+                  {profileOpen && (
+                    <Card className="absolute left-0 mt-2 w-72 shadow-lg border-gray-200 z-50">
+                      <CardContent className="p-0">
+                        <div className="px-4 py-4 border-b border-gray-100 bg-gray-50/50">
+                          <p className="text-sm font-semibold text-[#111817] mb-1">
+                            {isGuest
+                              ? guestUser?.name
+                              : user?.firstName ||
+                                user?.emailAddresses[0]?.emailAddress.split("@")[0]}
                           </p>
-                        )}
-                      </div>
+                          <p className="text-xs text-gray-500 truncate">
+                            {isGuest
+                              ? "מצב אורח - נתונים נשמרים מקומית"
+                              : user?.emailAddresses[0]?.emailAddress}
+                          </p>
+                          {isGuest && (
+                            <p className="text-xs text-orange-500 mt-1">
+                              התחבר לשמירת הנתונים שלך לצמיתות
+                            </p>
+                          )}
+                        </div>
 
-                      <div className="p-2">
-                        {isGuest && (
+                        <div className="p-2">
+                          <Link
+                            href="/dashboard"
+                            className="flex items-center w-full px-3 py-2 text-sm font-medium text-[#111817] hover:bg-[#0d968b]/10 rounded-md"
+                            onClick={() => setProfileOpen(false)}
+                          >
+                            <span className="material-symbols-outlined text-[18px] ml-2 text-[#0d968b]">
+                              dashboard
+                            </span>
+                            לוח בקרה
+                          </Link>
+                          {isGuest && (
+                            <Button
+                              variant="ghost"
+                              onClick={() => {
+                                setProfileOpen(false);
+                                setShowSignInModal(true);
+                              }}
+                              className="w-full justify-start px-3 py-2 text-right hover:bg-[#0d968b]/10 text-[#0d968b] rounded-md mb-1"
+                            >
+                              <User className="w-4 h-4 ml-2" />
+                              <span className="text-sm font-medium">התחבר / הרשם</span>
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
-                            onClick={() => {
-                              setIsOpen(false);
-                              setShowSignInModal(true);
-                            }}
-                            className="w-full justify-start px-3 py-2 text-right hover:bg-primary/10 text-primary rounded-md mb-1"
+                            onClick={handleSignOut}
+                            className="w-full justify-start px-3 py-2 text-right hover:bg-red-50 text-red-600 rounded-md"
                           >
-                            <User className="w-4 h-4 ml-2" />
-                            <span className="text-sm font-medium">התחבר / הרשם</span>
+                            <LogOut className="w-4 h-4 ml-2" />
+                            <span className="text-sm font-medium">התנתק</span>
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          onClick={handleSignOut}
-                          className="w-full justify-start px-3 py-2 text-right hover:bg-destructive/10 text-destructive rounded-md"
-                        >
-                          <LogOut className="w-4 h-4 ml-2" />
-                          <span className="text-sm font-medium">התנתק</span>
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            ) : (
-              <Button
-                onClick={() => {
-                  debug.info({
-                    location: "Navbar.tsx:onClick",
-                    message: "Login button clicked",
-                    data: { isSignedIn },
-                  });
-                  setShowSignInModal(true);
-                }}
-                className="bg-white text-primary hover:bg-white/90 font-semibold px-6 py-2 rounded-xl shadow-lg shadow-black/10 transition-all"
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  href="/sign-up"
+                  className="bg-[#0d968b] text-white hover:bg-[#0d968b]/90 font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-[#0d968b]/25 transition-all text-sm hidden sm:inline-flex"
+                >
+                  התחל עכשיו
+                </Link>
+              )}
+
+              {/* Mobile Hamburger */}
+              <button
+                type="button"
+                className="md:hidden w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-[#111817]"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-expanded={mobileMenuOpen}
+                aria-controls="mobile-menu"
+                aria-label={mobileMenuOpen ? "סגור תפריט" : "פתח תפריט"}
               >
-                התחבר/הרשם
-              </Button>
-            )}
+                {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div
+            id="mobile-menu"
+            className="md:hidden border-t border-gray-100 bg-white"
+          >
+            <div className="container mx-auto px-4 py-4 space-y-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={cn(
+                    "block px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                    isLinkActive(link.href)
+                      ? "bg-[#0d968b]/10 text-[#0d968b]"
+                      : "text-[#111817] hover:bg-gray-50"
+                  )}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+
+              {/* Language toggle mobile */}
+              <div className="flex items-center gap-2 px-4 py-3 text-sm text-[#111817]/60">
+                <Link
+                  href="/home-en"
+                  className="hover:text-[#0d968b] transition-colors"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  EN
+                </Link>
+                <span>|</span>
+                <Link
+                  href="/"
+                  className="hover:text-[#0d968b] transition-colors font-medium text-[#111817]"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  עב
+                </Link>
+              </div>
+
+              {/* Mobile CTA */}
+              {!isAnyUserLoggedIn && (
+                <Link
+                  href="/sign-up"
+                  className="block mx-4 mt-2 bg-[#0d968b] text-white text-center font-semibold px-5 py-3 rounded-xl shadow-lg shadow-[#0d968b]/25 transition-all text-sm"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  התחל עכשיו
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
 
       {/* Sign In Modal */}
       <SignInModal open={showSignInModal} onOpenChange={setShowSignInModal} />
-    </nav>
+    </>
   );
 }
 
@@ -216,39 +337,52 @@ export default function Navbar() {
   // If Clerk is not available, render navbar without auth features
   if (!hasValidClerkKey) {
     return (
-      <nav className="bg-gradient-to-l from-primary to-primary/90 border-b border-primary/20 sticky top-0 z-50 backdrop-blur-sm">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex gap-6 items-center">
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex h-16 items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+              aria-label="דף הבית"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#0d968b] flex items-center justify-center text-white shadow-lg shadow-[#0d968b]/30">
+                <span className="material-symbols-outlined text-[20px]">accessible</span>
+              </div>
+              <span className="text-[#111817] font-extrabold text-lg tracking-tight hidden sm:inline">
+                ZchuyotBuddy
+              </span>
+            </Link>
+
+            <div className="hidden md:flex items-center gap-6">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="text-sm font-medium text-[#111817]/70 hover:text-[#0d968b] transition-colors"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center text-sm text-[#111817]/60 gap-1">
+                <Link href="/home-en" className="hover:text-[#0d968b] transition-colors px-1">
+                  EN
+                </Link>
+                <span>|</span>
+                <Link
+                  href="/"
+                  className="hover:text-[#0d968b] transition-colors px-1 font-medium text-[#111817]"
+                >
+                  עב
+                </Link>
+              </div>
               <Link
-                href="/"
-                className="flex items-center gap-2 hover:scale-105 transition-transform"
-                aria-label="דף הבית"
+                href="/sign-up"
+                className="bg-[#0d968b] text-white hover:bg-[#0d968b]/90 font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-[#0d968b]/25 transition-all text-sm"
               >
-                <div className="brightness-0 invert">
-                  <BrandLogo size={24} />
-                </div>
-                <span className="text-lg font-extrabold text-white tracking-tight">
-                  ZchuyotBuddy
-                </span>
-              </Link>
-              <Link
-                href="/onboarding"
-                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
-              >
-                איך זה עובד?
-              </Link>
-              <Link
-                href="/pricing"
-                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
-              >
-                למי זה מתאים?
-              </Link>
-              <Link
-                href="/about"
-                className="text-sm font-medium text-white hover:text-white/80 transition-colors"
-              >
-                אודות
+                התחל עכשיו
               </Link>
             </div>
           </div>

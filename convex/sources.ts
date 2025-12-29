@@ -1,6 +1,9 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+// Simple admin email check - replace with proper RBAC later
+const ADMIN_EMAILS = ["levidavidspublic@proton.me"];
+
 /**
  * List all sources (admin only)
  */
@@ -49,10 +52,10 @@ export const createSource = mutation({
     // Check if admin
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
-    if (!user || user.role !== "admin") {
+    if (!user || !ADMIN_EMAILS.includes(user.email)) {
       throw new Error("Admin access required");
     }
 
@@ -100,10 +103,10 @@ export const updateSource = mutation({
     // Check if admin
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
-    if (!user || user.role !== "admin") {
+    if (!user || !ADMIN_EMAILS.includes(user.email)) {
       throw new Error("Admin access required");
     }
 

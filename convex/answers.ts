@@ -77,7 +77,7 @@ export const listMyAnswers = query({
     // Get the user record
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {

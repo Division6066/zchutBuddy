@@ -1,6 +1,12 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
+const subscriptionTierEnum = v.union(
+  v.literal("free_trial"),
+  v.literal("plus"),
+  v.literal("max")
+);
+
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
@@ -9,12 +15,10 @@ export const getCurrentUser = query({
       return null;
     }
 
-    const user = await ctx.db
+    return await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
-
-    return user;
   },
 });
 
@@ -25,17 +29,7 @@ export const getById = query({
   },
 });
 
-export const listActive = query({
-  args: {},
-  handler: async (ctx) => {
-    return await ctx.db
-      .query("users")
-      .filter((q) => q.eq(q.field("isActive"), true))
-      .collect();
-  },
-});
-
-export const createOrUpdateUser = mutation({
+export const getOrCreateUser = mutation({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -43,198 +37,25 @@ export const createOrUpdateUser = mutation({
       throw new Error("Not authenticated");
     }
 
-    const now = Date.now();
     const existing = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
-
-    const userData = {
-      email: identity.email || "",
-      fullName: identity.name || identity.nickname || "User",
-      name: identity.name || identity.nickname || undefined,
-      role: "user" as const,
-      isActive: true,
-      updatedAt: now,
-    };
 
     if (existing) {
-      // Only backfill new required fields if missing; do not overwrite manual tier/status edits.
-      const backfill: Partial<{
-        subscriptionTier: "free_trial" | "plus" | "pro" | "max";
-        subscriptionStatus: "active" | "expired" | "cancelled";
-        onboardingCompleted: boolean;
-        language: "he" | "en";
-      }> = {};
-
-      if (existing.subscriptionTier === undefined) {
-        backfill.subscriptionTier = "free_trial";
-      }
-      if (existing.subscriptionStatus === undefined) {
-        backfill.subscriptionStatus = "active";
-      }
-      if (existing.onboardingCompleted === undefined) {
-        backfill.onboardingCompleted = false;
-      }
-      if (existing.language === undefined) {
-        backfill.language = "he";
-      }
-
-      await ctx.db.patch(existing._id, { ...userData, ...backfill });
-      return existing._id;
-    }
-
-    return await ctx.db.insert("users", {
-      clerkId: identity.subject,
-      ...userData,
-      subscriptionTier: "free_trial",
-      subscriptionStatus: "active",
-      onboardingCompleted: false,
-      language: "he",
-      createdAt: now,
-    });
-  },
-});
-
-export const updateProfile = mutation({
-  args: {
-    userId: v.id("users"),
-    fullName: v.optional(v.string()),
-  },
-  handler: async (ctx, { userId, fullName }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    await ctx.db.patch(userId, {
-      fullName,
-      updatedAt: Date.now(),
-    });
-
-    return userId;
-  },
-});
-
-export const remove = mutation({
-  args: { userId: v.id("users") },
-  handler: async (ctx, { userId }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    await ctx.db.delete(userId);
-  },
-});
-
-// ============================================
-// PLAN TIER FUNCTIONS (MVP - manual, no billing)
-// ============================================
-
-/**
- * Get the current user's plan details
- */
-export const getMyPlan = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return null;
-    }
-
-    return {
-      planTier: user.planTier ?? "free",
-      planId: user.planId,
-      planStartedAt: user.planStartedAt,
-      planEndsAt: user.planEndsAt,
-      planUpdatedAt: user.planUpdatedAt,
-    };
-  },
-});
-
-/**
- * Set plan tier for a user (admin-only for MVP)
- */
-export const setPlanTier = mutation({
-  args: {
-    userId: v.id("users"),
-    planTier: v.union(v.literal("free"), v.literal("trial"), v.literal("plus")),
-    planId: v.optional(v.string()),
-    planStartedAt: v.optional(v.number()),
-    planEndsAt: v.optional(v.number()),
-  },
-  handler: async (ctx, { userId, planTier, planId, planStartedAt, planEndsAt }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    // Check if current user is admin
-    const currentUser = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!currentUser || currentUser.role !== "admin") {
-      throw new Error("Admin access required");
+      return existing;
     }
 
     const now = Date.now();
-    await ctx.db.patch(userId, {
-      planTier,
-      planId,
-      planStartedAt: planStartedAt ?? now,
-      planEndsAt,
-      planUpdatedAt: now,
-      updatedAt: now,
+    const insertedId = await ctx.db.insert("users", {
+      clerkId: identity.subject,
+      email: identity.email ?? "",
+      name: identity.name ?? identity.nickname ?? undefined,
+      imageUrl: identity.pictureUrl ?? undefined,
+      subscriptionTier: "free_trial",
+      createdAt: now,
     });
 
-    return userId;
-  },
-});
-
-/**
- * Check if user's plan is active (not expired)
- */
-export const isPlanActive = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return { isActive: false, planTier: "free" as const };
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return { isActive: false, planTier: "free" as const };
-    }
-
-    const planTier = user.planTier ?? "free";
-
-    // Free tier is always active
-    if (planTier === "free") {
-      return { isActive: true, planTier };
-    }
-
-    // Check expiration for trial/plus
-    if (user.planEndsAt && user.planEndsAt < Date.now()) {
-      return { isActive: false, planTier, expired: true };
-    }
-
-    return { isActive: true, planTier };
+    return await ctx.db.get(insertedId);
   },
 });

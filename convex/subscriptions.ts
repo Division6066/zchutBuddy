@@ -49,6 +49,9 @@ export const featureAccessValidator = v.union(
   v.literal("priority_support")
 );
 
+// Simple admin email check - replace with proper RBAC later
+const ADMIN_EMAILS = ["levidavidspublic@proton.me"];
+
 // ============================================
 // FEATURE ACCESS RULES
 // ============================================
@@ -112,7 +115,7 @@ export const hasFeatureAccess = query({
     // Get user from database
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {
@@ -121,26 +124,6 @@ export const hasFeatureAccess = query({
         reason: "User not found",
         remaining: null,
       };
-    }
-
-    // Check subscription status
-    if (user.subscriptionStatus !== "active") {
-      return {
-        hasAccess: false,
-        reason: `Subscription is ${user.subscriptionStatus}`,
-        remaining: null,
-      };
-    }
-
-    // Check if trial has expired
-    if (user.subscriptionTier === "free_trial" && user.trialEndsAt) {
-      if (user.trialEndsAt < Date.now()) {
-        return {
-          hasAccess: false,
-          reason: "Free trial has expired",
-          remaining: null,
-        };
-      }
     }
 
     const tier = user.subscriptionTier;
@@ -204,7 +187,7 @@ export const hasFeatureAccess = query({
 });
 
 /**
- * Get subscription tier and status for a user by Clerk ID.
+ * Get subscription tier for a user by Clerk ID.
  * Admin-only query for looking up other users.
  */
 export const getSubscriptionTier = query({
@@ -218,20 +201,20 @@ export const getSubscriptionTier = query({
       throw new Error("Not authenticated");
     }
 
-    // Verify caller is admin
+    // Verify caller is admin by email
     const adminUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
-    if (!adminUser || adminUser.role !== "admin") {
+    if (!adminUser || !ADMIN_EMAILS.includes(adminUser.email)) {
       throw new Error("Admin access required");
     }
 
     // Look up target user
     const targetUser = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
       .unique();
 
     if (!targetUser) {
@@ -240,8 +223,6 @@ export const getSubscriptionTier = query({
 
     return {
       subscriptionTier: targetUser.subscriptionTier,
-      subscriptionStatus: targetUser.subscriptionStatus,
-      trialEndsAt: targetUser.trialEndsAt,
     };
   },
 });
@@ -261,29 +242,16 @@ export const getMySubscription = query({
 
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {
       return null;
     }
 
-    // Check if trial expired
-    let effectiveStatus = user.subscriptionStatus;
-    if (
-      user.subscriptionTier === "free_trial" &&
-      user.trialEndsAt &&
-      user.trialEndsAt < Date.now()
-    ) {
-      effectiveStatus = "expired";
-    }
-
     return {
       subscriptionTier: user.subscriptionTier,
-      subscriptionStatus: effectiveStatus,
-      trialEndsAt: user.trialEndsAt,
       features: TIER_FEATURES[user.subscriptionTier],
     };
   },
 });
-

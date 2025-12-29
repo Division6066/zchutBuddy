@@ -19,7 +19,7 @@ export const getMyNotificationSettings = query({
     // Get the user record
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {
@@ -62,7 +62,7 @@ export const updateMyNotificationSettings = mutation({
     // Get the user record
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {
@@ -161,7 +161,7 @@ export const listMyNotificationEvents = query({
     // Get the user record
     const user = await ctx.db
       .query("users")
-      .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
       .unique();
 
     if (!user) {
