@@ -9,17 +9,15 @@
  */
 
 import type * as adminUsers from "../adminUsers.js";
-import type * as answers from "../answers.js";
+import type * as alerts from "../alerts.js";
 import type * as chat from "../chat.js";
 import type * as checklists from "../checklists.js";
 import type * as internal_createDummyUsers from "../internal/createDummyUsers.js";
-import type * as notifications from "../notifications.js";
-import type * as profiles from "../profiles.js";
-import type * as queries from "../queries.js";
+import type * as modelConfig from "../modelConfig.js";
+import type * as savedRights from "../savedRights.js";
 import type * as seed from "../seed.js";
-import type * as sources from "../sources.js";
 import type * as subscriptions from "../subscriptions.js";
-import type * as updates from "../updates.js";
+import type * as usageTracking from "../usageTracking.js";
 import type * as users from "../users.js";
 
 import type {
@@ -30,17 +28,15 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   adminUsers: typeof adminUsers;
-  answers: typeof answers;
+  alerts: typeof alerts;
   chat: typeof chat;
   checklists: typeof checklists;
   "internal/createDummyUsers": typeof internal_createDummyUsers;
-  notifications: typeof notifications;
-  profiles: typeof profiles;
-  queries: typeof queries;
+  modelConfig: typeof modelConfig;
+  savedRights: typeof savedRights;
   seed: typeof seed;
-  sources: typeof sources;
   subscriptions: typeof subscriptions;
-  updates: typeof updates;
+  usageTracking: typeof usageTracking;
   users: typeof users;
 }>;
 

@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 // ============================================
 // TYPES
@@ -9,6 +9,11 @@ import { query } from "./_generated/server";
  * Subscription tier levels available in the system.
  */
 export type SubscriptionTier = "free_trial" | "plus" | "pro" | "max";
+
+/**
+ * Subscription status values.
+ */
+export type SubscriptionStatus = "active" | "canceled" | "past_due" | "trialing";
 
 /**
  * Features that can be gated by subscription tier.
@@ -37,6 +42,16 @@ export const subscriptionTierValidator = v.union(
 );
 
 /**
+ * Convex validator for subscription status.
+ */
+export const subscriptionStatusValidator = v.union(
+  v.literal("active"),
+  v.literal("canceled"),
+  v.literal("past_due"),
+  v.literal("trialing")
+);
+
+/**
  * Convex validator for feature access.
  */
 export const featureAccessValidator = v.union(
@@ -48,9 +63,6 @@ export const featureAccessValidator = v.union(
   v.literal("deep_search"),
   v.literal("priority_support")
 );
-
-// Simple admin email check - replace with proper RBAC later
-const ADMIN_EMAILS = ["levidavidspublic@proton.me"];
 
 // ============================================
 // FEATURE ACCESS RULES
@@ -76,8 +88,17 @@ const TIER_FEATURES: Record<SubscriptionTier, FeatureAccess[]> = {
 };
 
 /**
+ * Pricing per tier in shekels (monthly).
+ */
+const TIER_PRICING: Record<SubscriptionTier, number> = {
+  free_trial: 0,
+  plus: 29,
+  pro: 49,
+  max: 99,
+};
+
+/**
  * Daily usage limits for free_trial tier.
- * Other tiers have unlimited access.
  */
 const FREE_TRIAL_DAILY_LIMITS: Partial<Record<FeatureAccess, number>> = {
   rights_finder: 5,
@@ -88,13 +109,43 @@ const FREE_TRIAL_DAILY_LIMITS: Partial<Record<FeatureAccess, number>> = {
 // ============================================
 
 /**
+ * Get the current user's subscription.
+ */
+export const getMySubscription = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null;
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      return null;
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!subscription) {
+      return null;
+    }
+
+    return {
+      ...subscription,
+      features: TIER_FEATURES[subscription.tier as SubscriptionTier] || [],
+    };
+  },
+});
+
+/**
  * Check if the current user has access to a specific feature.
- * For free_trial users, also enforces daily usage limits.
- *
- * Returns:
- * - hasAccess: boolean - whether the user can use the feature
- * - reason: string - explanation if access denied
- * - remaining: number | null - remaining uses today (for limited features)
  */
 export const hasFeatureAccess = query({
   args: {
@@ -103,7 +154,6 @@ export const hasFeatureAccess = query({
   handler: async (ctx, { feature }) => {
     const identity = await ctx.auth.getUserIdentity();
 
-    // Not authenticated - no access
     if (!identity) {
       return {
         hasAccess: false,
@@ -112,7 +162,6 @@ export const hasFeatureAccess = query({
       };
     }
 
-    // Get user from database
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
@@ -126,10 +175,42 @@ export const hasFeatureAccess = query({
       };
     }
 
-    const tier = user.subscriptionTier;
-    const allowedFeatures = TIER_FEATURES[tier];
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
 
-    // Check if feature is allowed for this tier
+    if (!subscription) {
+      return {
+        hasAccess: false,
+        reason: "No subscription found",
+        remaining: null,
+      };
+    }
+
+    // Check if subscription is active or trialing
+    if (subscription.status !== "active" && subscription.status !== "trialing") {
+      return {
+        hasAccess: false,
+        reason: "Subscription is not active",
+        remaining: null,
+      };
+    }
+
+    // Check if trial has expired
+    if (subscription.status === "trialing" && subscription.trialEndsAt) {
+      if (Date.now() > subscription.trialEndsAt) {
+        return {
+          hasAccess: false,
+          reason: "Trial period has expired",
+          remaining: null,
+        };
+      }
+    }
+
+    const tier = subscription.tier as SubscriptionTier;
+    const allowedFeatures = TIER_FEATURES[tier] || [];
+
     if (!allowedFeatures.includes(feature)) {
       return {
         hasAccess: false,
@@ -143,21 +224,33 @@ export const hasFeatureAccess = query({
       const dailyLimit = FREE_TRIAL_DAILY_LIMITS[feature];
 
       if (dailyLimit !== undefined) {
-        // Calculate start of today (midnight UTC)
+        // Get usage tracking for today
         const now = Date.now();
         const startOfDay = now - (now % (24 * 60 * 60 * 1000));
 
-        // Count usage today by querying the queries table
-        // (rights_finder uses the queries table)
+        const usageTracking = await ctx.db
+          .query("usageTracking")
+          .withIndex("by_userId", (q) => q.eq("userId", user._id))
+          .unique();
+
+        // If no usage tracking exists or it's from a previous period, user has full limit
+        if (!usageTracking || usageTracking.periodStart < startOfDay) {
+          return {
+            hasAccess: true,
+            reason: "Access granted",
+            remaining: dailyLimit,
+          };
+        }
+
+        // Count based on chat sessions created today (for rights_finder)
         if (feature === "rights_finder") {
-          const todayQueries = await ctx.db
-            .query("queries")
-            .withIndex("by_user_createdAt", (q) =>
-              q.eq("userId", user._id).gte("createdAt", startOfDay)
-            )
+          const todaySessions = await ctx.db
+            .query("chatSessions")
+            .withIndex("by_userId", (q) => q.eq("userId", user._id))
+            .filter((q) => q.gte(q.field("createdAt"), startOfDay))
             .collect();
 
-          const usedToday = todayQueries.length;
+          const usedToday = todaySessions.filter((s) => s.type === "rights_finder").length;
           const remaining = Math.max(0, dailyLimit - usedToday);
 
           if (usedToday >= dailyLimit) {
@@ -177,7 +270,6 @@ export const hasFeatureAccess = query({
       }
     }
 
-    // Access granted (no limits for paid tiers)
     return {
       hasAccess: true,
       reason: "Access granted",
@@ -187,57 +279,94 @@ export const hasFeatureAccess = query({
 });
 
 /**
- * Get subscription tier for a user by Clerk ID.
- * Admin-only query for looking up other users.
+ * Get subscription by user ID (admin/internal use).
  */
-export const getSubscriptionTier = query({
-  args: {
-    clerkId: v.string(),
-  },
-  handler: async (ctx, { clerkId }) => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    // Verify caller is admin by email
-    const adminUser = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+export const getByUserId = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    return await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
-
-    if (!adminUser || !ADMIN_EMAILS.includes(adminUser.email)) {
-      throw new Error("Admin access required");
-    }
-
-    // Look up target user
-    const targetUser = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-      .unique();
-
-    if (!targetUser) {
-      return null;
-    }
-
-    return {
-      subscriptionTier: targetUser.subscriptionTier,
-    };
   },
 });
 
 /**
- * Get the current user's own subscription info.
- * Public query - no admin check needed.
+ * Get all features available for a tier.
  */
-export const getMySubscription = query({
-  args: {},
-  handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
+export const getTierFeatures = query({
+  args: { tier: subscriptionTierValidator },
+  handler: async (_ctx, { tier }) => {
+    return TIER_FEATURES[tier as SubscriptionTier] || [];
+  },
+});
 
+/**
+ * Get pricing for all tiers.
+ */
+export const getTierPricing = query({
+  args: {},
+  handler: async () => {
+    return TIER_PRICING;
+  },
+});
+
+// ============================================
+// MUTATIONS
+// ============================================
+
+/**
+ * Create a subscription for a user (internal use).
+ */
+export const createSubscription = mutation({
+  args: {
+    userId: v.id("users"),
+    tier: subscriptionTierValidator,
+    status: subscriptionStatusValidator,
+    trialEndsAt: v.optional(v.number()),
+  },
+  handler: async (ctx, { userId, tier, status, trialEndsAt }) => {
+    const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      return null;
+      throw new Error("Not authenticated");
+    }
+
+    // Check if subscription already exists
+    const existing = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (existing) {
+      throw new Error("Subscription already exists for this user");
+    }
+
+    const now = Date.now();
+
+    return await ctx.db.insert("subscriptions", {
+      userId,
+      tier,
+      status,
+      trialStartedAt: status === "trialing" ? now : undefined,
+      trialEndsAt,
+      priceInShekels: TIER_PRICING[tier as SubscriptionTier] || 0,
+      createdAt: now,
+      updatedAt: now,
+    });
+  },
+});
+
+/**
+ * Update subscription tier.
+ */
+export const updateTier = mutation({
+  args: {
+    tier: subscriptionTierValidator,
+  },
+  handler: async (ctx, { tier }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
     }
 
     const user = await ctx.db
@@ -246,12 +375,67 @@ export const getMySubscription = query({
       .unique();
 
     if (!user) {
-      return null;
+      throw new Error("User not found");
     }
 
-    return {
-      subscriptionTier: user.subscriptionTier,
-      features: TIER_FEATURES[user.subscriptionTier],
-    };
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!subscription) {
+      throw new Error("No subscription found");
+    }
+
+    const now = Date.now();
+
+    await ctx.db.patch(subscription._id, {
+      tier,
+      status: "active",
+      priceInShekels: TIER_PRICING[tier as SubscriptionTier] || 0,
+      currentPeriodStart: now,
+      currentPeriodEnd: now + 30 * 24 * 60 * 60 * 1000, // 30 days
+      updatedAt: now,
+    });
+
+    return subscription._id;
+  },
+});
+
+/**
+ * Cancel subscription.
+ */
+export const cancelSubscription = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!subscription) {
+      throw new Error("No subscription found");
+    }
+
+    await ctx.db.patch(subscription._id, {
+      status: "canceled",
+      updatedAt: Date.now(),
+    });
+
+    return subscription._id;
   },
 });

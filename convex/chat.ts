@@ -32,10 +32,7 @@ async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users"
  * Verify that the current user owns the given session.
  * Returns the session if owned, throws otherwise.
  */
-async function getOwnedSessionOrThrow(
-  ctx: QueryCtx | MutationCtx,
-  sessionId: Id<"chatSessions">
-) {
+async function getOwnedSessionOrThrow(ctx: QueryCtx | MutationCtx, sessionId: Id<"chatSessions">) {
   const userId = await getCurrentUserId(ctx);
 
   const session = await ctx.db.get(sessionId);
@@ -59,14 +56,22 @@ async function getOwnedSessionOrThrow(
  * Returns the new session ID.
  */
 export const createChatSession = mutation({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    type: v.optional(v.string()), // "rights_finder" | "deep_research" | "general"
+    title: v.optional(v.string()),
+    modelId: v.optional(v.string()),
+  },
+  handler: async (ctx, { type = "general", title, modelId }) => {
     const userId = await getCurrentUserId(ctx);
     const now = Date.now();
 
     const sessionId = await ctx.db.insert("chatSessions", {
       userId,
-      title: "New Chat",
+      title: title || "New Chat",
+      type,
+      modelId,
+      totalTokensUsed: 0,
+      estimatedCostShekels: 0,
       createdAt: now,
       updatedAt: now,
     });
@@ -106,10 +111,66 @@ export const sendMessage = mutation({
 
 /**
  * Save an assistant message in a chat session.
- * Updates the session's updatedAt timestamp.
+ * Updates the session's updatedAt timestamp and token tracking.
  * Returns the new message ID.
  */
 export const saveAssistantMessage = mutation({
+  args: {
+    sessionId: v.id("chatSessions"),
+    content: v.string(),
+    tokensUsed: v.optional(v.number()),
+    modelUsed: v.optional(v.string()),
+    sources: v.optional(
+      v.array(
+        v.object({
+          title: v.string(),
+          url: v.string(),
+          snippet: v.optional(v.string()),
+        })
+      )
+    ),
+  },
+  handler: async (ctx, { sessionId, content, tokensUsed, modelUsed, sources }) => {
+    const session = await getOwnedSessionOrThrow(ctx, sessionId);
+    const now = Date.now();
+
+    // Create assistant message
+    const messageId = await ctx.db.insert("messages", {
+      sessionId,
+      role: "assistant",
+      content,
+      tokensUsed,
+      modelUsed,
+      sources,
+      createdAt: now,
+    });
+
+    // Update session timestamp and token tracking
+    const updateData: Record<string, unknown> = { updatedAt: now };
+
+    if (tokensUsed) {
+      updateData.totalTokensUsed = session.totalTokensUsed + tokensUsed;
+
+      // Calculate cost estimate (rough: $0.002 per 1K tokens, convert to shekels ~3.7)
+      const costUSD = (tokensUsed / 1000) * 0.002;
+      const costShekels = costUSD * 3.7;
+      updateData.estimatedCostShekels = session.estimatedCostShekels + costShekels;
+    }
+
+    if (modelUsed && !session.modelId) {
+      updateData.modelId = modelUsed;
+    }
+
+    await ctx.db.patch(sessionId, updateData);
+
+    return messageId;
+  },
+});
+
+/**
+ * Save a system message in a chat session.
+ */
+export const saveSystemMessage = mutation({
   args: {
     sessionId: v.id("chatSessions"),
     content: v.string(),
@@ -118,16 +179,12 @@ export const saveAssistantMessage = mutation({
     await getOwnedSessionOrThrow(ctx, sessionId);
     const now = Date.now();
 
-    // Create assistant message
     const messageId = await ctx.db.insert("messages", {
       sessionId,
-      role: "assistant",
+      role: "system",
       content,
       createdAt: now,
     });
-
-    // Update session timestamp
-    await ctx.db.patch(sessionId, { updatedAt: now });
 
     return messageId;
   },
@@ -154,6 +211,54 @@ export const updateSessionTitle = mutation({
   },
 });
 
+/**
+ * Update session description.
+ */
+export const updateSessionDescription = mutation({
+  args: {
+    sessionId: v.id("chatSessions"),
+    description: v.string(),
+  },
+  handler: async (ctx, { sessionId, description }) => {
+    await getOwnedSessionOrThrow(ctx, sessionId);
+    const now = Date.now();
+
+    await ctx.db.patch(sessionId, {
+      description,
+      updatedAt: now,
+    });
+
+    return sessionId;
+  },
+});
+
+/**
+ * Delete a chat session and all its messages.
+ */
+export const deleteSession = mutation({
+  args: {
+    sessionId: v.id("chatSessions"),
+  },
+  handler: async (ctx, { sessionId }) => {
+    await getOwnedSessionOrThrow(ctx, sessionId);
+
+    // Delete all messages in the session
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_sessionId", (q) => q.eq("sessionId", sessionId))
+      .collect();
+
+    for (const message of messages) {
+      await ctx.db.delete(message._id);
+    }
+
+    // Delete the session
+    await ctx.db.delete(sessionId);
+
+    return sessionId;
+  },
+});
+
 // ============================================
 // QUERIES
 // ============================================
@@ -163,17 +268,38 @@ export const updateSessionTitle = mutation({
  * Ordered by updatedAt descending (most recent first).
  */
 export const getChatSessions = query({
-  args: {},
-  handler: async (ctx) => {
+  args: {
+    type: v.optional(v.string()),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, { type, limit = 50 }) => {
     const userId = await getCurrentUserId(ctx);
 
-    const sessions = await ctx.db
+    let sessions = await ctx.db
       .query("chatSessions")
-      .withIndex("by_user_updatedAt", (q) => q.eq("userId", userId))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
 
-    return sessions;
+    // Filter by type if specified
+    if (type) {
+      sessions = sessions.filter((s) => s.type === type);
+    }
+
+    return sessions.slice(0, limit);
+  },
+});
+
+/**
+ * Get a single chat session by ID.
+ */
+export const getSession = query({
+  args: {
+    sessionId: v.id("chatSessions"),
+  },
+  handler: async (ctx, { sessionId }) => {
+    const session = await getOwnedSessionOrThrow(ctx, sessionId);
+    return session;
   },
 });
 
@@ -190,10 +316,71 @@ export const getChatMessages = query({
 
     const messages = await ctx.db
       .query("messages")
-      .withIndex("by_session_createdAt", (q) => q.eq("sessionId", sessionId))
+      .withIndex("by_sessionId", (q) => q.eq("sessionId", sessionId))
       .order("asc")
       .collect();
 
     return messages;
+  },
+});
+
+/**
+ * Get session statistics (total tokens, cost).
+ */
+export const getSessionStats = query({
+  args: {
+    sessionId: v.id("chatSessions"),
+  },
+  handler: async (ctx, { sessionId }) => {
+    const session = await getOwnedSessionOrThrow(ctx, sessionId);
+
+    const messages = await ctx.db
+      .query("messages")
+      .withIndex("by_sessionId", (q) => q.eq("sessionId", sessionId))
+      .collect();
+
+    return {
+      messageCount: messages.length,
+      totalTokensUsed: session.totalTokensUsed,
+      estimatedCostShekels: session.estimatedCostShekels,
+      modelId: session.modelId,
+      type: session.type,
+    };
+  },
+});
+
+/**
+ * Get recent sessions with message previews.
+ */
+export const getRecentSessionsWithPreview = query({
+  args: {
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, { limit = 10 }) => {
+    const userId = await getCurrentUserId(ctx);
+
+    const sessions = await ctx.db
+      .query("chatSessions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .order("desc")
+      .take(limit);
+
+    // Get first message preview for each session
+    const sessionsWithPreview = await Promise.all(
+      sessions.map(async (session) => {
+        const firstMessage = await ctx.db
+          .query("messages")
+          .withIndex("by_sessionId", (q) => q.eq("sessionId", session._id))
+          .order("asc")
+          .first();
+
+        return {
+          ...session,
+          preview: firstMessage?.content.slice(0, 100) || "",
+        };
+      })
+    );
+
+    return sessionsWithPreview;
   },
 });

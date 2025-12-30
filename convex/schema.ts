@@ -3,28 +3,24 @@ import { v } from "convex/values";
 
 export default defineSchema({
   // ============================================
-  // USERS (Clerk-authenticated identities)
+  // USERS & AUTH
   // ============================================
   users: defineTable({
-    // Clerk subject (user) ID from ctx.auth.getUserIdentity().subject
     clerkId: v.string(),
     email: v.string(),
     name: v.optional(v.string()),
     imageUrl: v.optional(v.string()),
-    subscriptionTier: v.union(
-      v.literal("free_trial"),
-      v.literal("plus"),
-      v.literal("pro"),
-      v.literal("max")
-    ),
+    language: v.string(), // "he" | "en"
     createdAt: v.number(),
-    // Optional fields for backwards compatibility with existing data
+    lastLoginAt: v.optional(v.number()),
+    onboardingCompleted: v.boolean(),
+
+    // Legacy fields for backwards compatibility
     fullName: v.optional(v.string()),
     isActive: v.optional(v.boolean()),
-    language: v.optional(v.string()),
-    onboardingCompleted: v.optional(v.boolean()),
     role: v.optional(v.string()),
     subscriptionStatus: v.optional(v.string()),
+    subscriptionTier: v.optional(v.string()),
     updatedAt: v.optional(v.number()),
     trialEndsAt: v.optional(v.number()),
   })
@@ -32,178 +28,268 @@ export default defineSchema({
     .index("by_email", ["email"]),
 
   // ============================================
-  // CHAT MESSAGES (existing)
+  // SUBSCRIPTIONS
   // ============================================
-  chatMessages: defineTable({
-    userId: v.string(), // Clerk user ID
-    role: v.union(v.literal("user"), v.literal("assistant")),
-    content: v.string(),
-    answerHe: v.optional(v.string()), // Hebrew answer if assistant message
-    answerEn: v.optional(v.string()), // English answer if assistant message
-    mode: v.optional(v.union(v.literal("answer"), v.literal("clarify"))),
-    timestamp: v.number(),
+  subscriptions: defineTable({
+    userId: v.id("users"),
+    tier: v.string(), // "free_trial" | "plus" | "pro" | "max"
+    status: v.string(), // "active" | "canceled" | "past_due" | "trialing"
+
+    // Trial info
+    trialStartedAt: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
+
+    // Billing
+    currentPeriodStart: v.optional(v.number()),
+    currentPeriodEnd: v.optional(v.number()),
+    priceInShekels: v.number(), // Monthly price in ₪
+
+    // Stripe/Payment IDs (for future)
+    stripeCustomerId: v.optional(v.string()),
+    stripeSubscriptionId: v.optional(v.string()),
+
+    createdAt: v.number(),
+    updatedAt: v.number(),
   })
-    .index("by_user", ["userId"])
-    .index("by_user_timestamp", ["userId", "timestamp"]),
+    .index("by_userId", ["userId"])
+    .index("by_status", ["status"]),
 
   // ============================================
-  // CHAT SESSIONS (Session-based conversations)
+  // USER PROFILES (Onboarding Data)
+  // ============================================
+  userProfiles: defineTable({
+    userId: v.id("users"),
+
+    // Basic Info
+    ageRange: v.optional(v.string()), // "18-25" | "26-35" | etc.
+    city: v.optional(v.string()),
+    hmo: v.optional(v.string()), // "clalit" | "maccabi" | "meuhedet" | "leumit"
+
+    // Life Situation
+    employmentStatus: v.optional(v.string()), // "employed" | "unemployed" | "student" | "retired"
+    idfService: v.optional(v.string()), // "served" | "not_served" | "currently_serving"
+    isIdfDisabled: v.optional(v.boolean()),
+
+    // Disabilities (multi-select)
+    disabilities: v.optional(v.array(v.string())), // ["mobility", "vision", "hearing", etc.]
+    disabilitySeverity: v.optional(v.string()), // "mild" | "moderate" | "severe"
+
+    // Privacy
+    isAnonymous: v.boolean(),
+
+    // Ministry interactions
+    relevantMinistries: v.optional(v.array(v.string())),
+
+    // Legacy fields for backwards compatibility
+    isVeteran: v.optional(v.boolean()),
+    ministries: v.optional(v.array(v.string())),
+
+    updatedAt: v.optional(v.number()),
+  }).index("by_userId", ["userId"]),
+
+  // ============================================
+  // CHAT SYSTEM
   // ============================================
   chatSessions: defineTable({
     userId: v.id("users"),
     title: v.string(),
     description: v.optional(v.string()),
+
+    // Chat type
+    type: v.string(), // "rights_finder" | "deep_research" | "general"
+
+    // Model used
+    modelId: v.optional(v.string()),
+
+    // Token tracking
+    totalTokensUsed: v.number(),
+    estimatedCostShekels: v.number(),
+
     createdAt: v.number(),
     updatedAt: v.number(),
   })
-    .index("by_user", ["userId"])
-    .index("by_user_updatedAt", ["userId", "updatedAt"]),
+    .index("by_userId", ["userId"])
+    .index("by_type", ["type"]),
 
-  // ============================================
-  // MESSAGES (Individual messages within sessions)
-  // ============================================
   messages: defineTable({
     sessionId: v.id("chatSessions"),
-    role: v.string(), // "user" | "assistant"
+    role: v.string(), // "user" | "assistant" | "system"
     content: v.string(),
-    createdAt: v.number(),
-  })
-    .index("by_session", ["sessionId"])
-    .index("by_session_createdAt", ["sessionId", "createdAt"]),
 
-  // ============================================
-  // PROFILES (ProfileLite for impact matching)
-  // ============================================
-  profiles: defineTable({
-    userId: v.id("users"),
-    region: v.optional(v.string()),
-    city: v.optional(v.string()),
-    tracks: v.array(v.union(v.literal("nii"), v.literal("mod"), v.literal("moh"))),
-    tags: v.array(v.string()), // Topic tags for matching updates
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_user", ["userId"]),
+    // Token tracking per message
+    tokensUsed: v.optional(v.number()),
+    modelUsed: v.optional(v.string()),
 
-  // ============================================
-  // USER PROFILES (Onboarding profile details)
-  // ============================================
-  userProfiles: defineTable({
-    userId: v.id("users"),
-    ageRange: v.optional(v.string()),
-    city: v.optional(v.string()),
-    hmo: v.optional(v.string()),
-    employmentStatus: v.optional(v.string()),
-    isVeteran: v.optional(v.boolean()),
-    disabilities: v.optional(v.array(v.string())),
-    ministries: v.optional(v.array(v.string())),
-    isAnonymous: v.boolean(),
-  }).index("by_user", ["userId"]),
-
-  // ============================================
-  // QUERIES (Rights Finder Q&A)
-  // ============================================
-  queries: defineTable({
-    userId: v.optional(v.id("users")), // null/undefined for anonymous
-    anonSessionId: v.optional(v.string()), // For rate limiting anonymous users
-    input: v.string(), // The user's question
-    createdAt: v.number(),
-  })
-    .index("by_user_createdAt", ["userId", "createdAt"])
-    .index("by_anon_createdAt", ["anonSessionId", "createdAt"]),
-
-  // ============================================
-  // ANSWERS (Citation-backed responses)
-  // ============================================
-  answers: defineTable({
-    queryId: v.id("queries"),
-    structuredJson: v.string(), // JSON string of structured answer
-    citations: v.array(
-      v.object({
-        url: v.string(),
-        title: v.optional(v.string()),
-        lastCheckedAt: v.optional(v.number()),
-        excerpt: v.optional(v.string()),
-      })
+    // For citations/sources
+    sources: v.optional(
+      v.array(
+        v.object({
+          title: v.string(),
+          url: v.string(),
+          snippet: v.optional(v.string()),
+        })
+      )
     ),
-    confidence: v.number(), // 0-1 confidence score
-    generatedAt: v.number(),
-  }).index("by_query", ["queryId"]),
 
-  // ============================================
-  // CHECKLIST PLANS (Ordered action plans)
-  // ============================================
-  checklistPlans: defineTable({
-    userId: v.id("users"),
-    title: v.string(),
-    fromAnswerId: v.optional(v.id("answers")),
-    stepsJson: v.string(), // JSON string of steps array
-    nextActionsJson: v.string(), // JSON string of next 1-3 actions
     createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_user_updatedAt", ["userId", "updatedAt"]),
+  }).index("by_sessionId", ["sessionId"]),
 
   // ============================================
-  // SOURCES (Updates Radar - curated sources)
+  // USAGE TRACKING & CAPS
   // ============================================
-  sources: defineTable({
-    url: v.string(),
-    agency: v.optional(v.string()), // e.g. "nii", "mod", "moh"
-    tags: v.array(v.string()),
-    crawlFrequency: v.union(v.literal("daily"), v.literal("weekly")),
+  usageTracking: defineTable({
+    userId: v.id("users"),
+
+    // Current billing period
+    periodStart: v.number(),
+    periodEnd: v.number(),
+
+    // API Usage (in shekels equivalent)
+    apiCreditsUsed: v.number(), // Total cost of API calls
+    apiCreditsLimit: v.number(), // Based on subscription tier
+
+    // Crawling/Deep Research
+    crawlCreditsUsed: v.number(),
+    crawlCreditsLimit: v.number(),
+
+    // Token counts
+    totalTokensUsed: v.number(),
+
+    // Cap status
+    softCapReached: v.boolean(), // 40% threshold
+    hardCapReached: v.boolean(), // 60% threshold
+
+    // Alerts sent
+    softCapAlertSent: v.boolean(),
+    hardCapAlertSent: v.boolean(),
+
+    updatedAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_period", ["periodStart", "periodEnd"]),
+
+  // ============================================
+  // MODEL CONFIGURATION
+  // ============================================
+  modelConfig: defineTable({
+    modelId: v.string(), // "kimi-k2" | "deepseek-v3" | etc.
+    displayName: v.string(),
+    provider: v.string(), // "moonshot" | "deepseek" | "mistral" | "google"
+
+    // Hierarchy (1 = highest/best, 5 = lowest/cheapest)
+    tier: v.number(),
+
+    // Pricing per 1M tokens (in USD, we'll convert to shekels)
+    inputPricePerMillion: v.number(),
+    outputPricePerMillion: v.number(),
+
+    // Capabilities
+    maxContextTokens: v.number(),
+    supportsStreaming: v.boolean(),
+    supportsVision: v.boolean(),
+
+    // Which subscription tiers can use this model
+    availableForTiers: v.array(v.string()),
+
+    // Status
     isActive: v.boolean(),
+    isDefault: v.boolean(),
+  })
+    .index("by_modelId", ["modelId"])
+    .index("by_tier", ["tier"]),
+
+  // ============================================
+  // ALERTS & NOTIFICATIONS
+  // ============================================
+  alerts: defineTable({
+    userId: v.id("users"),
+
+    type: v.string(), // "usage_warning" | "rights_update" | "deadline" | "system"
+    title: v.string(),
+    message: v.string(),
+
+    // Priority
+    priority: v.string(), // "low" | "medium" | "high" | "urgent"
+
+    // Status
+    isRead: v.boolean(),
+    isDismissed: v.boolean(),
+
+    // Action link (optional)
+    actionUrl: v.optional(v.string()),
+    actionLabel: v.optional(v.string()),
+
+    createdAt: v.number(),
+    expiresAt: v.optional(v.number()),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_type", ["type"])
+    .index("by_isRead", ["isRead"]),
+
+  // ============================================
+  // SAVED RIGHTS & ANSWERS
+  // ============================================
+  savedRights: defineTable({
+    userId: v.id("users"),
+
+    title: v.string(),
+    summary: v.string(),
+    fullContent: v.string(),
+
+    // Categorization
+    category: v.string(), // "disability" | "health" | "employment" | etc.
+    tags: v.array(v.string()),
+
+    // Source
+    sourceUrl: v.optional(v.string()),
+    sourceName: v.optional(v.string()),
+
+    // From chat
+    fromSessionId: v.optional(v.id("chatSessions")),
+
+    createdAt: v.number(),
+  })
+    .index("by_userId", ["userId"])
+    .index("by_category", ["category"]),
+
+  // ============================================
+  // CHECKLISTS
+  // ============================================
+  checklists: defineTable({
+    userId: v.id("users"),
+
+    title: v.string(),
+    description: v.optional(v.string()),
+
+    // Type
+    type: v.string(), // "rights_application" | "documents" | "custom"
+
+    // Related right (if applicable)
+    relatedRightId: v.optional(v.id("savedRights")),
+
+    // Progress
+    totalItems: v.number(),
+    completedItems: v.number(),
+
+    // Deadline
+    dueDate: v.optional(v.number()),
+
     createdAt: v.number(),
     updatedAt: v.number(),
-  })
-    .index("by_url", ["url"])
-    .index("by_active_frequency", ["isActive", "crawlFrequency"]),
+  }).index("by_userId", ["userId"]),
 
-  // ============================================
-  // SOURCE SNAPSHOTS (Crawl results)
-  // ============================================
-  sourceSnapshots: defineTable({
-    sourceId: v.id("sources"),
-    fetchedAt: v.number(),
-    contentHash: v.string(),
-    normalizedText: v.string(), // MVP: store inline; later move to file storage
-  }).index("by_source_fetchedAt", ["sourceId", "fetchedAt"]),
+  checklistItems: defineTable({
+    checklistId: v.id("checklists"),
 
-  // ============================================
-  // UPDATE ITEMS (Detected changes)
-  // ============================================
-  updateItems: defineTable({
-    sourceId: v.id("sources"),
-    prevSnapshotId: v.optional(v.id("sourceSnapshots")),
-    newSnapshotId: v.id("sourceSnapshots"),
-    diffSummary: v.string(), // Human-readable summary of what changed
-    severity: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
-    tags: v.array(v.string()), // For matching to user profiles
+    title: v.string(),
+    description: v.optional(v.string()),
+
+    isCompleted: v.boolean(),
+    completedAt: v.optional(v.number()),
+
+    // Order
+    sortOrder: v.number(),
+
     createdAt: v.number(),
-  })
-    .index("by_createdAt", ["createdAt"])
-    .index("by_source_createdAt", ["sourceId", "createdAt"]),
-
-  // ============================================
-  // NOTIFICATION SETTINGS (User preferences)
-  // ============================================
-  notificationSettings: defineTable({
-    userId: v.id("users"),
-    emailEnabled: v.boolean(),
-    digestFrequency: v.union(v.literal("weekly"), v.literal("daily")),
-    createdAt: v.number(),
-    updatedAt: v.number(),
-  }).index("by_user", ["userId"]),
-
-  // ============================================
-  // NOTIFICATION EVENTS (Sent/queued alerts)
-  // ============================================
-  notificationEvents: defineTable({
-    userId: v.id("users"),
-    updateItemId: v.id("updateItems"),
-    channel: v.literal("email"), // MVP: email only
-    status: v.union(v.literal("queued"), v.literal("sent"), v.literal("failed")),
-    createdAt: v.number(),
-    sentAt: v.optional(v.number()),
-  })
-    .index("by_user_createdAt", ["userId", "createdAt"])
-    .index("by_updateItem", ["updateItemId"]),
+  }).index("by_checklistId", ["checklistId"]),
 });
