@@ -1,185 +1,222 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
-import StitchBackground from "@/components/stitch/StitchBackground";
+import { useRouter } from "next/navigation";
+import { useTranslation } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "הגדרת פרופיל | ZchuyotBuddy",
-  description: "הגדרת פרופיל אישי למימוש הזכויות שלך",
-};
-
-/**
- * Onboarding Step 3: Profile Setup
- * Flow: Welcome → Radar → Profile Setup
- */
 export default function OnboardingProfileSetupPage() {
+  const { t } = useTranslation();
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    ageRange: "",
+    city: "",
+    employmentStatus: "",
+    tracks: [] as string[],
+  });
+
+  const ageRanges = [
+    { value: "18-25", label: "18-25" },
+    { value: "26-35", label: "26-35" },
+    { value: "36-45", label: "36-45" },
+    { value: "46-55", label: "46-55" },
+    { value: "56-65", label: "56-65" },
+    { value: "65+", label: "65+" },
+  ];
+
+  const employmentOptions = [
+    { value: "employed", label: "עובד/ת" },
+    { value: "self-employed", label: "עצמאי/ת" },
+    { value: "unemployed", label: "לא עובד/ת" },
+    { value: "student", label: "סטודנט/ית" },
+    { value: "retired", label: "פנסיונר/ית" },
+  ];
+
+  const tracks = [
+    { value: "nii", label: "ביטוח לאומי", icon: "account_balance" },
+    { value: "mod", label: "משרד הביטחון", icon: "shield" },
+    { value: "moh", label: "משרד הבריאות", icon: "local_hospital" },
+  ];
+
+  const handleTrackToggle = (track: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      tracks: prev.tracks.includes(track)
+        ? prev.tracks.filter((t) => t !== track)
+        : [...prev.tracks, track],
+    }));
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    // In a real app, save profile data to Convex here
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    router.push("/dashboard");
+  };
+
   return (
-    <div
-      className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden no-scrollbar bg-white"
-      dir="rtl"
-      lang="he"
-    >
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-background">
       {/* Background decorations */}
-      <StitchBackground />
+      <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
 
       {/* Header */}
-      <header className="flex items-center justify-between p-6 pt-12 z-20 max-w-2xl mx-auto w-full">
+      <header className="flex items-center justify-between p-6 relative z-10">
         <Link
           href="/onboarding/radar"
-          className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-text-dark hover:bg-gray-100 transition-colors"
-          aria-label="חזרה"
+          className="size-10 rounded-xl bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
         >
-          <span className="material-symbols-outlined text-[24px]">arrow_forward</span>
+          <span className="material-symbols-outlined">arrow_forward</span>
         </Link>
-        <div className="w-10 h-10" />
+        <Link
+          href="/dashboard"
+          className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
+        >
+          {t("common.skip")}
+        </Link>
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col px-6 relative z-10 w-full max-w-2xl mx-auto -mt-2">
-        {/* Title section */}
-        <div className="text-right mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary mb-4 shadow-sm">
-            <span className="material-symbols-outlined text-[26px]" aria-hidden="true">
-              person_edit
-            </span>
+      <main className="flex-1 flex flex-col px-6 relative z-10 overflow-y-auto pb-32">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <div className="size-16 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+            <span className="material-symbols-outlined text-3xl">person</span>
           </div>
-          <h1 className="text-text-dark text-[28px] font-extrabold leading-tight mb-2">
-            הגדרת פרופיל
+          <h1 className="text-foreground tracking-tight text-2xl font-black leading-tight">
+            {t("onboarding.profile.title")}
           </h1>
-          <p className="text-text-subtle text-[15px] font-medium leading-relaxed">
-            כדי שנוכל לעזור לך לממש את הזכויות שלך, נצטרך להכיר אותך קצת יותר. המידע נשמר באופן
-            מאובטח.
+          <p className="text-muted-foreground text-sm mt-2">
+            {t("onboarding.profile.description")}
           </p>
         </div>
 
-        {/* Form fields */}
-        <div className="flex flex-col gap-5">
-          {/* Anonymous mode toggle */}
-          <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
-                <span className="material-symbols-outlined" aria-hidden="true">
-                  visibility_off
-                </span>
-              </div>
-              <div className="flex flex-col text-right">
-                <span className="text-sm font-bold text-text-dark">מצב אנונימי</span>
-                <span className="text-xs text-text-subtle">ללא שמירת שם או פרטים מזהים</span>
-              </div>
-            </div>
-            <label className="flex items-center cursor-pointer relative" htmlFor="anonymous-toggle">
-              <input type="checkbox" id="anonymous-toggle" className="sr-only peer" />
-              <div
-                className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"
-                dir="ltr"
-              />
-            </label>
-          </div>
-
-          {/* Form inputs */}
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <label htmlFor="fullName" className="text-sm font-bold text-text-dark pr-1">
-                שם מלא
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 transition-all text-right placeholder-gray-400 font-medium"
-                placeholder="השם שלך"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="birthYear" className="text-sm font-bold text-text-dark pr-1">
-                שנת לידה
-              </label>
-              <div className="relative">
-                <select
-                  id="birthYear"
-                  className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 transition-all text-right appearance-none font-medium text-text-dark"
-                  defaultValue=""
+        {/* Form */}
+        <div className="space-y-6 max-w-md mx-auto w-full">
+          {/* Age Range */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3">טווח גילאים</label>
+            <div className="grid grid-cols-3 gap-2">
+              {ageRanges.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, ageRange: option.value })}
+                  className={`py-2 px-3 rounded-xl text-sm font-medium transition-all ${
+                    formData.ageRange === option.value
+                      ? "bg-primary text-white shadow-primary"
+                      : "bg-card border border-border text-foreground hover:bg-accent"
+                  }`}
                 >
-                  <option value="" disabled={true}>
-                    בחירת שנה
-                  </option>
-                  {Array.from({ length: 80 }, (_, i) => 2006 - i).map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-500">
-                  <span className="material-symbols-outlined" aria-hidden="true">
-                    expand_more
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Family helper checkbox */}
-            <div className="pt-2">
-              <label className="flex items-center p-3 border border-primary/20 bg-primary/5 rounded-xl cursor-pointer transition-colors hover:bg-primary/10">
-                <input
-                  type="checkbox"
-                  className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary focus:ring-offset-0 ml-3"
-                />
-                <div className="flex-1 text-right">
-                  <span className="block text-sm font-bold text-text-dark">
-                    אני מסייע/ת לבן משפחה
-                  </span>
-                  <span className="block text-xs text-text-subtle mt-0.5">
-                    הזכויות הן עבור מישהו אחר
-                  </span>
-                </div>
-                <span className="material-symbols-outlined text-primary/60" aria-hidden="true">
-                  family_restroom
-                </span>
-              </label>
+                  {option.label}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Security notice */}
-          <div className="flex gap-2 items-start mt-2 p-3 bg-gray-50 rounded-xl">
-            <span
-              className="material-symbols-outlined text-text-subtle text-[18px] mt-0.5"
-              aria-hidden="true"
-            >
-              lock
-            </span>
-            <p className="text-xs text-text-subtle leading-relaxed text-right">
-              המידע שלך מוצפן ומאובטח. אנחנו לא משתפים את המידע עם צד שלישי ללא הסכמתך המפורשת.
-            </p>
+          {/* City */}
+          <div>
+            <label htmlFor="city" className="block text-sm font-medium text-foreground mb-2">
+              עיר מגורים
+            </label>
+            <input
+              id="city"
+              type="text"
+              value={formData.city}
+              onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+              className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              placeholder="לדוגמה: תל אביב"
+            />
+          </div>
+
+          {/* Employment Status */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3">סטטוס תעסוקה</label>
+            <div className="grid grid-cols-2 gap-2">
+              {employmentOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, employmentStatus: option.value })}
+                  className={`py-2 px-3 rounded-xl text-sm font-medium transition-all ${
+                    formData.employmentStatus === option.value
+                      ? "bg-primary text-white shadow-primary"
+                      : "bg-card border border-border text-foreground hover:bg-accent"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tracks */}
+          <div>
+            <label className="block text-sm font-medium text-foreground mb-3">
+              תחומים שמעניינים אותך
+            </label>
+            <div className="space-y-2">
+              {tracks.map((track) => (
+                <button
+                  key={track.value}
+                  type="button"
+                  onClick={() => handleTrackToggle(track.value)}
+                  className={`w-full flex items-center gap-3 p-4 rounded-xl transition-all ${
+                    formData.tracks.includes(track.value)
+                      ? "bg-primary/10 border-2 border-primary"
+                      : "bg-card border border-border hover:bg-accent"
+                  }`}
+                >
+                  <div className={`size-10 rounded-xl flex items-center justify-center ${
+                    formData.tracks.includes(track.value)
+                      ? "bg-primary text-white"
+                      : "bg-accent text-muted-foreground"
+                  }`}>
+                    <span className="material-symbols-outlined text-xl">{track.icon}</span>
+                  </div>
+                  <span className="font-medium text-foreground">{track.label}</span>
+                  {formData.tracks.includes(track.value) && (
+                    <span className="material-symbols-outlined text-primary ms-auto">check_circle</span>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </main>
 
       {/* CTA section */}
-      <div className="p-6 pb-10 w-full z-10 bg-white mt-auto border-t border-gray-50 max-w-2xl mx-auto">
-        <Link
-          href="/app"
-          className="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-light hover:shadow-primary/40 active:scale-[0.98]"
-        >
-          <span className="text-lg font-bold tracking-tight ml-2">המשך</span>
-          <span
-            className="material-symbols-outlined transition-transform group-hover:-translate-x-1 rotate-180"
-            aria-hidden="true"
-          >
-            arrow_forward
-          </span>
-        </Link>
-
+      <footer className="fixed bottom-0 left-0 right-0 flex flex-col gap-5 p-6 pb-10 w-full z-10 bg-gradient-to-t from-background via-background to-transparent">
         {/* Progress dots */}
-        <div
-          className="mt-4 flex justify-center gap-2"
-          dir="ltr"
-          role="group"
-          aria-label="שלב 3 מתוך 3"
-        >
-          <div className="w-2 h-2 rounded-full bg-gray-200" />
-          <div className="w-2 h-2 rounded-full bg-gray-200" />
+        <div className="flex justify-center gap-2 mb-2">
+          <div className="w-2 h-2 rounded-full bg-primary" />
+          <div className="w-2 h-2 rounded-full bg-primary" />
           <div className="w-8 h-2 rounded-full bg-primary shadow-sm shadow-primary/30" />
         </div>
-      </div>
+
+        {/* Primary CTA */}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className="group relative flex w-full items-center justify-center overflow-hidden rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-primary/40 active:scale-[0.98] disabled:opacity-50"
+        >
+          {isSubmitting ? (
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span className="text-lg font-bold">מתחיל...</span>
+            </div>
+          ) : (
+            <>
+              <span className="text-lg font-bold tracking-tight ms-2">התחל לגלות זכויות</span>
+              <span className="material-symbols-outlined transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1">
+                arrow_back
+              </span>
+            </>
+          )}
+        </button>
+      </footer>
     </div>
   );
 }

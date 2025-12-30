@@ -1,121 +1,104 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
-import OnboardingHero from "@/components/stitch/onboarding/OnboardingHero";
+import { useTranslation } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "רדאר עדכונים | ZchuyotBuddy",
-  description: "כל העדכונים במקום אחד - סריקה יומית של זכויות חדשות",
-};
-
-/**
- * Onboarding Step 2: Radar
- * Flow: Welcome → Radar → Profile Setup
- */
 export default function OnboardingRadarPage() {
+  const { t } = useTranslation();
+
   return (
-    <div
-      className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden no-scrollbar bg-white"
-      dir="rtl"
-      lang="he"
-    >
-      {/* Background decorations - extended for radar page */}
-      <div
-        className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-primary/10 blur-[100px] pointer-events-none"
-        aria-hidden="true"
-      />
+    <div className="relative flex min-h-screen w-full flex-col overflow-hidden bg-background">
+      {/* Background decorations */}
+      <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
 
       {/* Header */}
-      <header className="flex items-center justify-between p-6 pt-12 z-10 max-w-2xl mx-auto w-full">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
-            <span className="material-symbols-outlined text-[24px] font-bold">radar</span>
-          </div>
-          <span className="text-text-dark font-black text-xl tracking-tight">רדאר עדכונים</span>
+      <header className="flex items-center justify-between p-6 relative z-10">
+        <Link
+          href="/onboarding"
+          className="size-10 rounded-xl bg-accent text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors"
+        >
+          <span className="material-symbols-outlined">arrow_forward</span>
         </Link>
         <Link
-          href="/app"
-          className="text-text-subtle text-sm font-semibold hover:text-primary transition-colors py-2 px-4 rounded-full hover:bg-primary-bg"
+          href="/dashboard"
+          className="text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
         >
-          דלג
+          {t("common.skip")}
         </Link>
       </header>
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col items-center justify-center px-6 relative z-10 w-full max-w-2xl mx-auto mt-[-20px]">
-        {/* Hero illustration */}
-        <OnboardingHero />
+      <main className="flex-1 flex flex-col items-center justify-center px-6 relative z-10">
+        {/* Radar illustration */}
+        <div className="w-full relative mb-10 flex justify-center">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-primary/10 rounded-full blur-2xl" />
+          
+          {/* Radar circles */}
+          <div className="relative w-72 h-72 flex items-center justify-center">
+            <div className="absolute w-72 h-72 rounded-full border-2 border-primary/10 animate-ping" style={{ animationDuration: "3s" }} />
+            <div className="absolute w-56 h-56 rounded-full border-2 border-primary/20" />
+            <div className="absolute w-40 h-40 rounded-full border-2 border-primary/30" />
+            <div className="absolute w-24 h-24 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
+              <span className="material-symbols-outlined text-4xl text-primary">
+                radar
+              </span>
+            </div>
 
-        {/* Content */}
-        <div className="flex flex-col items-center text-center space-y-4 max-w-sm mx-auto rtl">
-          <h1 className="text-text-dark tracking-tight text-[28px] font-extrabold leading-[1.2]">
-            כל העדכונים{" "}
-            <span className="text-primary relative inline-block whitespace-nowrap">
-              במקום אחד
-              <svg
-                className="absolute w-full h-2 -bottom-1 left-0 text-primary/20"
-                preserveAspectRatio="none"
-                viewBox="0 0 100 10"
-                aria-hidden="true"
-              >
-                <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="3" />
-              </svg>
-            </span>
+            {/* Radar dots */}
+            <div className="absolute top-8 right-16 w-3 h-3 rounded-full bg-success animate-pulse" />
+            <div className="absolute bottom-12 left-8 w-3 h-3 rounded-full bg-warning animate-pulse" style={{ animationDelay: "0.5s" }} />
+            <div className="absolute top-20 left-12 w-2 h-2 rounded-full bg-info animate-pulse" style={{ animationDelay: "1s" }} />
+          </div>
+        </div>
+
+        {/* Content text */}
+        <div className="flex flex-col items-center text-center space-y-4 max-w-sm mx-auto">
+          <h1 className="text-foreground tracking-tight text-3xl font-black leading-tight">
+            {t("onboarding.radar.title")}
           </h1>
-          <p className="text-text-subtle text-base font-medium leading-relaxed px-4">
-            אנו סורקים עבורך מדי יום את אתרי הממשלה, ביטוח לאומי, העיריות והעמותות כדי שלא תפספס אף
-            זכות המגיעה לך.
+          <p className="text-muted-foreground text-base font-medium leading-relaxed px-2">
+            {t("onboarding.radar.description")}
           </p>
+
+          {/* Feature list */}
+          <div className="w-full space-y-3 mt-4">
+            {[
+              { icon: "notifications_active", text: "התראות על שינויים בזכויות" },
+              { icon: "update", text: "עדכונים בזמן אמת" },
+              { icon: "mail", text: "סיכום שבועי לאימייל" },
+            ].map((feature, index) => (
+              <div key={index} className="flex items-center gap-3 bg-card p-3 rounded-xl border border-border">
+                <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+                  <span className="material-symbols-outlined text-xl">{feature.icon}</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">{feature.text}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </main>
 
       {/* CTA section */}
-      <div className="flex flex-col gap-5 p-6 pb-10 w-full z-10 bg-white max-w-2xl mx-auto">
+      <footer className="flex flex-col gap-5 p-6 pb-10 w-full z-10 bg-gradient-to-t from-background to-transparent">
         {/* Progress dots */}
-        <div
-          className="flex justify-center gap-2 mb-2"
-          dir="ltr"
-          role="group"
-          aria-label="שלב 2 מתוך 3"
-        >
-          <div className="w-2 h-2 rounded-full bg-gray-200" />
+        <div className="flex justify-center gap-2 mb-2">
+          <div className="w-2 h-2 rounded-full bg-primary" />
           <div className="w-8 h-2 rounded-full bg-primary shadow-sm shadow-primary/30" />
-          <div className="w-2 h-2 rounded-full bg-gray-200" />
+          <div className="w-2 h-2 rounded-full bg-border" />
         </div>
 
         {/* Primary CTA */}
         <Link
           href="/onboarding/profile-setup"
-          className="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-light hover:shadow-primary/40 active:scale-[0.98]"
+          className="group relative flex w-full items-center justify-center overflow-hidden rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-primary/40 active:scale-[0.98]"
         >
-          <span className="text-lg font-bold tracking-tight ml-2">הפעלת רדאר אישי</span>
-          <span
-            className="material-symbols-outlined transition-transform group-hover:-translate-x-1 rotate-180"
-            aria-hidden="true"
-          >
+          <span className="text-lg font-bold tracking-tight ms-2">{t("common.next")}</span>
+          <span className="material-symbols-outlined transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1">
             arrow_back
           </span>
         </Link>
-
-        {/* Secondary link */}
-        <button
-          type="button"
-          className="text-text-subtle text-sm font-semibold py-1 hover:text-primary transition-colors flex items-center justify-center gap-1 group"
-        >
-          <span
-            className="material-symbols-outlined text-lg group-hover:scale-110 transition-transform"
-            aria-hidden="true"
-          >
-            tune
-          </span>
-          התאם הגדרות חיפוש
-        </button>
-
-        <div className="h-2" />
-      </div>
+      </footer>
     </div>
   );
 }

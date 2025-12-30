@@ -1,181 +1,170 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "יצירת מסמכים | ZchuyotBuddy",
-  description: "יצירת והפקת מסמכים בצורה חכמה",
-};
+import { useState } from "react";
+import { useTranslation } from "@/lib/i18n";
 
-/**
- * Stitch Document Generator Page Preview
- * Based on: design/stitch-export/stitch_welcome_to_zchuyotbuddy/welcome_to_zchuyotbuddy_7/
- */
-export default function StitchDocumentsPage() {
+interface Document {
+  id: string;
+  name: string;
+  type: string;
+  category: string;
+  uploadedAt: string;
+  size: string;
+}
+
+export default function DocumentsPage() {
+  const { t } = useTranslation();
+  const [activeCategory, setActiveCategory] = useState("all");
+
+  const categories = [
+    { id: "all", label: "הכל", icon: "folder" },
+    { id: "id", label: t("documents.types.id"), icon: "badge" },
+    { id: "medical", label: t("documents.types.medical"), icon: "medical_information" },
+    { id: "financial", label: t("documents.types.financial"), icon: "account_balance" },
+    { id: "other", label: t("documents.types.other"), icon: "description" },
+  ];
+
+  // Mock data - in production, this would come from Convex
+  const documents: Document[] = [
+    {
+      id: "1",
+      name: "תעודת זהות",
+      type: "PDF",
+      category: "id",
+      uploadedAt: "12/12/2024",
+      size: "1.2 MB",
+    },
+    {
+      id: "2",
+      name: "אישור רפואי",
+      type: "PDF",
+      category: "medical",
+      uploadedAt: "10/12/2024",
+      size: "0.8 MB",
+    },
+    {
+      id: "3",
+      name: "תלוש משכורת דצמבר",
+      type: "PDF",
+      category: "financial",
+      uploadedAt: "01/12/2024",
+      size: "0.3 MB",
+    },
+    {
+      id: "4",
+      name: "מכתב פיטורין",
+      type: "PDF",
+      category: "other",
+      uploadedAt: "28/11/2024",
+      size: "0.2 MB",
+    },
+    {
+      id: "5",
+      name: "טופס 106",
+      type: "PDF",
+      category: "financial",
+      uploadedAt: "15/11/2024",
+      size: "0.5 MB",
+    },
+  ];
+
+  const filteredDocuments = activeCategory === "all"
+    ? documents
+    : documents.filter((doc) => doc.category === activeCategory);
+
+  const getCategoryIcon = (category: string) => {
+    const cat = categories.find((c) => c.id === category);
+    return cat?.icon || "description";
+  };
+
   return (
-    <div
-      dir="rtl"
-      className="relative flex h-screen w-full flex-col overflow-y-auto overflow-x-hidden md:max-w-md md:mx-auto md:border-x md:border-gray-100 no-scrollbar bg-white"
-    >
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      {/* Background decorations */}
-      <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
-
-      {/* Header */}
-      <div className="flex items-center justify-between p-6 pt-12 z-20">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/30">
-            <span className="material-symbols-outlined text-[24px]">shield</span>
-          </div>
-          <span className="text-text-dark font-extrabold text-xl tracking-tight">ZchuyotBuddy</span>
-        </div>
-        <button
-          type="button"
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-100 shadow-sm text-text-subtle hover:bg-gray-50 transition-colors"
-        >
-          <span className="material-symbols-outlined">menu</span>
-        </button>
-      </div>
-
-      {/* Main content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-32 z-10 no-scrollbar">
-        {/* Title section */}
-        <div className="mt-2 mb-8">
-          <h1 className="text-3xl font-extrabold text-surface-purple leading-tight mb-3">
-            יצירת ערכות מסמכים
-          </h1>
-          <p className="text-text-subtle text-lg leading-relaxed font-medium">
-            בחרו את התבניות שברצונכם להפיק. אנו נמלא אותן אוטומטית עבורכם.
-          </p>
-        </div>
-
-        {/* Document selection */}
-        <div className="space-y-4 mb-8">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-bold text-text-subtle uppercase tracking-wider">
-              מסמכים זמינים
-            </span>
-            <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-1 rounded-lg">
-              נבחרו 1
-            </span>
-          </div>
-
-          {/* Cover letter - checked */}
-          <label className="group relative flex items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm cursor-pointer transition-all hover:shadow-md hover:border-primary/30 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-soft">
-            <input type="checkbox" className="peer sr-only" defaultChecked />
-            <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center ml-4 shrink-0 group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined text-[24px]">article</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-text-dark text-base">מכתב מקדים</h3>
-              <p className="text-sm text-text-subtle mt-0.5">פנייה רשמית לוועדה</p>
-            </div>
-            <div className="w-6 h-6 rounded-full border-2 border-gray-200 bg-white peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-all scale-95 peer-checked:scale-100">
-              <span className="material-symbols-outlined text-white text-[14px] font-bold opacity-0 peer-checked:opacity-100">
-                check
-              </span>
-            </div>
-          </label>
-
-          {/* Accessibility request */}
-          <label className="group relative flex items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm cursor-pointer transition-all hover:shadow-md hover:border-primary/30 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-soft">
-            <input type="checkbox" className="peer sr-only" />
-            <div className="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center ml-4 shrink-0 group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined text-[24px]">accessibility_new</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-text-dark text-base">בקשה להתאמות</h3>
-              <p className="text-sm text-text-subtle mt-0.5">נגישות מיוחדת בוועדה</p>
-            </div>
-            <div className="w-6 h-6 rounded-full border-2 border-gray-200 bg-white peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-all scale-95 peer-checked:scale-100">
-              <span className="material-symbols-outlined text-white text-[14px] font-bold opacity-0 peer-checked:opacity-100">
-                check
-              </span>
-            </div>
-          </label>
-
-          {/* Appeal template */}
-          <label className="group relative flex items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm cursor-pointer transition-all hover:shadow-md hover:border-primary/30 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-soft">
-            <input type="checkbox" className="peer sr-only" />
-            <div className="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center ml-4 shrink-0 group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined text-[24px]">gavel</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-text-dark text-base">תבנית ערעור</h3>
-              <p className="text-sm text-text-subtle mt-0.5">טיוטה להגשת ערעור</p>
-            </div>
-            <div className="w-6 h-6 rounded-full border-2 border-gray-200 bg-white peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-all scale-95 peer-checked:scale-100">
-              <span className="material-symbols-outlined text-white text-[14px] font-bold opacity-0 peer-checked:opacity-100">
-                check
-              </span>
-            </div>
-          </label>
-
-          {/* Doctor letter request */}
-          <label className="group relative flex items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm cursor-pointer transition-all hover:shadow-md hover:border-primary/30 has-[:checked]:border-primary has-[:checked]:bg-primary/5 has-[:checked]:shadow-soft">
-            <input type="checkbox" className="peer sr-only" />
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center ml-4 shrink-0 group-hover:scale-105 transition-transform">
-              <span className="material-symbols-outlined text-[24px]">clinical_notes</span>
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-text-dark text-base">בקשה למכתב רופא</h3>
-              <p className="text-sm text-text-subtle mt-0.5">הנחיות לחוות דעת</p>
-            </div>
-            <div className="w-6 h-6 rounded-full border-2 border-gray-200 bg-white peer-checked:bg-primary peer-checked:border-primary flex items-center justify-center transition-all scale-95 peer-checked:scale-100">
-              <span className="material-symbols-outlined text-white text-[14px] font-bold opacity-0 peer-checked:opacity-100">
-                check
-              </span>
-            </div>
-          </label>
-        </div>
-
-        {/* Export format */}
-        <div className="mb-4">
-          <div className="text-xs font-bold text-text-subtle uppercase tracking-wider mb-3">
-            פורמט ייצוא
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <label className="cursor-pointer group">
-              <input type="radio" name="format" className="peer sr-only" defaultChecked />
-              <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border border-gray-200 bg-white text-text-subtle hover:bg-gray-50 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary transition-all shadow-sm peer-checked:shadow-inner">
-                <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">
-                  picture_as_pdf
-                </span>
-                <span className="font-bold text-sm">PDF</span>
+    <div className="p-4 md:p-6 lg:p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+                <span className="material-symbols-outlined text-2xl">folder</span>
               </div>
-            </label>
-
-            <label className="cursor-pointer group">
-              <input type="radio" name="format" className="peer sr-only" />
-              <div className="flex flex-col items-center justify-center gap-2 p-4 rounded-2xl border border-gray-200 bg-white text-text-subtle hover:bg-gray-50 peer-checked:border-primary peer-checked:bg-primary/5 peer-checked:text-primary transition-all shadow-sm peer-checked:shadow-inner">
-                <span className="material-symbols-outlined text-3xl group-hover:scale-110 transition-transform">
-                  description
-                </span>
-                <span className="font-bold text-sm">Word</span>
+              <div>
+                <h1 className="text-xl font-black text-foreground">{t("documents.title")}</h1>
+                <p className="text-sm text-muted-foreground">{documents.length} מסמכים</p>
               </div>
-            </label>
+            </div>
+            <button className="h-10 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold flex items-center gap-2 transition-colors shadow-primary">
+              <span className="material-symbols-outlined text-lg">upload</span>
+              <span className="hidden sm:inline">{t("documents.upload")}</span>
+            </button>
           </div>
         </div>
-      </div>
 
-      {/* Fixed CTA */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 bg-white/80 backdrop-blur-xl border-t border-gray-100 z-20">
-        <button
-          type="button"
-          className="w-full h-14 bg-primary rounded-2xl text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-light hover:shadow-primary/40 active:scale-[0.98] flex items-center justify-center gap-3"
-        >
-          <span className="text-lg font-bold tracking-tight">הפק מסמכים</span>
-          <span className="material-symbols-outlined">wand_shine</span>
-        </button>
+        {/* Categories */}
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2 no-scrollbar">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              onClick={() => setActiveCategory(category.id)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all whitespace-nowrap ${
+                activeCategory === category.id
+                  ? "bg-primary text-white shadow-primary"
+                  : "bg-card border border-border text-foreground hover:bg-accent"
+              }`}
+            >
+              <span className="material-symbols-outlined text-lg">{category.icon}</span>
+              {category.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Documents Grid */}
+        {filteredDocuments.length > 0 ? (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredDocuments.map((doc) => (
+              <div
+                key={doc.id}
+                className="bg-card rounded-2xl p-4 border border-border shadow-soft hover:shadow-md hover:border-primary/30 transition-all cursor-pointer"
+              >
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <span className="material-symbols-outlined text-2xl">
+                      {getCategoryIcon(doc.category)}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-foreground truncate">{doc.name}</h3>
+                    <p className="text-xs text-muted-foreground">{doc.type} • {doc.size}</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">הועלה {doc.uploadedAt}</span>
+                  <div className="flex gap-1">
+                    <button className="size-8 rounded-lg hover:bg-accent flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                      <span className="material-symbols-outlined text-lg">download</span>
+                    </button>
+                    <button className="size-8 rounded-lg hover:bg-accent flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors">
+                      <span className="material-symbols-outlined text-lg">more_vert</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="size-20 rounded-2xl bg-accent text-muted-foreground flex items-center justify-center mx-auto mb-4">
+              <span className="material-symbols-outlined text-4xl">folder_off</span>
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">{t("documents.empty")}</h3>
+            <p className="text-muted-foreground mb-6">
+              העלה מסמכים לאחסון מאובטח
+            </p>
+            <button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold flex items-center gap-2 mx-auto transition-colors shadow-primary">
+              <span className="material-symbols-outlined">upload</span>
+              {t("documents.upload")}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

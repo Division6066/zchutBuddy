@@ -1,230 +1,212 @@
-import type { Metadata } from "next";
+"use client";
+
 import Link from "next/link";
+import { useTranslation } from "@/lib/i18n";
 
-export const metadata: Metadata = {
-  title: "לוח בקרה ראשי | ZchuyotBuddy",
-  description: "מרכז הפעילות שלך - סטטוס זכויות, משימות ועדכונים",
-};
+export default function DashboardPage() {
+  const { t } = useTranslation();
 
-/**
- * Stitch Main Dashboard Page Preview
- * Based on Stitch design patterns
- */
-export default function StitchDashboardPage() {
+  const stats = [
+    {
+      icon: "check_circle",
+      value: "5",
+      label: t("dashboard.stats.activeRights"),
+      color: "bg-success-bg text-success",
+    },
+    {
+      icon: "pending",
+      value: "3",
+      label: t("dashboard.stats.pending"),
+      color: "bg-warning-bg text-warning",
+    },
+    {
+      icon: "description",
+      value: "12",
+      label: t("dashboard.stats.documents"),
+      color: "bg-info-bg text-info",
+    },
+    {
+      icon: "task_alt",
+      value: "8",
+      label: t("dashboard.stats.completed"),
+      color: "bg-primary/10 text-primary",
+    },
+  ];
+
+  const todaysTasks = [
+    {
+      icon: "priority_high",
+      title: "הגשת טופס 106",
+      subtitle: "דחוף - מועד אחרון מחר",
+      badge: "דחוף",
+      badgeColor: "bg-error-bg text-error",
+      iconColor: "bg-error-bg text-error",
+    },
+    {
+      icon: "schedule",
+      title: "תור לביטוח לאומי",
+      subtitle: "יום רביעי, 10:30",
+      badge: "תזכורת",
+      badgeColor: "bg-warning-bg text-warning",
+      iconColor: "bg-warning-bg text-warning",
+    },
+    {
+      icon: "upload_file",
+      title: "העלאת אישור רפואי",
+      subtitle: "עד סוף השבוע",
+      badge: "ממתין",
+      badgeColor: "bg-info-bg text-info",
+      iconColor: "bg-info-bg text-info",
+    },
+  ];
+
+  const quickActions = [
+    {
+      href: "/rights-finder",
+      icon: "search",
+      label: t("dashboard.rightsSearch"),
+    },
+    {
+      href: "/checklists",
+      icon: "checklist",
+      label: t("dashboard.taskLists"),
+    },
+    {
+      href: "/documents",
+      icon: "folder",
+      label: t("dashboard.myDocuments"),
+    },
+    {
+      href: "/rights-map",
+      icon: "map",
+      label: t("dashboard.rightsMap"),
+    },
+  ];
+
   return (
-    <div
-      dir="rtl"
-      className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden md:max-w-md md:mx-auto md:border-x md:border-gray-100 no-scrollbar bg-gray-50/50"
-    >
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      {/* Background decorations */}
+    <div className="relative min-h-full">
+      {/* Background decoration */}
       <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
 
-      {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 p-6 pt-12 sticky top-0 z-20">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
-              <span className="material-symbols-outlined text-[26px]">shield</span>
+      {/* Content */}
+      <div className="relative z-10 p-4 md:p-6 lg:p-8 max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="size-14 rounded-2xl bg-primary flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <span className="material-symbols-outlined text-3xl">shield</span>
             </div>
             <div>
-              <h1 className="text-xl font-extrabold text-text-dark">שלום, ישראל</h1>
-              <p className="text-sm text-text-subtle">בוא נראה מה חדש היום</p>
+              <h1 className="text-2xl font-black text-foreground">
+                {t("dashboard.greeting")}, ישראל
+              </h1>
+              <p className="text-muted-foreground">{t("dashboard.subtitle")}</p>
             </div>
           </div>
-          <Link
-            href="/settings"
-            className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-text-subtle hover:bg-gray-200 transition-colors"
-          >
-            <span className="material-symbols-outlined">settings</span>
-          </Link>
         </div>
-      </header>
 
-      {/* Main content */}
-      <main className="flex-1 p-6 space-y-6 relative z-10">
-        {/* Quick stats */}
-        <section className="grid grid-cols-2 gap-4">
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-green-100 text-green-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[22px]">check_circle</span>
+        {/* Quick Stats */}
+        <section className="mb-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            {stats.map((stat, index) => (
+              <div
+                key={index}
+                className="bg-card rounded-2xl p-4 border border-border shadow-soft"
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`size-10 rounded-xl ${stat.color} flex items-center justify-center`}>
+                    <span className="material-symbols-outlined text-xl">{stat.icon}</span>
+                  </div>
+                </div>
+                <p className="text-2xl font-black text-foreground">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
               </div>
-            </div>
-            <p className="text-2xl font-extrabold text-text-dark">5</p>
-            <p className="text-xs text-text-subtle">זכויות פעילות</p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[22px]">pending</span>
-              </div>
-            </div>
-            <p className="text-2xl font-extrabold text-text-dark">3</p>
-            <p className="text-xs text-text-subtle">ממתינות לטיפול</p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[22px]">description</span>
-              </div>
-            </div>
-            <p className="text-2xl font-extrabold text-text-dark">12</p>
-            <p className="text-xs text-text-subtle">מסמכים</p>
-          </div>
-
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
-                <span className="material-symbols-outlined text-[22px]">task_alt</span>
-              </div>
-            </div>
-            <p className="text-2xl font-extrabold text-text-dark">8</p>
-            <p className="text-xs text-text-subtle">משימות שהושלמו</p>
+            ))}
           </div>
         </section>
 
-        {/* Today's tasks */}
-        <section>
+        {/* Today's Tasks */}
+        <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-text-dark">המשימות של היום</h2>
+            <h2 className="text-lg font-bold text-foreground">{t("dashboard.todaysTasks")}</h2>
             <Link
               href="/today"
               className="text-primary text-sm font-bold hover:underline"
             >
-              הצג הכל
+              {t("common.viewAll")}
             </Link>
           </div>
 
           <div className="space-y-3">
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[22px]">priority_high</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-text-dark mb-1">הגשת טופס 106</h3>
-                  <p className="text-xs text-text-subtle mb-2">דחוף - מועד אחרון מחר</p>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 bg-red-50 text-red-600 text-xs font-bold rounded-lg">
-                      דחוף
+            {todaysTasks.map((task, index) => (
+              <div
+                key={index}
+                className="bg-card rounded-2xl p-4 border border-border shadow-soft hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start gap-4">
+                  <div className={`size-10 rounded-xl ${task.iconColor} flex items-center justify-center shrink-0`}>
+                    <span className="material-symbols-outlined text-xl">{task.icon}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-bold text-foreground mb-1 truncate">{task.title}</h3>
+                    <p className="text-xs text-muted-foreground mb-2">{task.subtitle}</p>
+                    <span className={`inline-block px-2 py-1 ${task.badgeColor} text-xs font-bold rounded-lg`}>
+                      {task.badge}
                     </span>
                   </div>
+                  <button className="size-8 rounded-lg hover:bg-accent flex items-center justify-center text-muted-foreground">
+                    <span className="material-symbols-outlined text-lg">chevron_left</span>
+                  </button>
                 </div>
               </div>
-            </div>
-
-            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-              <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-[22px]">schedule</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-bold text-text-dark mb-1">תור לביטוח לאומי</h3>
-                  <p className="text-xs text-text-subtle mb-2">יום רביעי, 10:30</p>
-                  <div className="flex items-center gap-2">
-                    <span className="px-2 py-1 bg-amber-50 text-amber-600 text-xs font-bold rounded-lg">
-                      תזכורת
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* Quick actions */}
+        {/* Quick Actions */}
+        <section className="mb-8">
+          <h2 className="text-lg font-bold text-foreground mb-4">{t("dashboard.quickActions")}</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {quickActions.map((action, index) => (
+              <Link
+                key={index}
+                href={action.href}
+                className="bg-card rounded-2xl p-4 border border-border shadow-soft hover:shadow-md hover:border-primary/30 transition-all flex flex-col items-center text-center"
+              >
+                <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
+                  <span className="material-symbols-outlined text-2xl">{action.icon}</span>
+                </div>
+                <span className="font-bold text-foreground text-sm">{action.label}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* Rights GPS Card */}
         <section>
-          <h2 className="text-lg font-bold text-text-dark mb-4">פעולות מהירות</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              href="/rights-finder"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">search</span>
+          <div className="bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-white relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="size-12 rounded-xl bg-white/20 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-2xl">explore</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-lg">ה-GPS לזכויות שלך</h3>
+                  <p className="text-white/80 text-sm">בוא נמצא עוד זכויות</p>
+                </div>
               </div>
-              <span className="font-bold text-text-dark text-sm">חיפוש זכויות</span>
-            </Link>
-
-            <Link
-              href="/checklists"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">checklist</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">רשימות משימות</span>
-            </Link>
-
-            <Link
-              href="/documents"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">folder</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">המסמכים שלי</span>
-            </Link>
-
-            <Link
-              href="/rights"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">map</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">מפת זכויות</span>
-            </Link>
+              <Link
+                href="/rights-finder"
+                className="inline-flex items-center gap-2 bg-white text-primary font-bold px-6 py-3 rounded-xl hover:bg-gray-100 transition-colors"
+              >
+                חפש זכויות
+                <span className="material-symbols-outlined">arrow_back</span>
+              </Link>
+            </div>
           </div>
         </section>
-      </main>
-
-      {/* Bottom navigation */}
-      <nav className="bg-white border-t border-gray-100 p-4 pb-8 sticky bottom-0 z-20">
-        <div className="flex items-center justify-around">
-          <Link
-            href="/dashboard"
-            className="flex flex-col items-center gap-1 text-primary"
-          >
-            <span className="material-symbols-outlined text-[24px]">home</span>
-            <span className="text-xs font-bold">בית</span>
-          </Link>
-          <Link
-            href="/rights-finder"
-            className="flex flex-col items-center gap-1 text-text-subtle hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined text-[24px]">search</span>
-            <span className="text-xs font-medium">חיפוש</span>
-          </Link>
-          <Link
-            href="/checklists"
-            className="flex flex-col items-center gap-1 text-text-subtle hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined text-[24px]">checklist</span>
-            <span className="text-xs font-medium">משימות</span>
-          </Link>
-          <Link
-            href="/settings"
-            className="flex flex-col items-center gap-1 text-text-subtle hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined text-[24px]">person</span>
-            <span className="text-xs font-medium">פרופיל</span>
-          </Link>
-        </div>
-      </nav>
+      </div>
     </div>
   );
 }
-

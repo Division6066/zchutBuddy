@@ -1,33 +1,25 @@
 import type { Metadata } from "next";
-import { Heebo, Manrope, Rubik } from "next/font/google";
+import { Inter, Noto_Sans_Hebrew } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 import { Providers } from "@/components/providers/providers";
 
-const rubik = Rubik({
-  subsets: ["hebrew", "latin"],
-  weight: ["300", "400", "500", "600", "700", "800"],
-  variable: "--font-rubik",
-  display: "swap",
-});
-
-const manrope = Manrope({
+const inter = Inter({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-manrope",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-inter",
   display: "swap",
 });
 
-const heebo = Heebo({
-  subsets: ["hebrew", "latin"],
-  weight: ["400", "500", "700", "800", "900"],
-  variable: "--font-heebo",
+const notoHebrew = Noto_Sans_Hebrew({
+  subsets: ["hebrew"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-noto-hebrew",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "ZchuyotBuddy",
-  description: "ה-GPS לזכויות שלך - וטייס-משנה לניירת",
+  title: "ZchuyotBuddy - מצא את הזכויות שמגיעות לך",
+  description: "פלטפורמה חכמה לניווט בזכויות סוציאליות בישראל. גלה, עקוב ותבע את הזכויות שמגיעות לך בקלות.",
   icons: {
     icon: [
       { url: "/icons/icon-512.svg", type: "image/svg+xml" },
@@ -36,9 +28,13 @@ export const metadata: Metadata = {
     apple: [{ url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" }],
     shortcut: "/icons/icon-192.svg",
   },
-  other: {
-    "material-symbols":
-      "https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200",
+  keywords: ["זכויות", "ביטוח לאומי", "הטבות", "ישראל", "benefits", "rights", "Israel"],
+  authors: [{ name: "ZchuyotBuddy" }],
+  openGraph: {
+    title: "ZchuyotBuddy - מצא את הזכויות שמגיעות לך",
+    description: "פלטפורמה חכמה לניווט בזכויות סוציאליות בישראל",
+    type: "website",
+    locale: "he_IL",
   },
 };
 
@@ -48,16 +44,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className={`${rubik.variable} ${manrope.variable} ${heebo.variable}`}>
+    <html lang="he" dir="rtl" className={`${inter.variable} ${notoHebrew.variable}`} suppressHydrationWarning>
       <head>
         <link
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased font-body">
+      <body className="antialiased">
         <Providers>
-          <Navbar />
           {children}
         </Providers>
       </body>

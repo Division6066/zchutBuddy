@@ -1,0 +1,227 @@
+{
+  "common": {
+    "appName": "ZchuyotBuddy",
+    "getStarted": "Get Started Free",
+    "learnMore": "Learn More",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "viewAll": "View All",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "search": "Search",
+    "submit": "Submit",
+    "close": "Close"
+  },
+  "nav": {
+    "features": "Features",
+    "about": "About",
+    "contact": "Contact",
+    "pricing": "Pricing",
+    "dashboard": "Dashboard",
+    "rightsFinder": "Rights Finder",
+    "checklists": "My Checklists",
+    "documents": "Documents",
+    "profile": "Profile",
+    "settings": "Settings",
+    "home": "Home"
+  },
+  "home": {
+    "hero": {
+      "badge": "AI-Powered Benefits Navigation",
+      "title": "Discover the Benefits You Deserve",
+      "description": "Navigate Israel's complex benefits system with AI-powered guidance. Find, track, and claim your rights with ease."
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "step1": {
+        "title": "Tell Us About Yourself",
+        "description": "Share your situation to get personalized recommendations"
+      },
+      "step2": {
+        "title": "Discover Your Rights",
+        "description": "Our AI finds all the benefits you're entitled to"
+      },
+      "step3": {
+        "title": "Claim Your Benefits",
+        "description": "Follow step-by-step guides to get approved"
+      }
+    },
+    "features": {
+      "title": "Everything You Need",
+      "rightsFinder": {
+        "title": "Smart Rights Finder",
+        "description": "AI-powered search that understands your unique situation"
+      },
+      "checklists": {
+        "title": "Guided Checklists",
+        "description": "Step-by-step application tracking with reminders"
+      },
+      "updates": {
+        "title": "Real-time Updates",
+        "description": "Stay informed about new benefits and deadlines"
+      }
+    }
+  },
+  "footer": {
+    "description": "Empowering Israelis to navigate their rights",
+    "copyright": "© 2024 ZchuyotBuddy. All rights reserved.",
+    "links": {
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "contact": "Contact Us"
+    }
+  },
+  "auth": {
+    "signInTitle": "Welcome Back",
+    "signUpTitle": "Create Account",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "orContinueWith": "Or continue with"
+  },
+  "dashboard": {
+    "greeting": "Hello",
+    "subtitle": "Let's see what's new today",
+    "stats": {
+      "activeRights": "Active Rights",
+      "pending": "Pending",
+      "documents": "Documents",
+      "completed": "Completed Tasks"
+    },
+    "todaysTasks": "Today's Tasks",
+    "quickActions": "Quick Actions",
+    "rightsSearch": "Rights Search",
+    "taskLists": "Task Lists",
+    "myDocuments": "My Documents",
+    "rightsMap": "Rights Map"
+  },
+  "rightsFinder": {
+    "title": "Rights Finder",
+    "placeholder": "Describe your situation or ask a question...",
+    "searching": "Searching for your rights...",
+    "noResults": "No results found",
+    "askQuestion": "Ask a Question"
+  },
+  "checklists": {
+    "title": "My Checklists",
+    "empty": "No checklists yet",
+    "createNew": "Create New Checklist",
+    "progress": "Progress",
+    "steps": "Steps",
+    "completed": "Completed",
+    "inProgress": "In Progress"
+  },
+  "documents": {
+    "title": "My Documents",
+    "empty": "No documents yet",
+    "upload": "Upload Document",
+    "types": {
+      "id": "ID Documents",
+      "medical": "Medical",
+      "financial": "Financial",
+      "other": "Other"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "personalInfo": "Personal Information",
+    "preferences": "Preferences",
+    "notifications": "Notifications",
+    "language": "Language"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": "Account",
+    "privacy": "Privacy",
+    "help": "Help & Support",
+    "about": "About"
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Your GPS to Rights",
+      "subtitle": "And Co-pilot for Paperwork",
+      "description": "Navigate the medical benefits maze with ease. We handle the paperwork so you get exactly what you deserve.",
+      "cta": "Start Your Claim"
+    },
+    "radar": {
+      "title": "Updates Radar",
+      "description": "Stay informed about changes that affect your rights with our real-time monitoring system."
+    },
+    "profile": {
+      "title": "Tell Us About Yourself",
+      "description": "Help us personalize your experience by sharing a bit about your situation."
+    }
+  },
+  "pricing": {
+    "title": "Subscription Plans",
+    "subtitle": "Choose the plan that's right for you. All plans include a 14-day free trial.",
+    "monthly": "Monthly",
+    "annual": "Annual",
+    "annualSave": "Save 2 months",
+    "freeTrial": "14-day free trial",
+    "startTrial": "Start Free Trial",
+    "perMonth": "per month",
+    "billedAnnually": "Billed annually",
+    "mostPopular": "Most Popular",
+    "plus": {
+      "name": "Plus",
+      "monthlyPrice": "69",
+      "annualPrice": "690",
+      "description": "For regular use",
+      "features": ["Unlimited searches", "Custom task lists", "Document storage", "Priority support", "Real-time updates"]
+    },
+    "pro": {
+      "name": "Pro",
+      "monthlyPrice": "99",
+      "annualPrice": "990",
+      "description": "For advanced needs",
+      "features": ["Everything in Plus", "Personal advisor", "Expedited processing", "Custom reports", "Phone support"]
+    },
+    "max": {
+      "name": "Max",
+      "monthlyPrice": "199",
+      "annualPrice": "1990",
+      "description": "For premium service",
+      "features": ["Everything in Pro", "Dedicated account manager", "Unlimited personal consulting", "Full priority in queues", "API access for integrations"]
+    }
+  },
+  "about": {
+    "title": "About ZchuyotBuddy",
+    "mission": "Our mission is to help every Israeli access the benefits they deserve.",
+    "features": {
+      "navigation": {
+        "title": "Smart Navigation",
+        "description": "AI-powered system that understands your unique situation"
+      },
+      "checklists": {
+        "title": "Personalized Checklists",
+        "description": "Step-by-step guides tailored to your needs"
+      },
+      "vault": {
+        "title": "Secure Vault",
+        "description": "Keep your important documents safe and organized"
+      }
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "We're here to help",
+    "form": {
+      "name": "Your Name",
+      "email": "Email Address",
+      "subject": "Subject",
+      "message": "Message",
+      "send": "Send Message"
+    }
+  }
+}
+

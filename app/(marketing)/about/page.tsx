@@ -1,152 +1,143 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "אודות | ZchuyotBuddy",
-  description: "מידע על האפליקציה - ה-GPS למימוש הזכויות שלך",
-};
+import { useTranslation } from "@/lib/i18n";
 
-/**
- * Stitch About Page Preview
- * Based on: design/stitch-export/stitch_welcome_to_zchuyotbuddy/welcome_to_zchuyotbuddy_5/
- */
-export default function StitchAboutPage() {
+export default function AboutPage() {
+  const { t } = useTranslation();
+
+  const values = [
+    {
+      icon: "favorite",
+      title: "אמפתיה",
+      description: "אנחנו מבינים את האתגרים שלך ופה כדי לעזור",
+    },
+    {
+      icon: "verified_user",
+      title: "אמינות",
+      description: "מידע מדויק ומעודכן ממקורות רשמיים בלבד",
+    },
+    {
+      icon: "accessibility_new",
+      title: "נגישות",
+      description: "פלטפורמה פשוטה וקלה לשימוש לכולם",
+    },
+    {
+      icon: "groups",
+      title: "קהילה",
+      description: "יחד אנחנו יכולים לעשות שינוי",
+    },
+  ];
+
+  const team = [
+    {
+      name: "צוות הפיתוח",
+      role: "מהנדסי תוכנה",
+      description: "צוות מנוסה של מפתחים שמחויבים ליצירת חוויה מעולה",
+    },
+    {
+      name: "צוות התוכן",
+      role: "מומחי זכויות",
+      description: "אנשי מקצוע עם ידע מעמיק במערכת הביטחון הסוציאלי",
+    },
+    {
+      name: "צוות התמיכה",
+      role: "שירות לקוחות",
+      description: "זמינים לעזור לך בכל שאלה או בעיה",
+    },
+  ];
+
   return (
-    <div
-      dir="rtl"
-      className="relative flex h-screen w-full flex-col overflow-y-auto overflow-x-hidden md:max-w-md md:mx-auto md:border-x md:border-gray-100 no-scrollbar bg-white"
-    >
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      {/* Background decorations */}
-      <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] left-[-10%] w-[60%] h-[50%] rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col px-6 relative z-10 w-full overflow-y-auto pb-10">
-        {/* Logo section */}
-        <div className="flex flex-col items-center text-center mt-4 mb-10">
-          <div className="w-24 h-24 mb-6 relative">
-            <div className="absolute inset-0 bg-primary rounded-[2rem] shadow-glow flex items-center justify-center rotate-3 transform transition-transform hover:rotate-0">
-              <span className="material-symbols-outlined text-white text-[48px]">
-                medical_services
-              </span>
-            </div>
-            <div className="absolute -bottom-2 -right-2 bg-white p-1.5 rounded-full shadow-md">
-              <span className="material-symbols-outlined text-accent text-[20px]">verified</span>
-            </div>
-          </div>
-          <h1 className="text-text-dark tracking-tight text-2xl font-extrabold mb-2">זכויותבאדי</h1>
-          <p className="text-primary font-semibold text-sm bg-primary-bg px-3 py-1 rounded-full">
-            ה-GPS למימוש הזכויות שלך
+    <>
+      {/* Hero Section */}
+      <section className="relative w-full bg-gradient-to-br from-primary/10 via-background to-background py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6">
+            {t("about.title")}
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            {t("about.mission")}
           </p>
         </div>
+      </section>
 
-        {/* Description and features */}
-        <div className="space-y-6">
-          <div className="text-center px-2">
-            <p className="text-text-subtle text-base leading-relaxed">
-              אנחנו כאן כדי לעזור לך לנווט בנבכי הבירוקרטיה ולממש את מלוא הזכויות המגיעות לך.
-              האפליקציה משמשת כ&quot;טייס משנה&quot; למילוי טפסים והגשת תביעות בצורה פשוטה וברורה.
-            </p>
-          </div>
-
-          {/* Feature cards */}
-          <div className="grid gap-4 mt-8">
-            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-soft transition-shadow flex items-start gap-4">
-              <div className="bg-primary-bg p-3 rounded-xl text-primary shrink-0">
-                <span className="material-symbols-outlined">explore</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-text-dark text-lg mb-1">ניווט חכם</h3>
-                <p className="text-text-subtle text-sm leading-relaxed">
-                  מפת דרכים מותאמת אישית למימוש הזכויות הרפואיות שלך, צעד אחר צעד.
-                </p>
+      {/* Mission Section */}
+      <section className="w-full bg-card py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h2 className="text-3xl font-black text-foreground mb-6">
+                למה אנחנו עושים את זה
+              </h2>
+              <p className="text-muted-foreground mb-4">
+                מערכת הביטחון הסוציאלי בישראל מורכבת ומסובכת. אלפי ישראלים מפסידים זכויות שמגיעות להם פשוט כי הם לא יודעים עליהן או לא יודעים איך לממש אותן.
+              </p>
+              <p className="text-muted-foreground mb-4">
+                זכויות באדי נוצר כדי לשנות את זה. אנחנו משתמשים בטכנולוגיה מתקדמת כדי להפוך את תהליך מיצוי הזכויות לפשוט, נגיש ויעיל.
+              </p>
+              <p className="text-muted-foreground">
+                המשימה שלנו היא לוודא שכל אזרח ישראלי יקבל את מה שמגיע לו - ללא בירוקרטיה מיותרת וללא ויתור על זכויות.
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <div className="relative w-64 h-64">
+                <div className="absolute inset-0 rounded-full bg-primary/10" />
+                <div className="absolute inset-8 rounded-full bg-card border-4 border-white shadow-2xl flex items-center justify-center">
+                  <span className="material-symbols-outlined text-7xl text-primary">
+                    volunteer_activism
+                  </span>
+                </div>
               </div>
             </div>
-
-            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-soft transition-shadow flex items-start gap-4">
-              <div className="bg-primary-bg p-3 rounded-xl text-primary shrink-0">
-                <span className="material-symbols-outlined">description</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-text-dark text-lg mb-1">עזרה בניירת</h3>
-                <p className="text-text-subtle text-sm leading-relaxed">
-                  אנחנו דואגים לבירוקרטיה ולטפסים, כדי שאתם תוכלו להתמקד במה שחשוב.
-                </p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-soft transition-shadow flex items-start gap-4">
-              <div className="bg-primary-bg p-3 rounded-xl text-primary shrink-0">
-                <span className="material-symbols-outlined">diversity_1</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-text-dark text-lg mb-1">אנחנו איתך</h3>
-                <p className="text-text-subtle text-sm leading-relaxed">
-                  צוות המומחים שלנו פיתח את המערכת מתוך הבנה עמוקה של הצרכים שלך.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Links section */}
-          <div className="mt-8 pt-6 border-t border-gray-100 space-y-1">
-            <button
-              type="button"
-              className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-text-subtle">gavel</span>
-                <span className="text-text-dark font-medium">תנאי שימוש</span>
-              </div>
-              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors rotate-180">
-                arrow_forward
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-text-subtle">policy</span>
-                <span className="text-text-dark font-medium">מדיניות פרטיות</span>
-              </div>
-              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors rotate-180">
-                arrow_forward
-              </span>
-            </button>
-
-            <button
-              type="button"
-              className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 transition-colors group"
-            >
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-text-subtle">mail</span>
-                <span className="text-text-dark font-medium">צור קשר</span>
-              </div>
-              <span className="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors rotate-180">
-                arrow_forward
-              </span>
-            </button>
-          </div>
-
-          {/* Version info */}
-          <div className="text-center pt-8 pb-4">
-            <p className="text-xs text-text-subtle">גרסה 1.0.2</p>
-            <p className="text-xs text-gray-400 mt-1">© 2024 ZchuyotBuddy</p>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* Values Section */}
+      <section className="w-full bg-background py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <h2 className="text-3xl font-black text-foreground mb-12 text-center">
+            הערכים שלנו
+          </h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {values.map((value, index) => (
+              <div
+                key={index}
+                className="bg-card p-6 rounded-2xl border border-border text-center"
+              >
+                <div className="size-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+                  <span className="material-symbols-outlined text-2xl">{value.icon}</span>
+                </div>
+                <h3 className="text-lg font-bold text-foreground mb-2">{value.title}</h3>
+                <p className="text-sm text-muted-foreground">{value.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team Section */}
+      <section className="w-full bg-card py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <h2 className="text-3xl font-black text-foreground mb-12 text-center">
+            הצוות שלנו
+          </h2>
+          <div className="grid md:grid-cols-3 gap-8">
+            {team.map((member, index) => (
+              <div
+                key={index}
+                className="bg-background p-8 rounded-2xl border border-border text-center"
+              >
+                <div className="size-20 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-6">
+                  <span className="material-symbols-outlined text-4xl">groups</span>
+                </div>
+                <h3 className="text-xl font-bold text-foreground mb-1">{member.name}</h3>
+                <p className="text-sm text-primary font-medium mb-3">{member.role}</p>
+                <p className="text-muted-foreground">{member.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignIn, useUser } from "@clerk/nextjs";
+import { useSignUp, useUser } from "@clerk/nextjs";
 import { UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type React from "react";
@@ -9,22 +9,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { useTranslation } from "@/lib/i18n";
 import { useGuestAuth } from "@/lib/guest-auth";
 
-interface SignInModalProps {
-  // New interface
-  isOpen?: boolean;
-  onClose?: () => void;
-  onSwitchToSignUp?: () => void;
-  // Old interface for backwards compatibility
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
+interface SignUpModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSwitchToSignIn?: () => void;
 }
 
-export function SignInModal(props: SignInModalProps) {
-  // Support both old and new interfaces
-  const isOpen = props.isOpen ?? props.open ?? false;
-  const onClose = props.onClose ?? (props.onOpenChange ? () => props.onOpenChange?.(false) : () => {});
-  const { onSwitchToSignUp } = props;
-  const { signIn, setActive } = useSignIn();
+export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalProps) {
+  const { signUp, setActive } = useSignUp();
   const { isSignedIn } = useUser();
   const { loginAsGuest } = useGuestAuth();
   const { t } = useTranslation();
@@ -45,7 +37,7 @@ export function SignInModal(props: SignInModalProps) {
     if (isSignedIn && isOpen && !hasRedirectedRef.current) {
       hasRedirectedRef.current = true;
       onClose();
-      router.push("/dashboard");
+      router.push("/onboarding");
     }
   }, [isSignedIn, isOpen, onClose, router]);
 
@@ -57,23 +49,27 @@ export function SignInModal(props: SignInModalProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signIn) return;
+    if (!signUp) return;
 
     setIsLoading(true);
     setError("");
 
     try {
-      const result = await signIn.create({
-        identifier: email,
+      const result = await signUp.create({
+        emailAddress: email,
         password,
       });
 
       if (result.status === "complete") {
         await setActive({ session: result.createdSessionId });
         onClose();
-        router.push("/dashboard");
+        router.push("/onboarding");
+      } else if (result.status === "missing_requirements") {
+        // Email verification might be required
+        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+        setError("Please check your email for verification code");
       } else {
-        setError(t("auth.signInTitle") + ": " + result.status);
+        setError(t("auth.signUpTitle") + ": " + result.status);
       }
     } catch (err: unknown) {
       const error = err as { errors?: Array<{ message?: string }> };
@@ -83,13 +79,13 @@ export function SignInModal(props: SignInModalProps) {
     }
   };
 
-  const signInWithGoogle = async () => {
-    if (!signIn) return;
+  const signUpWithGoogle = async () => {
+    if (!signUp) return;
     try {
-      await signIn.authenticateWithRedirect({
+      await signUp.authenticateWithRedirect({
         strategy: "oauth_google",
         redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/dashboard",
+        redirectUrlComplete: "/onboarding",
       });
     } catch (err) {
       console.error("Google OAuth error:", err);
@@ -102,20 +98,20 @@ export function SignInModal(props: SignInModalProps) {
         <div className="p-8" dir="rtl">
           <DialogHeader className="mb-6">
             <DialogTitle className="text-2xl font-bold text-foreground text-center">
-              {t("auth.signInTitle")}
+              {t("auth.signUpTitle")}
             </DialogTitle>
             <p className="text-muted-foreground text-center mt-2">
-              {t("auth.haveAccount")}
+              צור חשבון והתחל לגלות את הזכויות שלך
             </p>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="signin-email" className="block text-sm font-medium text-foreground mb-2">
+              <label htmlFor="signup-email" className="block text-sm font-medium text-foreground mb-2">
                 {t("auth.email")}
               </label>
               <input
-                id="signin-email"
+                id="signup-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -127,11 +123,11 @@ export function SignInModal(props: SignInModalProps) {
             </div>
 
             <div>
-              <label htmlFor="signin-password" className="block text-sm font-medium text-foreground mb-2">
+              <label htmlFor="signup-password" className="block text-sm font-medium text-foreground mb-2">
                 {t("auth.password")}
               </label>
               <input
-                id="signin-password"
+                id="signup-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -139,7 +135,9 @@ export function SignInModal(props: SignInModalProps) {
                 placeholder="••••••••"
                 required
                 disabled={isLoading}
+                minLength={8}
               />
+              <p className="text-xs text-muted-foreground mt-1">לפחות 8 תווים</p>
             </div>
 
             {error && (
@@ -159,7 +157,7 @@ export function SignInModal(props: SignInModalProps) {
                   <span>{t("common.loading")}</span>
                 </div>
               ) : (
-                t("common.signIn")
+                t("common.signUp")
               )}
             </button>
           </form>
@@ -176,7 +174,7 @@ export function SignInModal(props: SignInModalProps) {
           <div className="space-y-3">
             <button
               type="button"
-              onClick={signInWithGoogle}
+              onClick={signUpWithGoogle}
               className="w-full bg-background text-foreground py-3 px-4 rounded-xl font-medium border border-border hover:bg-accent focus:outline-none focus:ring-2 focus:ring-border focus:ring-offset-2 transition-all flex items-center justify-center gap-3"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -210,15 +208,15 @@ export function SignInModal(props: SignInModalProps) {
             </button>
           </div>
 
-          {onSwitchToSignUp && (
+          {onSwitchToSignIn && (
             <p className="mt-6 text-center text-sm text-muted-foreground">
-              {t("auth.noAccount")}{" "}
+              {t("auth.haveAccount")}{" "}
               <button
                 type="button"
-                onClick={onSwitchToSignUp}
+                onClick={onSwitchToSignIn}
                 className="text-primary hover:text-primary-dark font-bold transition"
               >
-                {t("common.signUp")}
+                {t("common.signIn")}
               </button>
             </p>
           )}
@@ -228,5 +226,5 @@ export function SignInModal(props: SignInModalProps) {
   );
 }
 
-// Also export as default for backwards compatibility
-export default SignInModal;
+export default SignUpModal;
+

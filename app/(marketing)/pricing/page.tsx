@@ -1,252 +1,286 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "תוכניות מינוי | ZchuyotBuddy",
-  description: "בחר את התוכנית המתאימה לך - שדרג את החוויה שלך",
-};
+import { useState } from "react";
+import { useTranslation } from "@/lib/i18n";
+import { SignUpModal } from "@/components/SignUpModal";
 
-/**
- * Stitch Pricing Page Preview
- * Based on: design/stitch-export/stitch_welcome_to_zchuyotbuddy/welcome_to_zchuyotbuddy_4/
- */
-export default function StitchPricingPage() {
+export default function PricingPage() {
+  const { t, locale } = useTranslation();
+  const [isAnnual, setIsAnnual] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
+
+  const plans = [
+    {
+      name: locale === "he" ? "פלוס" : "Plus",
+      monthlyPrice: 69,
+      annualPrice: 690, // 10 months instead of 12
+      description: locale === "he" ? "לשימוש קבוע" : "For regular use",
+      features: locale === "he" 
+        ? [
+            "חיפושים ללא הגבלה",
+            "רשימות משימות מותאמות",
+            "אחסון מסמכים",
+            "תמיכה מועדפת",
+            "עדכונים בזמן אמת",
+          ]
+        : [
+            "Unlimited searches",
+            "Custom task lists",
+            "Document storage",
+            "Priority support",
+            "Real-time updates",
+          ],
+      highlighted: false,
+      cta: locale === "he" ? "בחר בפלוס" : "Choose Plus",
+    },
+    {
+      name: locale === "he" ? "פרו" : "Pro",
+      monthlyPrice: 99,
+      annualPrice: 990, // 10 months instead of 12
+      description: locale === "he" ? "לצרכים מתקדמים" : "For advanced needs",
+      features: locale === "he"
+        ? [
+            "הכל בפלוס",
+            "יועץ אישי",
+            "עיבוד מואץ",
+            "דוחות מותאמים אישית",
+            "תמיכה טלפונית",
+          ]
+        : [
+            "Everything in Plus",
+            "Personal advisor",
+            "Expedited processing",
+            "Custom reports",
+            "Phone support",
+          ],
+      highlighted: true,
+      cta: locale === "he" ? "בחר בפרו" : "Choose Pro",
+      badge: locale === "he" ? "הכי פופולרי" : "Most Popular",
+    },
+    {
+      name: locale === "he" ? "מקס" : "Max",
+      monthlyPrice: 199,
+      annualPrice: 1990, // 10 months instead of 12
+      description: locale === "he" ? "לשירות פרימיום" : "For premium service",
+      features: locale === "he"
+        ? [
+            "הכל בפרו",
+            "מנהל חשבון ייעודי",
+            "ייעוץ אישי בלתי מוגבל",
+            "עדיפות מלאה בתורים",
+            "גישה ל-API לאינטגרציות",
+          ]
+        : [
+            "Everything in Pro",
+            "Dedicated account manager",
+            "Unlimited personal consulting",
+            "Full priority in queues",
+            "API access for integrations",
+          ],
+      highlighted: false,
+      cta: locale === "he" ? "בחר במקס" : "Choose Max",
+    },
+  ];
+
+  const freeTrialText = locale === "he" ? "14 ימי ניסיון חינם" : "14-day free trial";
+  const annualSaveText = locale === "he" ? "חסוך 2 חודשים!" : "Save 2 months!";
+  const perMonthText = locale === "he" ? "/חודש" : "/mo";
+  const billedAnnuallyText = locale === "he" ? "חיוב שנתי מראש" : "Billed annually upfront";
+  const allPlansIncludeText = locale === "he" 
+    ? "כל התוכניות כוללות 14 ימי ניסיון חינם. בטל בכל עת."
+    : "All plans include a 14-day free trial. Cancel anytime.";
+
   return (
-    <div
-      dir="rtl"
-      className="relative flex h-screen w-full flex-col overflow-y-auto overflow-x-hidden md:max-w-md md:mx-auto md:border-x md:border-gray-100 no-scrollbar bg-gray-50/50"
-    >
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        .check-icon {
-          font-variation-settings: 'FILL' 1, 'wght' 700, 'GRAD' 0, 'opsz' 24;
-        }
-      `}</style>
-
-      {/* Background decorations */}
-      <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[40%] rounded-full bg-primary/5 blur-[80px] pointer-events-none" />
-      <div className="absolute top-[20%] left-[-10%] w-[40%] h-[30%] rounded-full bg-primary/5 blur-[60px] pointer-events-none" />
-
-      {/* Main content */}
-      <div className="flex-1 flex flex-col px-6 pb-24 relative z-10 w-full overflow-y-auto">
-        {/* Title section */}
-        <div className="text-center mt-4 mb-8">
-          <h1 className="text-2xl font-extrabold text-text-dark mb-2">בחר את התוכנית המתאימה לך</h1>
-          <p className="text-text-subtle text-sm">
-            שדרג את החוויה שלך עם גישה לכלים מתקדמים וליווי אישי.
+    <>
+      {/* Hero Section */}
+      <section className="relative w-full bg-gradient-to-br from-primary/10 via-background to-background py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-bold mb-6">
+            <span className="material-symbols-outlined text-base">verified</span>
+            {freeTrialText}
+          </div>
+          
+          <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6">
+            {t("pricing.title")}
+          </h1>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
+            {allPlansIncludeText}
           </p>
 
-          {/* Toggle */}
-          <div className="flex items-center justify-center gap-3 mt-6 bg-gray-100 p-1 rounded-full w-fit mx-auto">
+          {/* Billing Toggle */}
+          <div className="inline-flex items-center gap-4 bg-card p-2 rounded-xl border border-border">
             <button
-              type="button"
-              className="px-4 py-1.5 rounded-full text-sm font-bold bg-white text-primary shadow-sm transition-all"
+              onClick={() => setIsAnnual(false)}
+              className={`px-6 py-3 rounded-lg font-bold transition-all ${
+                !isAnnual
+                  ? "bg-primary text-white shadow-lg"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              חודשי
+              {t("pricing.monthly")}
             </button>
             <button
-              type="button"
-              className="px-4 py-1.5 rounded-full text-sm font-medium text-text-subtle hover:text-text-dark transition-all"
+              onClick={() => setIsAnnual(true)}
+              className={`px-6 py-3 rounded-lg font-bold transition-all flex items-center gap-2 ${
+                isAnnual
+                  ? "bg-primary text-white shadow-lg"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
             >
-              שנתי{" "}
-              <span className="text-[10px] text-green-600 bg-green-100 px-1.5 py-0.5 rounded-full mr-1">
-                -20%
+              {t("pricing.annual")}
+              <span className="text-xs bg-success text-white px-2 py-1 rounded-full font-bold">
+                {annualSaveText}
               </span>
             </button>
           </div>
         </div>
+      </section>
 
-        {/* Pricing cards */}
-        <div className="space-y-4">
-          {/* Free plan */}
-          <div className="bg-white rounded-2xl p-5 border border-card-border shadow-card relative overflow-hidden group hover:border-primary/30 transition-all">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="font-bold text-lg text-text-dark">חינם (Free)</h3>
-                <p className="text-xs text-text-subtle mt-1">למתחילים את הדרך</p>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-extrabold text-text-dark">₪0</span>
-                <span className="text-xs text-text-subtle block">לחודש</span>
-              </div>
-            </div>
-            <div className="h-px w-full bg-gray-100 my-3" />
-            <ul className="space-y-2.5">
-              <li className="flex items-center gap-2 text-sm text-text-subtle">
-                <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                  check_circle
-                </span>
-                גישה למדריכים בסיסיים
-              </li>
-              <li className="flex items-center gap-2 text-sm text-text-subtle">
-                <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                  check_circle
-                </span>
-                מחשבון זכויות פשוט
-              </li>
-            </ul>
-          </div>
+      {/* Pricing Cards */}
+      <section className="w-full bg-background py-16 lg:py-24">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {plans.map((plan, index) => {
+              const displayPrice = isAnnual ? plan.annualPrice : plan.monthlyPrice;
+              const monthlyEquivalent = isAnnual ? Math.round(plan.annualPrice / 12) : null;
+              
+              return (
+                <div
+                  key={index}
+                  className={`relative bg-card p-8 rounded-2xl border transition-all ${
+                    plan.highlighted
+                      ? "border-primary shadow-xl shadow-primary/20 scale-105 z-10"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  {plan.badge && (
+                    <div className="absolute -top-4 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 px-4 py-1.5 bg-primary text-white text-sm font-bold rounded-full shadow-lg">
+                      {plan.badge}
+                    </div>
+                  )}
 
-          {/* Plus plan */}
-          <div className="bg-white rounded-2xl p-5 border border-card-border shadow-card relative overflow-hidden group hover:border-primary/30 transition-all">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <h3 className="font-bold text-lg text-text-dark">פלוס (Plus)</h3>
-                <p className="text-xs text-text-subtle mt-1">למי שצריך קצת יותר</p>
-              </div>
-              <div className="text-right">
-                <span className="text-2xl font-extrabold text-text-dark">₪29</span>
-                <span className="text-xs text-text-subtle block">לחודש</span>
-              </div>
-            </div>
-            <div className="h-px w-full bg-gray-100 my-3" />
-            <ul className="space-y-2.5">
-              <li className="flex items-center gap-2 text-sm text-text-subtle">
-                <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                  check_circle
-                </span>
-                כל מה שבחינם
-              </li>
-              <li className="flex items-center gap-2 text-sm text-text-subtle">
-                <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                  check_circle
-                </span>
-                טפסים דיגיטליים חכמים
-              </li>
-              <li className="flex items-center gap-2 text-sm text-text-subtle">
-                <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                  check_circle
-                </span>
-                תזכורות לחידוש זכאות
-              </li>
-            </ul>
-          </div>
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl font-black text-foreground mb-2">{plan.name}</h3>
+                    <p className="text-muted-foreground text-sm mb-6">{plan.description}</p>
+                    
+                    <div className="flex flex-col items-center">
+                      <div className="flex items-baseline justify-center gap-1">
+                        <span className="text-5xl font-black text-primary">
+                          ₪{displayPrice}
+                        </span>
+                        {!isAnnual && (
+                          <span className="text-muted-foreground font-medium">{perMonthText}</span>
+                        )}
+                      </div>
+                      
+                      {isAnnual && (
+                        <div className="mt-2 space-y-1">
+                          <p className="text-sm text-muted-foreground">{billedAnnuallyText}</p>
+                          <p className="text-xs text-primary font-bold">
+                            {locale === "he" 
+                              ? `(שווה ערך ל-₪${monthlyEquivalent}/חודש)`
+                              : `(equivalent to ₪${monthlyEquivalent}/mo)`}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
-          {/* Pro plan - Featured */}
-          <div className="bg-white rounded-2xl p-1 border-2 border-primary shadow-soft relative overflow-hidden transform scale-[1.02]">
-            <div className="absolute top-0 left-0 right-0 bg-primary text-white text-[10px] font-bold text-center py-1 uppercase tracking-wider">
-              הכי פופולרי
-            </div>
-            <div className="p-5 pt-8">
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="font-bold text-lg text-primary">מקצועי (Pro)</h3>
-                  <p className="text-xs text-text-subtle mt-1">ליווי צמוד ומקיף</p>
+                  <ul className="space-y-4 mb-8">
+                    {plan.features.map((feature, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-sm">
+                        <span className="material-symbols-outlined text-primary text-lg shrink-0">
+                          check_circle
+                        </span>
+                        <span className="text-foreground">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => setShowSignUp(true)}
+                    className={`w-full h-14 rounded-xl font-bold text-lg transition-all ${
+                      plan.highlighted
+                        ? "bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/30"
+                        : "bg-background border-2 border-primary text-primary hover:bg-primary hover:text-white"
+                    }`}
+                  >
+                    {plan.cta}
+                  </button>
+                  
+                  <p className="text-center text-xs text-muted-foreground mt-4">
+                    {freeTrialText}
+                  </p>
                 </div>
-                <div className="text-right">
-                  <span className="text-3xl font-extrabold text-primary">₪59</span>
-                  <span className="text-xs text-text-subtle block">לחודש</span>
-                </div>
-              </div>
-              <div className="h-px w-full bg-gray-100 my-3" />
-              <ul className="space-y-2.5">
-                <li className="flex items-center gap-2 text-sm text-text-dark font-medium">
-                  <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                    check_circle
-                  </span>
-                  כל מה שבפלוס
-                </li>
-                <li className="flex items-center gap-2 text-sm text-text-dark font-medium">
-                  <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                    check_circle
-                  </span>
-                  צ&apos;אט עם מומחה זכויות
-                </li>
-                <li className="flex items-center gap-2 text-sm text-text-dark font-medium">
-                  <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                    check_circle
-                  </span>
-                  בדיקת מסמכים לפני שלישה
-                </li>
-                <li className="flex items-center gap-2 text-sm text-text-dark font-medium">
-                  <span className="material-symbols-outlined text-primary text-[18px] check-icon">
-                    check_circle
-                  </span>
-                  ליווי בוועדות רפואיות (וירטואלי)
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Max plan */}
-          <div className="bg-gradient-to-br from-[#2b1c4e] to-[#4c3575] rounded-2xl p-5 shadow-lg relative overflow-hidden text-white mb-6">
-            <div className="absolute top-[-20%] right-[-20%] w-[150px] h-[150px] bg-white/10 rounded-full blur-2xl" />
-            <div className="flex justify-between items-start mb-3 relative z-10">
-              <div>
-                <h3 className="font-bold text-lg text-white flex items-center gap-2">
-                  מקס (Max)
-                  <span className="material-symbols-outlined text-amber-400 text-sm">crown</span>
-                </h3>
-                <p className="text-xs text-gray-300 mt-1">החבילה המלאה להצלחה בטוחה</p>
-              </div>
-              <div className="text-right relative z-10">
-                <span className="text-2xl font-extrabold text-white">₪129</span>
-                <span className="text-xs text-gray-300 block">לחודש</span>
-              </div>
-            </div>
-            <div className="h-px w-full bg-white/20 my-3 relative z-10" />
-            <ul className="space-y-2.5 relative z-10">
-              <li className="flex items-center gap-2 text-sm text-gray-100">
-                <span className="material-symbols-outlined text-amber-400 text-[18px] check-icon">
-                  check_circle
-                </span>
-                כל מה שבמקצועי
-              </li>
-              <li className="flex items-center gap-2 text-sm text-gray-100">
-                <span className="material-symbols-outlined text-amber-400 text-[18px] check-icon">
-                  check_circle
-                </span>
-                עורך דין צמוד לתיק
-              </li>
-              <li className="flex items-center gap-2 text-sm text-gray-100">
-                <span className="material-symbols-outlined text-amber-400 text-[18px] check-icon">
-                  check_circle
-                </span>
-                ערעור במידת הצורך ללא עלות נוספת
-              </li>
-            </ul>
+              );
+            })}
           </div>
         </div>
+      </section>
 
-        {/* Trust badges */}
-        <div className="flex justify-center items-center gap-6 mt-2 mb-4 opacity-70">
-          <div className="flex flex-col items-center">
-            <span className="material-symbols-outlined text-gray-400 text-2xl">lock</span>
-            <span className="text-[10px] text-text-subtle mt-1">תשלום מאובטח</span>
-          </div>
-          <div className="flex flex-col items-center">
-            <span className="material-symbols-outlined text-gray-400 text-2xl">cancel</span>
-            <span className="text-[10px] text-text-subtle mt-1">ביטול בכל עת</span>
+      {/* FAQ Section */}
+      <section className="w-full bg-card py-16 lg:py-24">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 lg:px-8">
+          <h2 className="text-3xl font-black text-foreground mb-12 text-center">
+            {locale === "he" ? "שאלות נפוצות" : "Frequently Asked Questions"}
+          </h2>
+          <div className="space-y-4">
+            {(locale === "he" ? [
+              {
+                q: "מה כלול בניסיון החינם?",
+                a: "ניסיון החינם כולל גישה מלאה לכל התכונות של התוכנית שבחרת למשך 14 יום. לא תחויב עד סוף תקופת הניסיון.",
+              },
+              {
+                q: "מה ההבדל בין חיוב חודשי לשנתי?",
+                a: "בחיוב שנתי אתה משלם מראש עבור 10 חודשים ומקבל 12 חודשי שירות - חיסכון של חודשיים!",
+              },
+              {
+                q: "האם אני יכול לבטל בכל עת?",
+                a: "כן, אתה יכול לבטל את המנוי שלך בכל עת. לא תחויב לאחר הביטול.",
+              },
+              {
+                q: "מה קורה לנתונים שלי אם אני מבטל?",
+                a: "הנתונים שלך נשמרים למשך 30 יום לאחר הביטול. אתה יכול לייצא אותם בכל עת.",
+              },
+              {
+                q: "האם ניתן לשדרג או לשנמך תוכנית?",
+                a: "בהחלט! תוכל לשנות את התוכנית שלך בכל עת ותחויב באופן יחסי.",
+              },
+            ] : [
+              {
+                q: "What's included in the free trial?",
+                a: "The free trial includes full access to all features of your chosen plan for 14 days. You won't be charged until the trial ends.",
+              },
+              {
+                q: "What's the difference between monthly and annual billing?",
+                a: "With annual billing, you pay upfront for 10 months and get 12 months of service - saving 2 months!",
+              },
+              {
+                q: "Can I cancel anytime?",
+                a: "Yes, you can cancel your subscription at any time. You won't be charged after cancellation.",
+              },
+              {
+                q: "What happens to my data if I cancel?",
+                a: "Your data is kept for 30 days after cancellation. You can export it at any time.",
+              },
+              {
+                q: "Can I upgrade or downgrade my plan?",
+                a: "Absolutely! You can change your plan at any time and you'll be charged proportionally.",
+              },
+            ]).map((faq, index) => (
+              <div
+                key={index}
+                className="bg-background p-6 rounded-xl border border-border"
+              >
+                <h3 className="font-bold text-foreground mb-2">{faq.q}</h3>
+                <p className="text-muted-foreground">{faq.a}</p>
+              </div>
+            ))}
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Fixed CTA */}
-      <div className="fixed bottom-0 w-full md:max-w-md bg-white border-t border-gray-100 p-4 pb-8 z-20 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <button
-          type="button"
-          className="w-full flex items-center justify-center rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-light hover:shadow-primary/40 active:scale-[0.98]"
-        >
-          <span className="text-lg font-bold tracking-tight">המשך עם תוכנית Pro</span>
-        </button>
-        <p className="text-center text-[11px] text-text-subtle mt-3">
-          בלחיצה על &quot;המשך&quot; אני מסכים{" "}
-          <Link href="/terms" className="underline text-primary">
-            לתנאי השימוש
-          </Link>{" "}
-          ול
-          <Link href="/privacy" className="underline text-primary">
-            מדיניות הפרטיות
-          </Link>
-          .
-        </p>
-      </div>
-    </div>
+      <SignUpModal isOpen={showSignUp} onClose={() => setShowSignUp(false)} />
+    </>
   );
 }

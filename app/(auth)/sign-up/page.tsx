@@ -1,67 +1,199 @@
 "use client";
 
+import { useSignUp, useUser } from "@clerk/nextjs";
+import { UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import BrandLogo from "@/components/BrandLogo";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { useTranslation } from "@/lib/i18n";
+import { useGuestAuth } from "@/lib/guest-auth";
 
 export default function SignUpPage() {
+  const { signUp, setActive } = useSignUp();
+  const { isSignedIn } = useUser();
+  const { loginAsGuest } = useGuestAuth();
+  const { t } = useTranslation();
   const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    // Auto-redirect to /app after 1 second (demo mode)
-    const timer = setTimeout(() => {
-      router.push("/app");
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, [router]);
+    if (isSignedIn) {
+      router.push("/onboarding");
+    }
+  }, [isSignedIn, router]);
+
+  const handleGuestLogin = () => {
+    loginAsGuest();
+    router.push("/dashboard");
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!signUp) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      const result = await signUp.create({
+        emailAddress: email,
+        password,
+      });
+
+      if (result.status === "complete") {
+        await setActive({ session: result.createdSessionId });
+        router.push("/onboarding");
+      } else if (result.status === "missing_requirements") {
+        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+        setError("בדוק את האימייל שלך לקוד אימות");
+      } else {
+        setError("ההרשמה לא הושלמה. סטטוס: " + result.status);
+      }
+    } catch (err: unknown) {
+      const error = err as { errors?: Array<{ message?: string }> };
+      setError(error.errors?.[0]?.message || t("common.error"));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const signUpWithGoogle = async () => {
+    if (!signUp) return;
+    try {
+      await signUp.authenticateWithRedirect({
+        strategy: "oauth_google",
+        redirectUrl: "/sso-callback",
+        redirectUrlComplete: "/onboarding",
+      });
+    } catch (err) {
+      console.error("Google OAuth error:", err);
+    }
+  };
 
   return (
-    <div
-      className="min-h-screen bg-gradient-to-br from-primary/5 via-white to-primary-bg/30 flex items-center justify-center px-4"
-      dir="rtl"
-    >
-      <div className="w-full max-w-md">
-        <div className="rounded-2xl bg-white/80 backdrop-blur-sm p-8 shadow-2xl border border-gray-100">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <BrandLogo size={32} />
-            <span className="text-2xl font-extrabold text-text-dark">ZchuyotBuddy</span>
+    <div className="bg-card rounded-2xl border border-border shadow-soft p-8">
+      {/* Logo */}
+      <div className="flex justify-center mb-6">
+        <Link href="/" className="flex items-center gap-3">
+          <div className="size-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+            <span className="material-symbols-outlined text-3xl">accessibility_new</span>
           </div>
+        </Link>
+      </div>
 
-          <h1 className="text-3xl font-bold text-text-dark mb-2 text-center">הרשמה</h1>
-          <p className="text-text-subtle text-center mb-8">Sign Up</p>
+      <div className="text-center mb-8">
+        <h1 className="text-2xl font-bold text-foreground mb-2">{t("auth.signUpTitle")}</h1>
+        <p className="text-muted-foreground">צור חשבון והתחל לגלות את הזכויות שלך</p>
+      </div>
 
-          <div className="bg-primary-bg/50 border border-primary/20 rounded-xl px-4 py-3 text-center text-sm text-primary mb-6">
-            <p className="font-semibold mb-1">מצב הדגמה - מעבר אוטומטי</p>
-            <p className="text-xs">Demo Mode - Auto Redirecting...</p>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+            {t("auth.email")}
+          </label>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="your@email.com"
+            required
+            disabled={isLoading}
+          />
+        </div>
+
+        <div>
+          <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
+            {t("auth.password")}
+          </label>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+            placeholder="••••••••"
+            required
+            disabled={isLoading}
+            minLength={8}
+          />
+          <p className="text-xs text-muted-foreground mt-1">לפחות 8 תווים</p>
+        </div>
+
+        {error && (
+          <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
+            {error}
           </div>
+        )}
 
-          <div className="space-y-3">
-            <button
-              disabled={true}
-              className="w-full bg-gray-100 text-gray-400 py-3 px-4 rounded-lg font-semibold cursor-not-allowed"
-            >
-              צור חשבון / Create Account
-            </button>
-            <button
-              disabled={true}
-              className="w-full bg-gray-100 text-gray-400 py-3 px-4 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center gap-3"
-            >
-              <span>המשך עם Google / Continue with Google</span>
-            </button>
-          </div>
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="w-full h-12 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold transition-all shadow-primary disabled:opacity-50"
+        >
+          {isLoading ? (
+            <div className="flex items-center justify-center gap-2">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+              <span>{t("common.loading")}</span>
+            </div>
+          ) : (
+            t("common.signUp")
+          )}
+        </button>
+      </form>
 
-          <p className="mt-6 text-center text-sm text-text-subtle">
-            כבר יש לכם חשבון?{" "}
-            <Link
-              href="/sign-in"
-              className="text-primary hover:text-primary-light font-semibold transition"
-            >
-              התחברו כאן / Sign in here
-            </Link>
-          </p>
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-card text-muted-foreground">{t("auth.orContinueWith")}</span>
         </div>
       </div>
+
+      <div className="space-y-3">
+        <button
+          type="button"
+          onClick={signUpWithGoogle}
+          className="w-full bg-background text-foreground py-3 px-4 rounded-xl font-medium border border-border hover:bg-accent transition-all flex items-center justify-center gap-3"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+          <span>Google</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={handleGuestLogin}
+          className="w-full bg-background text-foreground py-3 px-4 rounded-xl font-medium border border-border hover:bg-accent transition-all flex items-center justify-center gap-3"
+        >
+          <UserCircle className="w-5 h-5" />
+          <span>המשך כאורח</span>
+        </button>
+      </div>
+
+      <p className="mt-6 text-center text-sm text-muted-foreground">
+        {t("auth.haveAccount")}{" "}
+        <Link href="/sign-in" className="text-primary hover:text-primary-dark font-bold">
+          {t("common.signIn")}
+        </Link>
+      </p>
+
+      <p className="mt-4 text-center text-xs text-muted-foreground">
+        בהרשמה אתה מסכים ל
+        <Link href="/terms" className="text-primary hover:underline mx-1">תנאי השימוש</Link>
+        ול
+        <Link href="/privacy" className="text-primary hover:underline mx-1">מדיניות הפרטיות</Link>
+      </p>
     </div>
   );
 }

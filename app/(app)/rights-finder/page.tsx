@@ -1,228 +1,238 @@
-import type { Metadata } from "next";
-import Link from "next/link";
+"use client";
 
-export const metadata: Metadata = {
-  title: "חיפוש זכויות | ZchuyotBuddy",
-  description: "מצא את הזכויות המתאימות לך",
-};
+import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "@/lib/i18n";
 
-/**
- * Stitch Rights Finder Page Preview
- * Based on Stitch design patterns
- */
-export default function StitchRightsFinderPage() {
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+}
+
+export default function RightsFinderPage() {
+  const { t } = useTranslation();
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: "welcome",
+      role: "assistant",
+      content: "שלום! אני כאן לעזור לך לגלות את הזכויות שמגיעות לך. ספר לי על המצב שלך או שאל שאלה, ואני אחפש את המידע הרלוונטי עבורך.",
+      timestamp: new Date(),
+    },
+  ]);
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: input.trim(),
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+    setIsLoading(true);
+
+    // Simulate AI response - in production, this would call the Convex API
+    setTimeout(() => {
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: generateMockResponse(userMessage.content),
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, assistantMessage]);
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  const generateMockResponse = (question: string): string => {
+    // This is a mock response - in production, this would be AI-generated
+    if (question.includes("ביטוח לאומי") || question.includes("דמי אבטלה")) {
+      return `בהתבסס על שאלתך, הנה מידע רלוונטי:
+
+**דמי אבטלה**
+אם פוטרת או התפטרת מעבודתך, ייתכן שאתה זכאי לדמי אבטלה מביטוח לאומי.
+
+**תנאי זכאות עיקריים:**
+• גיל 20 ומעלה
+• עבדת 12 חודשים מתוך 18 החודשים האחרונים
+• נרשמת בשירות התעסוקה
+
+**צעדים הבאים:**
+1. הירשם בשירות התעסוקה
+2. הגש תביעה לביטוח לאומי
+3. צרף אישור פיטורין/התפטרות
+
+רוצה שאבנה לך רשימת משימות מפורטת?`;
+    }
+    
+    if (question.includes("נכות") || question.includes("רפואי")) {
+      return `אני מבין שאתה מתעניין בזכויות הקשורות לנכות או מצב רפואי.
+
+**גמלת נכות כללית**
+אם יש לך מגבלה רפואית המשפיעה על יכולת העבודה שלך, ייתכן שאתה זכאי לגמלת נכות.
+
+**מה צריך לדעת:**
+• הזכאות נקבעת לפי אחוז נכות רפואית
+• יש להגיש תביעה עם מסמכים רפואיים
+• התהליך כולל ועדה רפואית
+
+**מקורות רשמיים:**
+[ביטוח לאומי - נכות כללית](https://www.btl.gov.il)
+
+האם תרצה לשמוע על זכויות נוספות?`;
+    }
+
+    return `תודה על השאלה! בהתבסס על מה שכתבת, אני יכול לעזור לך לבדוק מספר זכויות אפשריות.
+
+**כדי לתת לך תשובה מדויקת יותר, אשמח לדעת:**
+• מה הגיל שלך?
+• מה סטטוס התעסוקה שלך?
+• האם יש לך מצב רפואי מיוחד?
+
+ככל שתספר לי יותר, כך אוכל לעזור לך טוב יותר למצוא את כל הזכויות שמגיעות לך.`;
+  };
+
+  const suggestedQuestions = [
+    "האם מגיע לי דמי אבטלה?",
+    "מה הזכויות שלי כהורה?",
+    "זכויות נכות רפואית",
+    "הנחות בארנונה",
+  ];
+
   return (
-    <div
-      dir="rtl"
-      className="relative flex min-h-screen w-full flex-col overflow-y-auto overflow-x-hidden md:max-w-md md:mx-auto md:border-x md:border-gray-100 no-scrollbar bg-white"
-    >
-      <style>{`
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}</style>
-
-      {/* Background decorations */}
-      <div className="absolute top-[-20%] right-[-20%] w-[80%] h-[60%] rounded-full bg-primary/5 blur-[120px] pointer-events-none" />
-
+    <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-2rem)]">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-100 p-6 pt-12 sticky top-0 z-20">
-        <div className="flex items-center gap-4">
-          <Link
-            href="/dashboard"
-            className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-text-dark hover:bg-gray-200 transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_forward</span>
-          </Link>
-          <div className="flex-1">
-            <h1 className="text-xl font-extrabold text-text-dark">חיפוש זכויות</h1>
-            <p className="text-sm text-text-subtle">מצא את הזכויות המתאימות לך</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Main content */}
-      <main className="flex-1 p-6 space-y-6 relative z-10">
-        {/* Search bar */}
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="חפש זכות, קצבה, הטבה..."
-            className="w-full px-4 py-4 pr-12 rounded-2xl bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 transition-all text-right placeholder-gray-400 font-medium"
-          />
-          <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-gray-400">
-            <span className="material-symbols-outlined">search</span>
-          </div>
-        </div>
-
-        {/* AI Assistant prompt */}
-        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center shrink-0">
-              <span className="material-symbols-outlined text-[22px]">smart_toy</span>
+      <div className="p-4 md:p-6 border-b border-border bg-card">
+        <div className="max-w-3xl mx-auto">
+          <div className="flex items-center gap-3">
+            <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
+              <span className="material-symbols-outlined text-2xl">search</span>
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-text-dark mb-1">שאל את הבאדי</h3>
-              <p className="text-sm text-text-subtle mb-3">
-                תאר את המצב שלך ואעזור לך למצוא זכויות רלוונטיות
-              </p>
-              <textarea
-                placeholder="לדוגמה: אני הורה לילד עם צרכים מיוחדים, עובד במשרה חלקית..."
-                className="w-full px-4 py-3 rounded-xl bg-white border border-gray-200 focus:border-primary focus:ring-0 transition-all text-right placeholder-gray-400 text-sm resize-none"
-                rows={3}
-              />
-              <button
-                type="button"
-                className="mt-3 w-full py-3 rounded-xl bg-primary text-white font-bold hover:bg-primary-light transition-colors"
+            <div>
+              <h1 className="text-xl font-black text-foreground">{t("rightsFinder.title")}</h1>
+              <p className="text-sm text-muted-foreground">שאל כל שאלה על זכויות והטבות</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 md:p-6">
+        <div className="max-w-3xl mx-auto space-y-4">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+            >
+              <div
+                className={`max-w-[85%] rounded-2xl p-4 ${
+                  message.role === "user"
+                    ? "bg-primary text-white"
+                    : "bg-card border border-border"
+                }`}
               >
-                חפש זכויות מתאימות
-              </button>
+                {message.role === "assistant" && (
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="size-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                      <span className="material-symbols-outlined text-sm">smart_toy</span>
+                    </div>
+                    <span className="text-xs font-bold text-primary">זכויות באדי</span>
+                  </div>
+                )}
+                <div 
+                  className={`text-sm leading-relaxed whitespace-pre-wrap ${
+                    message.role === "user" ? "text-white" : "text-foreground"
+                  }`}
+                >
+                  {message.content}
+                </div>
+              </div>
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-card border border-border rounded-2xl p-4 max-w-[85%]">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="size-6 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <span className="material-symbols-outlined text-sm">smart_toy</span>
+                  </div>
+                  <span className="text-xs font-bold text-primary">זכויות באדי</span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <div className="flex gap-1">
+                    <span className="size-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="size-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="size-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                  <span className="text-sm">{t("rightsFinder.searching")}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+      </div>
+
+      {/* Suggested Questions (only show at start) */}
+      {messages.length === 1 && (
+        <div className="p-4 border-t border-border bg-background">
+          <div className="max-w-3xl mx-auto">
+            <p className="text-sm text-muted-foreground mb-3">שאלות נפוצות:</p>
+            <div className="flex flex-wrap gap-2">
+              {suggestedQuestions.map((question, index) => (
+                <button
+                  key={index}
+                  onClick={() => setInput(question)}
+                  className="px-4 py-2 bg-card border border-border rounded-xl text-sm text-foreground hover:bg-accent hover:border-primary/30 transition-all"
+                >
+                  {question}
+                </button>
+              ))}
             </div>
           </div>
         </div>
+      )}
 
-        {/* Popular categories */}
-        <section>
-          <h2 className="text-lg font-bold text-text-dark mb-4">קטגוריות נפוצות</h2>
-          <div className="grid grid-cols-2 gap-3">
+      {/* Input */}
+      <div className="p-4 border-t border-border bg-card">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+          <div className="flex gap-3">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={t("rightsFinder.placeholder")}
+              className="flex-1 px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              disabled={isLoading}
+            />
             <button
-              type="button"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md hover:border-primary/30 transition-all"
+              type="submit"
+              disabled={!input.trim() || isLoading}
+              className="size-12 rounded-xl bg-primary hover:bg-primary-dark text-white flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-primary"
             >
-              <div className="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">accessible</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">נכות</span>
-            </button>
-
-            <button
-              type="button"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md hover:border-primary/30 transition-all"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-green-100 text-green-600 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">family_restroom</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">משפחה</span>
-            </button>
-
-            <button
-              type="button"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md hover:border-primary/30 transition-all"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">work</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">תעסוקה</span>
-            </button>
-
-            <button
-              type="button"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md hover:border-primary/30 transition-all"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">elderly</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">גיל הזהב</span>
-            </button>
-
-            <button
-              type="button"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md hover:border-primary/30 transition-all"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">medical_services</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">בריאות</span>
-            </button>
-
-            <button
-              type="button"
-              className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md hover:border-primary/30 transition-all"
-            >
-              <div className="w-12 h-12 rounded-2xl bg-cyan-100 text-cyan-600 flex items-center justify-center mb-3">
-                <span className="material-symbols-outlined text-[26px]">school</span>
-              </div>
-              <span className="font-bold text-text-dark text-sm">חינוך</span>
+              <span className="material-symbols-outlined">send</span>
             </button>
           </div>
-        </section>
-
-        {/* Recent searches */}
-        <section>
-          <h2 className="text-lg font-bold text-text-dark mb-4">חיפושים אחרונים</h2>
-          <div className="space-y-2">
-            <button
-              type="button"
-              className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-right"
-            >
-              <span className="material-symbols-outlined text-text-subtle">history</span>
-              <span className="flex-1 text-sm text-text-dark">קצבת נכות כללית</span>
-              <span className="material-symbols-outlined text-text-subtle text-[20px]">
-                arrow_back
-              </span>
-            </button>
-            <button
-              type="button"
-              className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-right"
-            >
-              <span className="material-symbols-outlined text-text-subtle">history</span>
-              <span className="flex-1 text-sm text-text-dark">הטבות לילד עם צרכים מיוחדים</span>
-              <span className="material-symbols-outlined text-text-subtle text-[20px]">
-                arrow_back
-              </span>
-            </button>
-            <button
-              type="button"
-              className="w-full flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors text-right"
-            >
-              <span className="material-symbols-outlined text-text-subtle">history</span>
-              <span className="flex-1 text-sm text-text-dark">פטור מארנונה</span>
-              <span className="material-symbols-outlined text-text-subtle text-[20px]">
-                arrow_back
-              </span>
-            </button>
-          </div>
-        </section>
-      </main>
-
-      {/* Bottom navigation */}
-      <nav className="bg-white border-t border-gray-100 p-4 pb-8 sticky bottom-0 z-20">
-        <div className="flex items-center justify-around">
-          <Link
-            href="/dashboard"
-            className="flex flex-col items-center gap-1 text-text-subtle hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined text-[24px]">home</span>
-            <span className="text-xs font-medium">בית</span>
-          </Link>
-          <Link
-            href="/rights-finder"
-            className="flex flex-col items-center gap-1 text-primary"
-          >
-            <span className="material-symbols-outlined text-[24px]">search</span>
-            <span className="text-xs font-bold">חיפוש</span>
-          </Link>
-          <Link
-            href="/checklists"
-            className="flex flex-col items-center gap-1 text-text-subtle hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined text-[24px]">checklist</span>
-            <span className="text-xs font-medium">משימות</span>
-          </Link>
-          <Link
-            href="/settings"
-            className="flex flex-col items-center gap-1 text-text-subtle hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined text-[24px]">person</span>
-            <span className="text-xs font-medium">פרופיל</span>
-          </Link>
-        </div>
-      </nav>
+        </form>
+      </div>
     </div>
   );
 }
-
