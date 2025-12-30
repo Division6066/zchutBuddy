@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 
 // Simple admin email check - replace with proper RBAC later
 const ADMIN_EMAILS = ["levidavidspublic@proton.me"];
@@ -316,25 +316,12 @@ export const deleteModel = mutation({
 });
 
 /**
- * Seed default model configurations (admin only).
+ * Seed default model configurations (internal - no auth required).
+ * Run from Convex dashboard to initialize models.
  */
-export const seedDefaultModels = mutation({
+export const seedDefaultModels = internalMutation({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
-      throw new Error("Admin access required");
-    }
-
     const defaultModels = [
       {
         modelId: "kimi-k2",
