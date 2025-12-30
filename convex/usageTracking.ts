@@ -1,40 +1,11 @@
 import { v } from "convex/values";
 import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
 import { Id } from "./_generated/dataModel";
-
-// ============================================
-// CONSTANTS
-// ============================================
-
-/**
- * API credit limits per subscription tier (in shekels).
- */
-const TIER_API_LIMITS: Record<string, number> = {
-  free_trial: 5, // ₪5 API credits
-  plus: 50, // ₪50 API credits
-  pro: 150, // ₪150 API credits
-  max: 500, // ₪500 API credits
-};
-
-/**
- * Crawl credit limits per subscription tier.
- */
-const TIER_CRAWL_LIMITS: Record<string, number> = {
-  free_trial: 0,
-  plus: 10,
-  pro: 50,
-  max: 200,
-};
-
-/**
- * Soft cap threshold (40% of limit).
- */
-const SOFT_CAP_THRESHOLD = 0.4;
-
-/**
- * Hard cap threshold (60% of limit).
- */
-const HARD_CAP_THRESHOLD = 0.6;
+import {
+  SUBSCRIPTION_TIERS,
+  calculateCaps,
+  type SubscriptionTier,
+} from "./lib/subscriptionConfig";
 
 // ============================================
 // INTERNAL HELPERS
@@ -58,6 +29,19 @@ async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users"
   return user._id;
 }
 
+/**
+ * Get tier config for a user's subscription
+ */
+async function getUserTierConfig(ctx: QueryCtx | MutationCtx, userId: Id<"users">) {
+  const subscription = await ctx.db
+    .query("subscriptions")
+    .withIndex("by_userId", (q) => q.eq("userId", userId))
+    .first();
+
+  const tier = (subscription?.tier as SubscriptionTier) || "free_trial";
+  return SUBSCRIPTION_TIERS[tier];
+}
+
 // ============================================
 // QUERIES
 // ============================================
@@ -79,6 +63,10 @@ export const getMyUsage = query({
       return null;
     }
 
+    // Get tier config for cap calculation
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const caps = calculateCaps(tierConfig.id as SubscriptionTier);
+
     // Calculate percentages
     const apiUsagePercent =
       usage.apiCreditsLimit > 0 ? (usage.apiCreditsUsed / usage.apiCreditsLimit) * 100 : 0;
@@ -92,6 +80,9 @@ export const getMyUsage = query({
       crawlUsagePercent: Math.round(crawlUsagePercent),
       apiRemaining: Math.max(0, usage.apiCreditsLimit - usage.apiCreditsUsed),
       crawlRemaining: Math.max(0, usage.crawlCreditsLimit - usage.crawlCreditsUsed),
+      softCap: caps.softCap,
+      hardCap: caps.hardCap,
+      totalBudget: caps.totalBudget,
     };
   },
 });
@@ -131,11 +122,147 @@ export const checkUsageCaps = query({
       };
     }
 
+    // Get tier config for limits
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const caps = calculateCaps(tierConfig.id as SubscriptionTier);
+
     return {
-      softCapReached: usage.softCapReached,
-      hardCapReached: usage.hardCapReached,
+      softCapReached: usage.apiCreditsUsed >= caps.softCap,
+      hardCapReached: usage.apiCreditsUsed >= caps.hardCap,
       canUseApi: usage.apiCreditsUsed < usage.apiCreditsLimit,
-      canUseCrawl: usage.crawlCreditsUsed < usage.crawlCreditsLimit,
+      canUseCrawl:
+        tierConfig.limits.deepResearchPerMonth === -1 ||
+        usage.crawlCreditsUsed < usage.crawlCreditsLimit,
+      currentUsage: usage.apiCreditsUsed,
+      softCap: caps.softCap,
+      hardCap: caps.hardCap,
+      totalBudget: caps.totalBudget,
+    };
+  },
+});
+
+/**
+ * Check daily chat limit
+ */
+export const checkDailyChatLimit = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+
+    // Get tier config
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const dailyLimit = tierConfig.limits.chatsPerDay;
+
+    // Unlimited
+    if (dailyLimit === -1) {
+      return {
+        canChat: true,
+        remaining: null,
+        limit: null,
+        isUnlimited: true,
+      };
+    }
+
+    // Count today's chat sessions
+    const now = Date.now();
+    const startOfDay = now - (now % (24 * 60 * 60 * 1000));
+
+    const todaySessions = await ctx.db
+      .query("chatSessions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .filter((q) => q.gte(q.field("createdAt"), startOfDay))
+      .collect();
+
+    const usedToday = todaySessions.length;
+    const remaining = Math.max(0, dailyLimit - usedToday);
+
+    return {
+      canChat: usedToday < dailyLimit,
+      remaining,
+      limit: dailyLimit,
+      isUnlimited: false,
+    };
+  },
+});
+
+/**
+ * Check checklist limit
+ */
+export const checkChecklistLimit = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+
+    // Get tier config
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const maxChecklists = tierConfig.limits.maxChecklists;
+
+    // Unlimited
+    if (maxChecklists === -1) {
+      return {
+        canCreate: true,
+        remaining: null,
+        limit: null,
+        isUnlimited: true,
+      };
+    }
+
+    // Count user's checklists
+    const checklists = await ctx.db
+      .query("checklists")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+
+    const currentCount = checklists.length;
+    const remaining = Math.max(0, maxChecklists - currentCount);
+
+    return {
+      canCreate: currentCount < maxChecklists,
+      remaining,
+      limit: maxChecklists,
+      current: currentCount,
+      isUnlimited: false,
+    };
+  },
+});
+
+/**
+ * Check saved rights limit
+ */
+export const checkSavedRightsLimit = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+
+    // Get tier config
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const maxSavedRights = tierConfig.limits.maxSavedRights;
+
+    // Unlimited
+    if (maxSavedRights === -1) {
+      return {
+        canSave: true,
+        remaining: null,
+        limit: null,
+        isUnlimited: true,
+      };
+    }
+
+    // Count user's saved rights
+    const savedRights = await ctx.db
+      .query("savedRights")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .collect();
+
+    const currentCount = savedRights.length;
+    const remaining = Math.max(0, maxSavedRights - currentCount);
+
+    return {
+      canSave: currentCount < maxSavedRights,
+      remaining,
+      limit: maxSavedRights,
+      current: currentCount,
+      isUnlimited: false,
     };
   },
 });
@@ -154,6 +281,9 @@ export const initializeUsage = mutation({
   },
   handler: async (ctx, { userId, tier }) => {
     const now = Date.now();
+
+    // Get tier configuration
+    const tierConfig = SUBSCRIPTION_TIERS[tier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
     const periodEnd = now + 30 * 24 * 60 * 60 * 1000; // 30 days
 
     // Check if usage already exists
@@ -162,18 +292,18 @@ export const initializeUsage = mutation({
       .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
-    const apiLimit = TIER_API_LIMITS[tier] || TIER_API_LIMITS.free_trial;
-    const crawlLimit = TIER_CRAWL_LIMITS[tier] || TIER_CRAWL_LIMITS.free_trial;
-
     if (existing) {
       // Reset existing usage
       await ctx.db.patch(existing._id, {
         periodStart: now,
         periodEnd,
         apiCreditsUsed: 0,
-        apiCreditsLimit: apiLimit,
+        apiCreditsLimit: tierConfig.apiBudget,
         crawlCreditsUsed: 0,
-        crawlCreditsLimit: crawlLimit,
+        crawlCreditsLimit:
+          tierConfig.limits.deepResearchPerMonth === -1
+            ? 999999
+            : tierConfig.limits.deepResearchPerMonth,
         totalTokensUsed: 0,
         softCapReached: false,
         hardCapReached: false,
@@ -190,9 +320,12 @@ export const initializeUsage = mutation({
       periodStart: now,
       periodEnd,
       apiCreditsUsed: 0,
-      apiCreditsLimit: apiLimit,
+      apiCreditsLimit: tierConfig.apiBudget,
       crawlCreditsUsed: 0,
-      crawlCreditsLimit: crawlLimit,
+      crawlCreditsLimit:
+        tierConfig.limits.deepResearchPerMonth === -1
+          ? 999999
+          : tierConfig.limits.deepResearchPerMonth,
       totalTokensUsed: 0,
       softCapReached: false,
       hardCapReached: false,
@@ -222,21 +355,19 @@ export const recordApiUsage = mutation({
 
     // If no usage record, get subscription tier and initialize
     if (!usage) {
-      const subscription = await ctx.db
-        .query("subscriptions")
-        .withIndex("by_userId", (q) => q.eq("userId", userId))
-        .unique();
-
-      const tier = subscription?.tier || "free_trial";
+      const tierConfig = await getUserTierConfig(ctx, userId);
 
       const usageId = await ctx.db.insert("usageTracking", {
         userId,
         periodStart: now,
         periodEnd: now + 30 * 24 * 60 * 60 * 1000,
         apiCreditsUsed: 0,
-        apiCreditsLimit: TIER_API_LIMITS[tier] || TIER_API_LIMITS.free_trial,
+        apiCreditsLimit: tierConfig.apiBudget,
         crawlCreditsUsed: 0,
-        crawlCreditsLimit: TIER_CRAWL_LIMITS[tier] || TIER_CRAWL_LIMITS.free_trial,
+        crawlCreditsLimit:
+          tierConfig.limits.deepResearchPerMonth === -1
+            ? 999999
+            : tierConfig.limits.deepResearchPerMonth,
         totalTokensUsed: 0,
         softCapReached: false,
         hardCapReached: false,
@@ -252,13 +383,17 @@ export const recordApiUsage = mutation({
       throw new Error("Failed to create usage tracking");
     }
 
+    // Get tier config for cap calculation
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const caps = calculateCaps(tierConfig.id as SubscriptionTier);
+
     // Update usage
     const newApiCreditsUsed = usage.apiCreditsUsed + costInShekels;
     const newTotalTokensUsed = usage.totalTokensUsed + tokensUsed;
 
     // Check caps
-    const softCapReached = newApiCreditsUsed >= usage.apiCreditsLimit * SOFT_CAP_THRESHOLD;
-    const hardCapReached = newApiCreditsUsed >= usage.apiCreditsLimit * HARD_CAP_THRESHOLD;
+    const softCapReached = newApiCreditsUsed >= caps.softCap;
+    const hardCapReached = newApiCreditsUsed >= caps.hardCap;
 
     await ctx.db.patch(usage._id, {
       apiCreditsUsed: newApiCreditsUsed,
@@ -273,6 +408,8 @@ export const recordApiUsage = mutation({
       hardCapReached: hardCapReached && !usage.hardCapReached,
       apiCreditsUsed: newApiCreditsUsed,
       apiCreditsLimit: usage.apiCreditsLimit,
+      softCap: caps.softCap,
+      hardCap: caps.hardCap,
     };
   },
 });
@@ -374,16 +511,19 @@ export const updateLimitsForTier = mutation({
       return;
     }
 
-    const apiLimit = TIER_API_LIMITS[tier] || TIER_API_LIMITS.free_trial;
-    const crawlLimit = TIER_CRAWL_LIMITS[tier] || TIER_CRAWL_LIMITS.free_trial;
+    const tierConfig = SUBSCRIPTION_TIERS[tier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
+    const caps = calculateCaps(tier as SubscriptionTier);
 
     // Recalculate caps with new limits
-    const softCapReached = usage.apiCreditsUsed >= apiLimit * SOFT_CAP_THRESHOLD;
-    const hardCapReached = usage.apiCreditsUsed >= apiLimit * HARD_CAP_THRESHOLD;
+    const softCapReached = usage.apiCreditsUsed >= caps.softCap;
+    const hardCapReached = usage.apiCreditsUsed >= caps.hardCap;
 
     await ctx.db.patch(usage._id, {
-      apiCreditsLimit: apiLimit,
-      crawlCreditsLimit: crawlLimit,
+      apiCreditsLimit: tierConfig.apiBudget,
+      crawlCreditsLimit:
+        tierConfig.limits.deepResearchPerMonth === -1
+          ? 999999
+          : tierConfig.limits.deepResearchPerMonth,
       softCapReached,
       hardCapReached,
       updatedAt: Date.now(),
@@ -391,3 +531,66 @@ export const updateLimitsForTier = mutation({
   },
 });
 
+/**
+ * Get usage summary for display
+ */
+export const getUsageSummary = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+
+    const usage = await ctx.db
+      .query("usageTracking")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!usage) {
+      return null;
+    }
+
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const caps = calculateCaps(tierConfig.id as SubscriptionTier);
+
+    // Calculate days remaining in period
+    const now = Date.now();
+    const daysRemaining = Math.max(
+      0,
+      Math.ceil((usage.periodEnd - now) / (24 * 60 * 60 * 1000))
+    );
+
+    return {
+      tier: tierConfig.id,
+      tierName: tierConfig.name,
+      tierNameHe: tierConfig.nameHe,
+
+      // API budget
+      apiCreditsUsed: Math.round(usage.apiCreditsUsed * 100) / 100,
+      apiCreditsLimit: tierConfig.apiBudget,
+      apiUsagePercent: Math.round((usage.apiCreditsUsed / tierConfig.apiBudget) * 100),
+
+      // Caps
+      softCap: caps.softCap,
+      hardCap: caps.hardCap,
+      softCapReached: usage.softCapReached,
+      hardCapReached: usage.hardCapReached,
+
+      // Tokens
+      totalTokensUsed: usage.totalTokensUsed,
+
+      // Deep research
+      crawlCreditsUsed: usage.crawlCreditsUsed,
+      crawlCreditsLimit:
+        tierConfig.limits.deepResearchPerMonth === -1
+          ? "unlimited"
+          : tierConfig.limits.deepResearchPerMonth,
+
+      // Period
+      periodStart: usage.periodStart,
+      periodEnd: usage.periodEnd,
+      daysRemaining,
+
+      // Limits
+      limits: tierConfig.limits,
+    };
+  },
+});

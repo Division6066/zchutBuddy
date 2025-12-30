@@ -13,6 +13,8 @@ import type * as alerts from "../alerts.js";
 import type * as chat from "../chat.js";
 import type * as checklists from "../checklists.js";
 import type * as internal_createDummyUsers from "../internal/createDummyUsers.js";
+import type * as lib_modelConfig from "../lib/modelConfig.js";
+import type * as lib_subscriptionConfig from "../lib/subscriptionConfig.js";
 import type * as modelConfig from "../modelConfig.js";
 import type * as savedRights from "../savedRights.js";
 import type * as seed from "../seed.js";
@@ -32,6 +34,8 @@ declare const fullApi: ApiFromModules<{
   chat: typeof chat;
   checklists: typeof checklists;
   "internal/createDummyUsers": typeof internal_createDummyUsers;
+  "lib/modelConfig": typeof lib_modelConfig;
+  "lib/subscriptionConfig": typeof lib_subscriptionConfig;
   modelConfig: typeof modelConfig;
   savedRights: typeof savedRights;
   seed: typeof seed;
