@@ -146,6 +146,11 @@
     "about": "About"
   },
   "onboarding": {
+    "step1": "Welcome",
+    "step2": "Basic Info",
+    "step3": "Situation",
+    "step4": "Health",
+    "step5": "Summary",
     "welcome": {
       "title": "Your GPS to Rights",
       "subtitle": "And Co-pilot for Paperwork",
