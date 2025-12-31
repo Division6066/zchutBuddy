@@ -17,7 +17,13 @@
     "success": "Success",
     "search": "Search",
     "submit": "Submit",
-    "close": "Close"
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "notProvided": "Not specified",
+    "edit": "Edit",
+    "continue": "Continue",
+    "finish": "Finish"
   },
   "nav": {
     "features": "Features",
@@ -106,10 +112,27 @@
   },
   "rightsFinder": {
     "title": "Rights Finder",
+    "subtitle": "Ask any question about rights in Israel",
     "placeholder": "Describe your situation or ask a question...",
     "searching": "Searching for your rights...",
     "noResults": "No results found",
-    "askQuestion": "Ask a Question"
+    "askQuestion": "Ask a Question",
+    "newChat": "New Chat",
+    "history": "Chat History",
+    "noHistory": "No previous chats",
+    "selectModel": "Select AI Model",
+    "default": "Default",
+    "unavailable": "Unavailable",
+    "maxContext": "Max Context",
+    "tokens": "tokens",
+    "free": "Free",
+    "dailyLimit": "Daily Limit",
+    "welcomeTitle": "Hi! How can I help?",
+    "welcomeSubtitle": "Ask me anything about rights in Israel",
+    "suggested1": "What are the rights for IDF disabled?",
+    "suggested2": "How do I apply for disability benefits?",
+    "suggested3": "What benefits are available for veterans?",
+    "suggested4": "Rights for people with disabilities"
   },
   "checklists": {
     "title": "My Checklists",
@@ -151,11 +174,83 @@
     "step3": "Situation",
     "step4": "Health",
     "step5": "Summary",
+    "step": "Step",
+    "of": "of",
+    "gettingStarted": "Getting Started",
     "welcome": {
-      "title": "Your GPS to Rights",
-      "subtitle": "And Co-pilot for Paperwork",
+      "title": "Welcome to ZchuyotBuddy!",
+      "subtitle": "We'll help you find all the rights you're entitled to",
       "description": "Navigate the medical benefits maze with ease. We handle the paperwork so you get exactly what you deserve.",
-      "cta": "Start Your Claim"
+      "cta": "Let's Get Started"
+    },
+    "basicInfo": {
+      "title": "Basic Information",
+      "description": "To match you with the right benefits",
+      "ageRange": "Age Range",
+      "selectAge": "Select age range",
+      "city": "City",
+      "enterCity": "Enter city",
+      "hmo": "Health Insurance (HMO)",
+      "selectHmo": "Select HMO",
+      "clalit": "Clalit",
+      "maccabi": "Maccabi",
+      "meuhedet": "Meuhedet",
+      "leumit": "Leumit"
+    },
+    "situation": {
+      "title": "Life Situation",
+      "description": "Helps us match unique benefits to your situation",
+      "employmentStatus": "Employment Status",
+      "selectEmployment": "Select status",
+      "employed": "Employed",
+      "unemployed": "Unemployed",
+      "student": "Student",
+      "retired": "Retired",
+      "selfEmployed": "Self-Employed",
+      "other": "Other",
+      "idfService": "Military/National Service",
+      "selectIdfService": "Select service status",
+      "served": "Served",
+      "notServed": "Did Not Serve",
+      "currentlyServing": "Currently Serving",
+      "nationalService": "National/Civil Service",
+      "isIdfDisabled": "I have a service-related disability",
+      "isRecognizedIdfDisabled": "Recognized as IDF disabled",
+      "receivingDisabilityBenefit": "Receiving disability benefits from National Insurance",
+      "hasChildrenUnder18": "Have children under 18",
+      "isRenting": "Renting an apartment"
+    },
+    "disabilities": {
+      "title": "Health Situation",
+      "description": "This information helps us find unique benefits for you",
+      "selectDisabilities": "Select relevant disability types",
+      "mobility": "Mobility",
+      "vision": "Vision",
+      "hearing": "Hearing",
+      "cognitive": "Cognitive",
+      "mental_health": "Mental Health",
+      "chronic_illness": "Chronic Illness",
+      "developmental": "Developmental",
+      "other": "Other",
+      "severity": "Severity",
+      "selectSeverity": "Select severity",
+      "mild": "Mild",
+      "moderate": "Moderate",
+      "severe": "Severe",
+      "percentage": "Recognized disability percentage",
+      "selectPercentage": "Select percentage",
+      "recognizedBy": "Recognized by",
+      "selectRecognizedBy": "Select recognizing body",
+      "bituach_leumi": "National Insurance",
+      "defense": "Ministry of Defense",
+      "health": "Ministry of Health"
+    },
+    "review": {
+      "title": "Summary",
+      "description": "Review your information before we continue",
+      "yourInfo": "Your Information",
+      "complete": "Finish & Start Finding Rights",
+      "completionSuccess": "Profile saved successfully!"
     },
     "radar": {
       "title": "Updates Radar",
@@ -227,6 +322,23 @@
       "message": "Message",
       "send": "Send Message"
     }
+  },
+  "capWarning": {
+    "softCapTitle": "Usage Warning",
+    "hardCapTitle": "Usage Limit Reached",
+    "softCapMessage": "You've used 40% of your monthly API budget. Consider upgrading.",
+    "hardCapMessage": "You've used 60% of your API budget. Upgrade to continue.",
+    "currentUsage": "Current usage:",
+    "upgradePlan": "Upgrade Plan",
+    "viewPlans": "View Plans",
+    "dailyLimitReached": "Daily chat limit reached ({limit} chats)",
+    "resetsIn": "Resets in {days} days"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email",
+    "minLength": "Minimum length is {min} characters",
+    "maxLength": "Maximum length is {max} characters",
+    "selectOption": "Please select an option"
   }
 }
-

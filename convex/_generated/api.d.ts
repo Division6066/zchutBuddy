@@ -14,6 +14,7 @@ import type * as chat from "../chat.js";
 import type * as checklists from "../checklists.js";
 import type * as internal_createDummyUsers from "../internal/createDummyUsers.js";
 import type * as lib_modelConfig from "../lib/modelConfig.js";
+import type * as lib_modelRouter from "../lib/modelRouter.js";
 import type * as lib_subscriptionConfig from "../lib/subscriptionConfig.js";
 import type * as modelConfig from "../modelConfig.js";
 import type * as savedRights from "../savedRights.js";
@@ -35,6 +36,7 @@ declare const fullApi: ApiFromModules<{
   checklists: typeof checklists;
   "internal/createDummyUsers": typeof internal_createDummyUsers;
   "lib/modelConfig": typeof lib_modelConfig;
+  "lib/modelRouter": typeof lib_modelRouter;
   "lib/subscriptionConfig": typeof lib_subscriptionConfig;
   modelConfig: typeof modelConfig;
   savedRights: typeof savedRights;

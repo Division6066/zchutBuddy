@@ -17,7 +17,13 @@
     "success": "הצלחה",
     "search": "חיפוש",
     "submit": "שלח",
-    "close": "סגור"
+    "close": "סגור",
+    "yes": "כן",
+    "no": "לא",
+    "notProvided": "לא צוין",
+    "edit": "עריכה",
+    "continue": "המשך",
+    "finish": "סיים"
   },
   "nav": {
     "features": "תכונות",
@@ -106,10 +112,27 @@
   },
   "rightsFinder": {
     "title": "מנוע זכויות",
+    "subtitle": "שאל כל שאלה על זכויות בישראל",
     "placeholder": "תאר את מצבך או שאל שאלה...",
     "searching": "מחפש את הזכויות שלך...",
     "noResults": "לא נמצאו תוצאות",
-    "askQuestion": "שאל שאלה"
+    "askQuestion": "שאל שאלה",
+    "newChat": "שיחה חדשה",
+    "history": "היסטוריית שיחות",
+    "noHistory": "אין שיחות קודמות",
+    "selectModel": "בחר מודל AI",
+    "default": "ברירת מחדל",
+    "unavailable": "לא זמין",
+    "maxContext": "הקשר מקסימלי",
+    "tokens": "טוקנים",
+    "free": "חינם",
+    "dailyLimit": "מגבלה יומית",
+    "welcomeTitle": "שלום! איך אוכל לעזור?",
+    "welcomeSubtitle": "שאל אותי כל שאלה על זכויות בישראל",
+    "suggested1": "מהן הזכויות לנכי צה\"ל?",
+    "suggested2": "איך מגישים בקשה לקצבת נכות?",
+    "suggested3": "מה ההטבות לחיילים משוחררים?",
+    "suggested4": "זכויות לאנשים עם מוגבלות"
   },
   "checklists": {
     "title": "הרשימות שלי",
@@ -151,19 +174,83 @@
     "step3": "מצב חיים",
     "step4": "בריאות",
     "step5": "סיכום",
+    "step": "שלב",
+    "of": "מתוך",
+    "gettingStarted": "מתחילים",
     "welcome": {
-      "title": "ה-GPS לזכויות שלך",
-      "subtitle": "וטייס-משנה לניירת",
+      "title": "ברוכים הבאים לזכויות באדי!",
+      "subtitle": "נעזור לך למצוא את כל הזכויות שמגיעות לך",
       "description": "נווט בקלות בנבכי הזכויות הרפואיות. אנו מטפלים בניירת כדי שתקבל בדיוק את מה שמגיע לך.",
-      "cta": "התחל תביעה"
+      "cta": "בוא נתחיל"
     },
-    "radar": {
-      "title": "רדאר עדכונים",
-      "description": "הישאר מעודכן לגבי שינויים שמשפיעים על הזכויות שלך עם מערכת הניטור בזמן אמת שלנו."
+    "basicInfo": {
+      "title": "פרטים בסיסיים",
+      "description": "כדי להתאים את הזכויות המתאימות לך",
+      "ageRange": "טווח גילאים",
+      "selectAge": "בחר טווח גילאים",
+      "city": "עיר מגורים",
+      "enterCity": "הזן עיר",
+      "hmo": "קופת חולים",
+      "selectHmo": "בחר קופת חולים",
+      "clalit": "כללית",
+      "maccabi": "מכבי",
+      "meuhedet": "מאוחדת",
+      "leumit": "לאומית"
     },
-    "profile": {
-      "title": "ספר לנו על עצמך",
-      "description": "עזור לנו להתאים אישית את החוויה שלך על ידי שיתוף קצת על המצב שלך."
+    "situation": {
+      "title": "מצב חיים",
+      "description": "עוזר לנו להתאים זכויות ייחודיות למצבך",
+      "employmentStatus": "סטטוס תעסוקה",
+      "selectEmployment": "בחר סטטוס",
+      "employed": "עובד/ת",
+      "unemployed": "לא עובד/ת",
+      "student": "סטודנט/ית",
+      "retired": "גמלאי/ת",
+      "selfEmployed": "עצמאי/ת",
+      "other": "אחר",
+      "idfService": "שירות צבאי/לאומי",
+      "selectIdfService": "בחר סטטוס שירות",
+      "served": "שירתתי",
+      "notServed": "לא שירתתי",
+      "currentlyServing": "משרת/ת כעת",
+      "nationalService": "שירות לאומי/אזרחי",
+      "isIdfDisabled": "יש לי נכות הקשורה לשירות",
+      "isRecognizedIdfDisabled": "מוכר כנכה צה\"ל",
+      "receivingDisabilityBenefit": "מקבל/ת קצבת נכות מביטוח לאומי",
+      "hasChildrenUnder18": "יש לי ילדים מתחת לגיל 18",
+      "isRenting": "שוכר/ת דירה"
+    },
+    "disabilities": {
+      "title": "מצב בריאותי",
+      "description": "מידע זה עוזר לנו למצוא זכויות ייחודיות עבורך",
+      "selectDisabilities": "בחר סוגי מוגבלות רלוונטיים",
+      "mobility": "ניידות",
+      "vision": "ראייה",
+      "hearing": "שמיעה",
+      "cognitive": "קוגניטיבי",
+      "mental_health": "בריאות הנפש",
+      "chronic_illness": "מחלה כרונית",
+      "developmental": "התפתחותית",
+      "other": "אחר",
+      "severity": "דרגת חומרה",
+      "selectSeverity": "בחר דרגת חומרה",
+      "mild": "קלה",
+      "moderate": "בינונית",
+      "severe": "קשה",
+      "percentage": "אחוזי נכות מוכרים",
+      "selectPercentage": "בחר אחוזי נכות",
+      "recognizedBy": "גוף מכיר",
+      "selectRecognizedBy": "בחר גוף מכיר",
+      "bituach_leumi": "ביטוח לאומי",
+      "defense": "משרד הביטחון",
+      "health": "משרד הבריאות"
+    },
+    "review": {
+      "title": "סיכום",
+      "description": "בדוק שהפרטים נכונים לפני שנמשיך",
+      "yourInfo": "הפרטים שלך",
+      "complete": "סיים והתחל לחפש זכויות",
+      "completionSuccess": "הפרופיל נשמר בהצלחה!"
     }
   },
   "pricing": {
@@ -227,6 +314,23 @@
       "message": "הודעה",
       "send": "שלח הודעה"
     }
+  },
+  "capWarning": {
+    "softCapTitle": "אזהרת שימוש",
+    "hardCapTitle": "הגעת למגבלת השימוש",
+    "softCapMessage": "השתמשת ב-40% מתקציב ה-API החודשי. שקול לשדרג.",
+    "hardCapMessage": "השתמשת ב-60% מתקציב ה-API. שדרג כדי להמשיך.",
+    "currentUsage": "השימוש הנוכחי:",
+    "upgradePlan": "שדרג תוכנית",
+    "viewPlans": "צפה בתוכניות",
+    "dailyLimitReached": "הגעת למגבלת השיחות היומית ({limit} שיחות)",
+    "resetsIn": "איפוס בעוד {days} ימים"
+  },
+  "validation": {
+    "required": "שדה חובה",
+    "invalidEmail": "כתובת אימייל לא תקינה",
+    "minLength": "אורך מינימלי הוא {min} תווים",
+    "maxLength": "אורך מקסימלי הוא {max} תווים",
+    "selectOption": "נא לבחור אפשרות"
   }
 }
-

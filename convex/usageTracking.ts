@@ -594,3 +594,269 @@ export const getUsageSummary = query({
     };
   },
 });
+
+/**
+ * Get detailed cap status with additional information for UI display
+ */
+export const getCapStatus = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+
+    const usage = await ctx.db
+      .query("usageTracking")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!usage) {
+      return {
+        softCapReached: false,
+        hardCapReached: false,
+        percentUsed: 0,
+        daysUntilReset: 30,
+        suggestedUpgrade: "plus",
+        canUseApi: true,
+      };
+    }
+
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const caps = calculateCaps(tierConfig.id as SubscriptionTier);
+
+    const now = Date.now();
+    const daysUntilReset = Math.max(
+      0,
+      Math.ceil((usage.periodEnd - now) / (24 * 60 * 60 * 1000))
+    );
+
+    const percentUsed = Math.round((usage.apiCreditsUsed / caps.totalBudget) * 100);
+
+    // Determine suggested upgrade based on current tier
+    let suggestedUpgrade: SubscriptionTier = "plus";
+    if (tierConfig.id === "plus") {
+      suggestedUpgrade = "pro";
+    } else if (tierConfig.id === "pro") {
+      suggestedUpgrade = "max";
+    } else if (tierConfig.id === "max") {
+      suggestedUpgrade = "max"; // Already at max
+    }
+
+    return {
+      softCapReached: usage.softCapReached,
+      hardCapReached: usage.hardCapReached,
+      percentUsed,
+      daysUntilReset,
+      suggestedUpgrade,
+      canUseApi: usage.apiCreditsUsed < usage.apiCreditsLimit,
+      currentTier: tierConfig.id,
+      currentUsage: usage.apiCreditsUsed,
+      totalBudget: caps.totalBudget,
+      softCap: caps.softCap,
+      hardCap: caps.hardCap,
+    };
+  },
+});
+
+/**
+ * Check caps and create alerts if thresholds are crossed
+ * Should be called after any usage update
+ */
+export const checkAndHandleCaps = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getCurrentUserId(ctx);
+    const now = Date.now();
+
+    const usage = await ctx.db
+      .query("usageTracking")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!usage) {
+      return { alertsCreated: [] };
+    }
+
+    const tierConfig = await getUserTierConfig(ctx, userId);
+    const caps = calculateCaps(tierConfig.id as SubscriptionTier);
+    const alertsCreated: string[] = [];
+
+    // Check soft cap (40%)
+    if (usage.apiCreditsUsed >= caps.softCap && !usage.softCapAlertSent) {
+      await ctx.db.insert("alerts", {
+        userId,
+        type: "usage_warning",
+        title: "השתמשת ב-40% מהתקציב החודשי",
+        message: `השתמשת בכ-₪${usage.apiCreditsUsed.toFixed(2)} מתוך ₪${caps.totalBudget} התקציב שלך. שקול לשדרג את המנוי שלך.`,
+        priority: "medium",
+        isRead: false,
+        isDismissed: false,
+        actionUrl: "/pricing",
+        actionLabel: "צפה בתוכניות",
+        createdAt: now,
+      });
+
+      await ctx.db.patch(usage._id, {
+        softCapReached: true,
+        softCapAlertSent: true,
+        updatedAt: now,
+      });
+
+      alertsCreated.push("soft_cap");
+    }
+
+    // Check hard cap (60%)
+    if (usage.apiCreditsUsed >= caps.hardCap && !usage.hardCapAlertSent) {
+      await ctx.db.insert("alerts", {
+        userId,
+        type: "usage_warning",
+        title: "אזהרה: השתמשת ב-60% מהתקציב",
+        message: `השתמשת בכ-₪${usage.apiCreditsUsed.toFixed(2)} מתוך ₪${caps.totalBudget}. השימוש יוגבל בקרוב. שדרג עכשיו למניעת הפרעות.`,
+        priority: "high",
+        isRead: false,
+        isDismissed: false,
+        actionUrl: "/pricing",
+        actionLabel: "שדרג עכשיו",
+        createdAt: now,
+      });
+
+      await ctx.db.patch(usage._id, {
+        hardCapReached: true,
+        hardCapAlertSent: true,
+        updatedAt: now,
+      });
+
+      alertsCreated.push("hard_cap");
+    }
+
+    // Check if usage has reached the limit
+    if (usage.apiCreditsUsed >= usage.apiCreditsLimit) {
+      await ctx.db.insert("alerts", {
+        userId,
+        type: "usage_warning",
+        title: "התקציב החודשי נוצל",
+        message: "הגעת לגבול השימוש החודשי. שדרג את המנוי שלך כדי להמשיך להשתמש בשירות.",
+        priority: "urgent",
+        isRead: false,
+        isDismissed: false,
+        actionUrl: "/pricing",
+        actionLabel: "שדרג עכשיו",
+        createdAt: now,
+      });
+
+      alertsCreated.push("limit_reached");
+    }
+
+    return { alertsCreated };
+  },
+});
+
+/**
+ * Handle downgrade from a higher tier to a lower tier
+ * Adjusts limits but keeps current usage
+ */
+export const handleDowngrade = mutation({
+  args: {
+    userId: v.id("users"),
+    newTier: v.string(),
+  },
+  handler: async (ctx, { userId, newTier }) => {
+    const now = Date.now();
+
+    const usage = await ctx.db
+      .query("usageTracking")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!usage) {
+      return;
+    }
+
+    const newTierConfig = SUBSCRIPTION_TIERS[newTier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
+    const newCaps = calculateCaps(newTier as SubscriptionTier);
+
+    // Calculate new cap status with new limits
+    const softCapReached = usage.apiCreditsUsed >= newCaps.softCap;
+    const hardCapReached = usage.apiCreditsUsed >= newCaps.hardCap;
+
+    // Update usage limits
+    await ctx.db.patch(usage._id, {
+      apiCreditsLimit: newTierConfig.apiBudget,
+      crawlCreditsLimit:
+        newTierConfig.limits.deepResearchPerMonth === -1
+          ? 999999
+          : newTierConfig.limits.deepResearchPerMonth,
+      softCapReached,
+      hardCapReached,
+      // Don't reset alert flags - let them see caps if applicable
+      softCapAlertSent: softCapReached ? usage.softCapAlertSent : false,
+      hardCapAlertSent: hardCapReached ? usage.hardCapAlertSent : false,
+      updatedAt: now,
+    });
+
+    // Create alert about downgrade
+    await ctx.db.insert("alerts", {
+      userId,
+      type: "system",
+      title: "המנוי שלך עודכן",
+      message: `המנוי שלך שונה ל-${newTierConfig.nameHe}. התקציב החודשי שלך כעת ₪${newTierConfig.apiBudget}.`,
+      priority: "medium",
+      isRead: false,
+      isDismissed: false,
+      createdAt: now,
+    });
+  },
+});
+
+/**
+ * Reset monthly usage at the start of a new billing period
+ */
+export const resetMonthlyUsage = mutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { userId }) => {
+    const now = Date.now();
+
+    const usage = await ctx.db
+      .query("usageTracking")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .unique();
+
+    if (!usage) {
+      return;
+    }
+
+    // Get current tier to set proper limits
+    const tierConfig = await getUserTierConfig(ctx, userId);
+
+    // Calculate new period end (30 days from now)
+    const newPeriodEnd = now + 30 * 24 * 60 * 60 * 1000;
+
+    // Reset all usage counters
+    await ctx.db.patch(usage._id, {
+      periodStart: now,
+      periodEnd: newPeriodEnd,
+      apiCreditsUsed: 0,
+      crawlCreditsUsed: 0,
+      totalTokensUsed: 0,
+      softCapReached: false,
+      hardCapReached: false,
+      softCapAlertSent: false,
+      hardCapAlertSent: false,
+      updatedAt: now,
+    });
+
+    // Create alert about reset
+    await ctx.db.insert("alerts", {
+      userId,
+      type: "system",
+      title: "התקציב החודשי שלך אופס",
+      message: `התקציב החודשי שלך אופס. יש לך כעת ₪${tierConfig.apiBudget} לשימוש החודש.`,
+      priority: "low",
+      isRead: false,
+      isDismissed: false,
+      createdAt: now,
+    });
+
+    return { newPeriodEnd };
+  },
+});

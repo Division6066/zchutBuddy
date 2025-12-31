@@ -66,19 +66,31 @@ export default defineSchema({
     hmo: v.optional(v.string()), // "clalit" | "maccabi" | "meuhedet" | "leumit"
 
     // Life Situation
-    employmentStatus: v.optional(v.string()), // "employed" | "unemployed" | "student" | "retired"
-    idfService: v.optional(v.string()), // "served" | "not_served" | "currently_serving"
+    employmentStatus: v.optional(v.string()), // "employed" | "unemployed" | "student" | "retired" | "self_employed"
+    idfService: v.optional(v.string()), // "served" | "not_served" | "currently_serving" | "national_service"
     isIdfDisabled: v.optional(v.boolean()),
+    isRecognizedIdfDisabled: v.optional(v.boolean()), // Officially recognized by Ministry of Defense
+
+    // Additional life situation fields
+    receivingDisabilityBenefit: v.optional(v.boolean()), // קצבת נכות מביטוח לאומי
+    hasChildrenUnder18: v.optional(v.boolean()), // ילדים מתחת לגיל 18
+    isRenting: v.optional(v.boolean()), // For arnona exemption eligibility
 
     // Disabilities (multi-select)
     disabilities: v.optional(v.array(v.string())), // ["mobility", "vision", "hearing", etc.]
     disabilitySeverity: v.optional(v.string()), // "mild" | "moderate" | "severe"
+    disabilityPercentage: v.optional(v.number()), // 0-100 or null for "don't know"
+    disabilityRecognizedBy: v.optional(v.string()), // "bituach_leumi" | "defense" | "health" | "other"
 
-    // Privacy
+    // Privacy & Terms
     isAnonymous: v.boolean(),
+    termsAcceptedAt: v.optional(v.number()), // When user accepted terms
 
-    // Ministry interactions
-    relevantMinistries: v.optional(v.array(v.string())),
+    // Language preference
+    preferredLanguage: v.optional(v.string()), // "he" | "en"
+
+    // Ministry interactions (calculated)
+    relevantMinistries: v.optional(v.array(v.string())), // ["defense", "bituach_leumi", "health", "local"]
 
     // Legacy fields for backwards compatibility
     isVeteran: v.optional(v.boolean()),

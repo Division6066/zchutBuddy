@@ -439,3 +439,321 @@ export const cancelSubscription = mutation({
     return subscription._id;
   },
 });
+
+/**
+ * Change subscription tier with upgrade/downgrade detection.
+ * Creates appropriate alerts and adjusts usage limits.
+ */
+export const changeTier = mutation({
+  args: {
+    newTier: subscriptionTierValidator,
+    billingCycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+  },
+  handler: async (ctx, { newTier, billingCycle = "monthly" }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!subscription) {
+      throw new Error("No subscription found");
+    }
+
+    const now = Date.now();
+    const oldTier = subscription.tier as SubscriptionTier;
+    const tierOrder: SubscriptionTier[] = ["free_trial", "plus", "pro", "max"];
+    const isUpgrade = tierOrder.indexOf(newTier) > tierOrder.indexOf(oldTier);
+    const isDowngrade = tierOrder.indexOf(newTier) < tierOrder.indexOf(oldTier);
+
+    // Calculate period end based on billing cycle
+    // Annual = 12 months for price of 10
+    const periodDays = billingCycle === "annual" ? 365 : 30;
+    const periodEnd = now + periodDays * 24 * 60 * 60 * 1000;
+
+    // Calculate price
+    const monthlyPrice = TIER_PRICING[newTier];
+    const finalPrice = billingCycle === "annual" ? monthlyPrice * 10 : monthlyPrice;
+
+    await ctx.db.patch(subscription._id, {
+      tier: newTier,
+      status: "active",
+      priceInShekels: finalPrice,
+      currentPeriodStart: now,
+      currentPeriodEnd: periodEnd,
+      // Clear trial info if upgrading from trial
+      trialEndsAt: undefined,
+      trialStartedAt: undefined,
+      updatedAt: now,
+    });
+
+    // Create alert based on change type
+    if (isUpgrade) {
+      await ctx.db.insert("alerts", {
+        userId: user._id,
+        type: "system",
+        title: "המנוי שלך שודרג!",
+        message: `שודרגת בהצלחה למנוי ${newTier === "plus" ? "פלוס" : newTier === "pro" ? "פרו" : "מקס"}. נהנה מכל היתרונות החדשים!`,
+        priority: "medium",
+        isRead: false,
+        isDismissed: false,
+        actionUrl: "/settings",
+        actionLabel: "צפה בפרטי המנוי",
+        createdAt: now,
+      });
+    } else if (isDowngrade) {
+      await ctx.db.insert("alerts", {
+        userId: user._id,
+        type: "system",
+        title: "המנוי שלך שונה",
+        message: `המנוי שלך שונה. חלק מהתכונות עשויות להיות מוגבלות.`,
+        priority: "medium",
+        isRead: false,
+        isDismissed: false,
+        createdAt: now,
+      });
+    }
+
+    return {
+      subscriptionId: subscription._id,
+      isUpgrade,
+      isDowngrade,
+      newTier,
+      periodEnd,
+    };
+  },
+});
+
+/**
+ * Reactivate a canceled subscription.
+ */
+export const reactivateSubscription = mutation({
+  args: {
+    tier: v.optional(subscriptionTierValidator),
+  },
+  handler: async (ctx, { tier }) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!subscription) {
+      throw new Error("No subscription found");
+    }
+
+    const now = Date.now();
+    const reactiveTier = tier || (subscription.tier as SubscriptionTier);
+
+    await ctx.db.patch(subscription._id, {
+      status: "active",
+      tier: reactiveTier,
+      priceInShekels: TIER_PRICING[reactiveTier],
+      currentPeriodStart: now,
+      currentPeriodEnd: now + 30 * 24 * 60 * 60 * 1000,
+      updatedAt: now,
+    });
+
+    // Create reactivation alert
+    await ctx.db.insert("alerts", {
+      userId: user._id,
+      type: "system",
+      title: "ברוך שובך!",
+      message: "המנוי שלך הופעל מחדש. שמחים לראות אותך חוזר!",
+      priority: "low",
+      isRead: false,
+      isDismissed: false,
+      actionUrl: "/dashboard",
+      actionLabel: "לדשבורד",
+      createdAt: now,
+    });
+
+    return subscription._id;
+  },
+});
+
+/**
+ * Check if trial has expired.
+ */
+export const checkTrialExpiry = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return { isExpired: false, daysRemaining: null };
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user) {
+      return { isExpired: false, daysRemaining: null };
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .first();
+
+    if (!subscription) {
+      return { isExpired: false, daysRemaining: null };
+    }
+
+    // Only check for trialing subscriptions
+    if (subscription.status !== "trialing") {
+      return {
+        isExpired: false,
+        daysRemaining: null,
+        status: subscription.status,
+        tier: subscription.tier,
+      };
+    }
+
+    const now = Date.now();
+    const trialEnd = subscription.trialEndsAt || now;
+    const isExpired = now > trialEnd;
+    const daysRemaining = isExpired
+      ? 0
+      : Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000));
+
+    return {
+      isExpired,
+      daysRemaining,
+      trialEndsAt: trialEnd,
+      status: subscription.status,
+      tier: subscription.tier,
+    };
+  },
+});
+
+/**
+ * Handle expired trial - convert to limited free tier or prompt upgrade.
+ */
+export const handleExpiredTrial = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .unique();
+
+    if (!subscription) {
+      throw new Error("No subscription found");
+    }
+
+    // Only handle expired trials
+    if (subscription.status !== "trialing") {
+      return { handled: false, reason: "Not in trial" };
+    }
+
+    const now = Date.now();
+    const trialEnd = subscription.trialEndsAt || now;
+
+    if (now <= trialEnd) {
+      return { handled: false, reason: "Trial not yet expired" };
+    }
+
+    // Mark as past_due (trial expired, needs upgrade)
+    await ctx.db.patch(subscription._id, {
+      status: "past_due",
+      updatedAt: now,
+    });
+
+    // Create trial expired alert
+    await ctx.db.insert("alerts", {
+      userId: user._id,
+      type: "system",
+      title: "תקופת הניסיון הסתיימה",
+      message: "תקופת הניסיון שלך הסתיימה. שדרג עכשיו כדי להמשיך ליהנות מכל התכונות.",
+      priority: "urgent",
+      isRead: false,
+      isDismissed: false,
+      actionUrl: "/pricing",
+      actionLabel: "שדרג עכשיו",
+      createdAt: now,
+    });
+
+    return { handled: true, newStatus: "past_due" };
+  },
+});
+
+/**
+ * Get upgrade options from current tier.
+ */
+export const getUpgradeOptions = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user) {
+      return [];
+    }
+
+    const subscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .first();
+
+    const currentTier = (subscription?.tier as SubscriptionTier) || "free_trial";
+    const tierOrder: SubscriptionTier[] = ["free_trial", "plus", "pro", "max"];
+    const currentIndex = tierOrder.indexOf(currentTier);
+
+    // Return all tiers higher than current
+    return tierOrder.slice(currentIndex + 1).map((tier) => ({
+      tier,
+      monthlyPrice: TIER_PRICING[tier],
+      annualPrice: TIER_PRICING[tier] * 10, // Pay 10 months for 12
+      features: TIER_FEATURES[tier],
+    }));
+  },
+});

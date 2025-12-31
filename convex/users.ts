@@ -3,6 +3,54 @@ import { mutation, query } from "./_generated/server";
 import { SUBSCRIPTION_TIERS, type SubscriptionTier } from "./lib/subscriptionConfig";
 
 /**
+ * Calculate relevant ministries based on user profile
+ * This helps prioritize which government bodies the user should interact with
+ */
+function calculateRelevantMinistries(profile: {
+  isIdfDisabled?: boolean;
+  isRecognizedIdfDisabled?: boolean;
+  receivingDisabilityBenefit?: boolean;
+  disabilities?: string[];
+  city?: string;
+}): string[] {
+  const ministries: Set<string> = new Set();
+
+  // Always include local municipality
+  if (profile.city) {
+    ministries.add("local");
+  }
+
+  // Ministry of Defense - for IDF disabled
+  if (profile.isIdfDisabled || profile.isRecognizedIdfDisabled) {
+    ministries.add("defense");
+  }
+
+  // Bituach Leumi (National Insurance) - for disability benefits
+  if (profile.receivingDisabilityBenefit) {
+    ministries.add("bituach_leumi");
+  }
+
+  // Ministry of Health - for chronic illness or medical conditions
+  if (profile.disabilities?.some((d) =>
+    ["chronic", "mental", "vision", "hearing"].includes(d)
+  )) {
+    ministries.add("health");
+  }
+
+  // Ministry of Welfare - for disabilities
+  if (profile.disabilities && profile.disabilities.length > 0) {
+    ministries.add("welfare");
+  }
+
+  // Ministry of Labor - if unemployed or receiving disability
+  if (profile.receivingDisabilityBenefit) {
+    ministries.add("labor");
+  }
+
+  return Array.from(ministries);
+}
+
+/**
  * Get the current authenticated user
  */
 export const getCurrentUser = query({
@@ -37,6 +85,7 @@ export const getById = query({
  * - Default subscription (free trial)
  * - Usage tracking initialized with tier limits
  * - Empty user profile
+ * - Welcome alert
  */
 export const getOrCreateUser = mutation({
   args: {},
@@ -113,6 +162,20 @@ export const getOrCreateUser = mutation({
       userId,
       isAnonymous: false,
       updatedAt: now,
+    });
+
+    // Create welcome alert for new users
+    await ctx.db.insert("alerts", {
+      userId,
+      type: "system",
+      title: "ברוכים הבאים לזכויות באדי!",
+      message: "נעזור לך למצוא את כל הזכויות שמגיעות לך. התחל על ידי מילוי הפרופיל שלך.",
+      priority: "medium",
+      isRead: false,
+      isDismissed: false,
+      actionUrl: "/onboarding/welcome",
+      actionLabel: "התחל עכשיו",
+      createdAt: now,
     });
 
     return await ctx.db.get(userId);
@@ -226,7 +289,7 @@ export const updateUser = mutation({
 });
 
 /**
- * Mark onboarding as completed
+ * Mark onboarding as completed and create completion alert
  */
 export const completeOnboarding = mutation({
   args: {},
@@ -245,9 +308,47 @@ export const completeOnboarding = mutation({
       throw new Error("User not found");
     }
 
+    const now = Date.now();
+
     await ctx.db.patch(user._id, {
       onboardingCompleted: true,
     });
+
+    // Get user profile to calculate recommendations
+    const profile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .first();
+
+    // Create onboarding complete alert
+    await ctx.db.insert("alerts", {
+      userId: user._id,
+      type: "system",
+      title: "הפרופיל שלך מוכן!",
+      message: "אנחנו מחפשים זכויות שמתאימות לפרופיל שלך. בינתיים, נסה את מנוע החיפוש שלנו.",
+      priority: "low",
+      isRead: false,
+      isDismissed: false,
+      actionUrl: "/rights-finder",
+      actionLabel: "חפש זכויות",
+      createdAt: now,
+    });
+
+    // If user has disabilities or special conditions, create a targeted alert
+    if (profile?.disabilities && profile.disabilities.length > 0) {
+      await ctx.db.insert("alerts", {
+        userId: user._id,
+        type: "rights_update",
+        title: "מצאנו זכויות פוטנציאליות",
+        message: `על סמך הפרופיל שלך, ייתכן שאתה זכאי לזכויות נוספות. לחץ לפרטים.`,
+        priority: "high",
+        isRead: false,
+        isDismissed: false,
+        actionUrl: "/rights-finder",
+        actionLabel: "לצפייה בזכויות",
+        createdAt: now,
+      });
+    }
 
     return user._id;
   },
@@ -282,19 +383,38 @@ export const getUserProfile = query({
 
 /**
  * Update user profile (onboarding data)
+ * Supports all profile fields including new ones
  */
 export const updateUserProfile = mutation({
   args: {
+    // Basic Info
     ageRange: v.optional(v.string()),
     city: v.optional(v.string()),
     hmo: v.optional(v.string()),
+
+    // Life Situation
     employmentStatus: v.optional(v.string()),
     idfService: v.optional(v.string()),
     isIdfDisabled: v.optional(v.boolean()),
+    isRecognizedIdfDisabled: v.optional(v.boolean()),
+
+    // Additional life situation
+    receivingDisabilityBenefit: v.optional(v.boolean()),
+    hasChildrenUnder18: v.optional(v.boolean()),
+    isRenting: v.optional(v.boolean()),
+
+    // Disabilities
     disabilities: v.optional(v.array(v.string())),
     disabilitySeverity: v.optional(v.string()),
-    relevantMinistries: v.optional(v.array(v.string())),
+    disabilityPercentage: v.optional(v.number()),
+    disabilityRecognizedBy: v.optional(v.string()),
+
+    // Privacy & Terms
     isAnonymous: v.optional(v.boolean()),
+    termsAcceptedAt: v.optional(v.number()),
+
+    // Language
+    preferredLanguage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -318,15 +438,38 @@ export const updateUserProfile = mutation({
 
     const now = Date.now();
 
+    // Calculate relevant ministries based on profile data
+    const relevantMinistries = calculateRelevantMinistries({
+      isIdfDisabled: args.isIdfDisabled ?? profile?.isIdfDisabled,
+      isRecognizedIdfDisabled: args.isRecognizedIdfDisabled ?? profile?.isRecognizedIdfDisabled,
+      receivingDisabilityBenefit: args.receivingDisabilityBenefit ?? profile?.receivingDisabilityBenefit,
+      disabilities: args.disabilities ?? profile?.disabilities,
+      city: args.city ?? profile?.city,
+    });
+
     if (profile) {
       // Update existing profile
-      const updateData: Record<string, unknown> = { updatedAt: now };
+      const updateData: Record<string, unknown> = {
+        updatedAt: now,
+        relevantMinistries,
+      };
+
+      // Add all provided fields to update data
       for (const [key, value] of Object.entries(args)) {
         if (value !== undefined) {
           updateData[key] = value;
         }
       }
+
       await ctx.db.patch(profile._id, updateData);
+
+      // Also update user's language preference if changed
+      if (args.preferredLanguage && args.preferredLanguage !== user.language) {
+        await ctx.db.patch(user._id, {
+          language: args.preferredLanguage,
+        });
+      }
+
       return profile._id;
     }
 
@@ -334,8 +477,200 @@ export const updateUserProfile = mutation({
     return await ctx.db.insert("userProfiles", {
       userId: user._id,
       ...args,
+      relevantMinistries,
       isAnonymous: args.isAnonymous ?? false,
       updatedAt: now,
+    });
+  },
+});
+
+/**
+ * Save complete user profile in one mutation
+ * Used at the end of onboarding to save all data at once
+ */
+export const saveUserProfile = mutation({
+  args: {
+    // Basic Info
+    ageRange: v.string(),
+    city: v.string(),
+    hmo: v.string(),
+
+    // Life Situation
+    employmentStatus: v.string(),
+    idfService: v.string(),
+    isIdfDisabled: v.optional(v.boolean()),
+    isRecognizedIdfDisabled: v.optional(v.boolean()),
+    receivingDisabilityBenefit: v.optional(v.boolean()),
+    hasChildrenUnder18: v.optional(v.boolean()),
+    isRenting: v.optional(v.boolean()),
+
+    // Disabilities
+    disabilities: v.optional(v.array(v.string())),
+    disabilitySeverity: v.optional(v.string()),
+    disabilityPercentage: v.optional(v.number()),
+    disabilityRecognizedBy: v.optional(v.string()),
+
+    // Privacy
+    isAnonymous: v.boolean(),
+    termsAcceptedAt: v.number(),
+    preferredLanguage: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const now = Date.now();
+
+    // Calculate relevant ministries
+    const relevantMinistries = calculateRelevantMinistries({
+      isIdfDisabled: args.isIdfDisabled,
+      isRecognizedIdfDisabled: args.isRecognizedIdfDisabled,
+      receivingDisabilityBenefit: args.receivingDisabilityBenefit,
+      disabilities: args.disabilities,
+      city: args.city,
+    });
+
+    // Get existing profile
+    const existingProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .first();
+
+    const profileData = {
+      ageRange: args.ageRange,
+      city: args.city,
+      hmo: args.hmo,
+      employmentStatus: args.employmentStatus,
+      idfService: args.idfService,
+      isIdfDisabled: args.isIdfDisabled,
+      isRecognizedIdfDisabled: args.isRecognizedIdfDisabled,
+      receivingDisabilityBenefit: args.receivingDisabilityBenefit,
+      hasChildrenUnder18: args.hasChildrenUnder18,
+      isRenting: args.isRenting,
+      disabilities: args.disabilities,
+      disabilitySeverity: args.disabilitySeverity,
+      disabilityPercentage: args.disabilityPercentage,
+      disabilityRecognizedBy: args.disabilityRecognizedBy,
+      isAnonymous: args.isAnonymous,
+      termsAcceptedAt: args.termsAcceptedAt,
+      preferredLanguage: args.preferredLanguage,
+      relevantMinistries,
+      updatedAt: now,
+    };
+
+    let profileId;
+    if (existingProfile) {
+      await ctx.db.patch(existingProfile._id, profileData);
+      profileId = existingProfile._id;
+    } else {
+      profileId = await ctx.db.insert("userProfiles", {
+        userId: user._id,
+        ...profileData,
+      });
+    }
+
+    // Update user's language preference
+    if (args.preferredLanguage !== user.language) {
+      await ctx.db.patch(user._id, {
+        language: args.preferredLanguage,
+      });
+    }
+
+    return profileId;
+  },
+});
+
+/**
+ * Get user alerts
+ */
+export const getUserAlerts = query({
+  args: {
+    unreadOnly: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return [];
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .first();
+
+    if (!user) {
+      return [];
+    }
+
+    let alertsQuery = ctx.db
+      .query("alerts")
+      .withIndex("by_userId", (q) => q.eq("userId", user._id));
+
+    const alerts = await alertsQuery.collect();
+
+    if (args.unreadOnly) {
+      return alerts.filter((a) => !a.isRead && !a.isDismissed);
+    }
+
+    return alerts.filter((a) => !a.isDismissed);
+  },
+});
+
+/**
+ * Mark an alert as read
+ */
+export const markAlertRead = mutation({
+  args: {
+    alertId: v.id("alerts"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const alert = await ctx.db.get(args.alertId);
+    if (!alert) {
+      throw new Error("Alert not found");
+    }
+
+    await ctx.db.patch(args.alertId, {
+      isRead: true,
+    });
+  },
+});
+
+/**
+ * Dismiss an alert
+ */
+export const dismissAlert = mutation({
+  args: {
+    alertId: v.id("alerts"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const alert = await ctx.db.get(args.alertId);
+    if (!alert) {
+      throw new Error("Alert not found");
+    }
+
+    await ctx.db.patch(args.alertId, {
+      isDismissed: true,
     });
   },
 });
