@@ -109,12 +109,11 @@ export default function DashboardPage() {
         <section className="mb-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {stats.map((stat, index) => (
-              <div
-                key={index}
-                className="bg-card rounded-2xl p-4 border border-border shadow-soft"
-              >
+              <div key={index} className="bg-card rounded-2xl p-4 border border-border shadow-soft">
                 <div className="flex items-center gap-3 mb-2">
-                  <div className={`size-10 rounded-xl ${stat.color} flex items-center justify-center`}>
+                  <div
+                    className={`size-10 rounded-xl ${stat.color} flex items-center justify-center`}
+                  >
                     <span className="material-symbols-outlined text-xl">{stat.icon}</span>
                   </div>
                 </div>
@@ -129,10 +128,7 @@ export default function DashboardPage() {
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-bold text-foreground">{t("dashboard.todaysTasks")}</h2>
-            <Link
-              href="/today"
-              className="text-primary text-sm font-bold hover:underline"
-            >
+            <Link href="/today" className="text-primary text-sm font-bold hover:underline">
               {t("common.viewAll")}
             </Link>
           </div>
@@ -144,13 +140,17 @@ export default function DashboardPage() {
                 className="bg-card rounded-2xl p-4 border border-border shadow-soft hover:shadow-md transition-shadow"
               >
                 <div className="flex items-start gap-4">
-                  <div className={`size-10 rounded-xl ${task.iconColor} flex items-center justify-center shrink-0`}>
+                  <div
+                    className={`size-10 rounded-xl ${task.iconColor} flex items-center justify-center shrink-0`}
+                  >
                     <span className="material-symbols-outlined text-xl">{task.icon}</span>
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-foreground mb-1 truncate">{task.title}</h3>
                     <p className="text-xs text-muted-foreground mb-2">{task.subtitle}</p>
-                    <span className={`inline-block px-2 py-1 ${task.badgeColor} text-xs font-bold rounded-lg`}>
+                    <span
+                      className={`inline-block px-2 py-1 ${task.badgeColor} text-xs font-bold rounded-lg`}
+                    >
                       {task.badge}
                     </span>
                   </div>

@@ -32,8 +32,8 @@ export default function StitchOnboardingStep4Page() {
 
       {/* Header */}
       <div className="flex items-center justify-between p-6 pt-12 z-20">
-          <Link
-            href="/onboarding-step-3"
+        <Link
+          href="/onboarding-step-3"
           className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-text-dark hover:bg-gray-100 transition-colors"
         >
           <span className="material-symbols-outlined text-[24px]">arrow_forward</span>
@@ -85,7 +85,9 @@ export default function StitchOnboardingStep4Page() {
 
         {/* Disability checkboxes */}
         <div className="space-y-3">
-          <p className="text-sm font-bold text-text-dark mb-3">סוגי מוגבלות (ניתן לבחור יותר מאחד)</p>
+          <p className="text-sm font-bold text-text-dark mb-3">
+            סוגי מוגבלות (ניתן לבחור יותר מאחד)
+          </p>
 
           <label className="group relative flex items-center p-4 bg-white border border-gray-100 rounded-2xl shadow-sm cursor-pointer transition-all hover:shadow-md hover:border-primary/30 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
             <input type="checkbox" className="peer sr-only" />
@@ -205,7 +207,10 @@ export default function StitchOnboardingStep4Page() {
           <p className="text-sm font-bold text-text-dark mb-3">אחוזי נכות מוכרים</p>
 
           <div className="space-y-1.5">
-            <label htmlFor="disability-percent" className="text-sm font-medium text-text-subtle pr-1">
+            <label
+              htmlFor="disability-percent"
+              className="text-sm font-medium text-text-subtle pr-1"
+            >
               אחוז נכות (אם יש)
             </label>
             <div className="relative">
@@ -214,7 +219,7 @@ export default function StitchOnboardingStep4Page() {
                 className="w-full px-4 py-3.5 rounded-xl bg-gray-50 border-transparent focus:border-primary focus:bg-white focus:ring-0 transition-all text-right appearance-none font-medium text-text-dark"
                 defaultValue=""
               >
-                <option disabled value="">
+                <option disabled={true} value="">
                   בחר אחוז נכות
                 </option>
                 <option value="0">אין נכות מוכרת</option>
@@ -247,4 +252,3 @@ export default function StitchOnboardingStep4Page() {
     </div>
   );
 }
-

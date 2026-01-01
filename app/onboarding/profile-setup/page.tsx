@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useTranslation } from "@/lib/i18n";
 
 export default function OnboardingProfileSetupPage() {
@@ -168,16 +168,20 @@ export default function OnboardingProfileSetupPage() {
                       : "bg-card border border-border hover:bg-accent"
                   }`}
                 >
-                  <div className={`size-10 rounded-xl flex items-center justify-center ${
-                    formData.tracks.includes(track.value)
-                      ? "bg-primary text-white"
-                      : "bg-accent text-muted-foreground"
-                  }`}>
+                  <div
+                    className={`size-10 rounded-xl flex items-center justify-center ${
+                      formData.tracks.includes(track.value)
+                        ? "bg-primary text-white"
+                        : "bg-accent text-muted-foreground"
+                    }`}
+                  >
                     <span className="material-symbols-outlined text-xl">{track.icon}</span>
                   </div>
                   <span className="font-medium text-foreground">{track.label}</span>
                   {formData.tracks.includes(track.value) && (
-                    <span className="material-symbols-outlined text-primary ms-auto">check_circle</span>
+                    <span className="material-symbols-outlined text-primary ms-auto">
+                      check_circle
+                    </span>
                   )}
                 </button>
               ))}

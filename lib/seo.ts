@@ -120,7 +120,8 @@ export const PAGE_SEO: Record<string, PageSEOByLocale> = {
     },
     en: {
       title: "FAQ",
-      description: "Answers to the most frequently asked questions about rights and services in Israel",
+      description:
+        "Answers to the most frequently asked questions about rights and services in Israel",
       keywords: ["FAQ", "frequently asked questions", "help", "answers"],
     },
   },
@@ -309,4 +310,3 @@ export function mergeMetadata(pageMetadata: Metadata, defaults: Metadata): Metad
 }
 
 export type { PageSEO, PageSEOByLocale, Locale };
-

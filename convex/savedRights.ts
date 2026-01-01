@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 
 // ============================================
 // INTERNAL HELPERS
@@ -163,8 +163,7 @@ export const searchByText = query({
 
     const matchingRights = rights.filter(
       (r) =>
-        r.title.toLowerCase().includes(searchLower) ||
-        r.summary.toLowerCase().includes(searchLower)
+        r.title.toLowerCase().includes(searchLower) || r.summary.toLowerCase().includes(searchLower)
     );
 
     return matchingRights.slice(0, limit);
@@ -427,4 +426,3 @@ export const duplicateRight = mutation({
     });
   },
 });
-

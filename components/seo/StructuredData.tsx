@@ -387,4 +387,3 @@ export function HomePageSchema(): React.JSX.Element {
 }
 
 export type { FAQItem, BreadcrumbItem, ArticleSchemaProps, LocalBusinessSchemaProps };
-

@@ -10,7 +10,7 @@
  */
 
 import { readFileSync } from "fs";
-import { join, dirname } from "path";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -103,4 +103,3 @@ if (hasErrors) {
   console.log("\n✅ All keys match! Both locales are in sync.");
   process.exit(0);
 }
-

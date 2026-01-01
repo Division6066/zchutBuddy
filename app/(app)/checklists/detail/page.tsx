@@ -58,10 +58,7 @@ export default function StitchChecklistDetailPage() {
           <span className="text-lg font-extrabold text-primary">60%</span>
         </div>
         <div className="h-3 bg-white rounded-full overflow-hidden shadow-inner">
-          <div
-            className="h-full bg-primary rounded-full transition-all"
-            style={{ width: "60%" }}
-          />
+          <div className="h-full bg-primary rounded-full transition-all" style={{ width: "60%" }} />
         </div>
         <p className="text-xs text-text-subtle mt-2">3 מתוך 5 שלבים הושלמו</p>
       </div>
@@ -83,9 +80,7 @@ export default function StitchChecklistDetailPage() {
                   </span>
                 </div>
                 <h3 className="font-bold text-text-dark mb-1">איסוף מסמכים רפואיים</h3>
-                <p className="text-sm text-text-subtle">
-                  אישורים רפואיים, תיעוד טיפולים ואבחנות
-                </p>
+                <p className="text-sm text-text-subtle">אישורים רפואיים, תיעוד טיפולים ואבחנות</p>
               </div>
             </div>
           </div>
@@ -252,4 +247,3 @@ export default function StitchChecklistDetailPage() {
     </div>
   );
 }
-

@@ -7,8 +7,8 @@
  * Respects user's reduced motion preferences.
  */
 
+import { AnimatePresence, motion } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 
 type TransitionVariant = "fade" | "slide" | "slideUp" | "scale" | "none";
@@ -223,11 +223,7 @@ interface StaggerChildrenProps {
   className?: string;
 }
 
-export function StaggerChildren({
-  children,
-  staggerDelay = 0.1,
-  className,
-}: StaggerChildrenProps) {
+export function StaggerChildren({ children, staggerDelay = 0.1, className }: StaggerChildrenProps) {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   if (prefersReducedMotion) {
@@ -343,4 +339,3 @@ export function SlideIn({
 }
 
 export default PageTransition;
-

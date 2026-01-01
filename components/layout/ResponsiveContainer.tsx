@@ -7,8 +7,7 @@ import { cn } from "@/lib/utils";
 // Types
 // ============================================================================
 
-export interface ResponsiveContainerProps
-  extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
+export interface ResponsiveContainerProps extends Omit<HTMLAttributes<HTMLDivElement>, "children"> {
   children?: ReactNode;
   /** Sidebar slot - used when tabletLayout="sidebar" or desktopLayout="sidebar-wide" */
   sidebar?: ReactNode;
@@ -97,8 +96,7 @@ export function ResponsiveContainer({
   ...props
 }: ResponsiveContainerProps) {
   // Determine if we're using sidebar layout
-  const usesSidebarLayout =
-    tabletLayout === "sidebar" || desktopLayout === "sidebar-wide";
+  const usesSidebarLayout = tabletLayout === "sidebar" || desktopLayout === "sidebar-wide";
 
   // Base container classes with responsive max-width and padding
   const baseClasses = cn(
@@ -112,22 +110,19 @@ export function ResponsiveContainer({
   // Mobile layout classes
   const mobileClasses = cn({
     "flex flex-col": mobileLayout === "stack",
-    "flex overflow-x-auto snap-x snap-mandatory gap-4":
-      mobileLayout === "scroll-x",
+    "flex overflow-x-auto snap-x snap-mandatory gap-4": mobileLayout === "scroll-x",
   });
 
   // Tablet layout classes
   const tabletClasses = cn({
     "md:grid md:grid-cols-2 md:gap-4": tabletLayout === "grid-2",
-    "md:grid md:grid-cols-[minmax(0,18rem)_1fr] md:gap-6":
-      tabletLayout === "sidebar",
+    "md:grid md:grid-cols-[minmax(0,18rem)_1fr] md:gap-6": tabletLayout === "sidebar",
   });
 
   // Desktop layout classes
   const desktopClasses = cn({
     "lg:grid lg:grid-cols-3 lg:gap-6": desktopLayout === "grid-3",
-    "lg:grid lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-8":
-      desktopLayout === "sidebar-wide",
+    "lg:grid lg:grid-cols-[minmax(0,22rem)_1fr] lg:gap-8": desktopLayout === "sidebar-wide",
   });
 
   // Render sidebar layout if sidebar/main slots are provided
@@ -153,13 +148,7 @@ export function ResponsiveContainer({
   // Default rendering with children
   return (
     <div
-      className={cn(
-        baseClasses,
-        mobileClasses,
-        tabletClasses,
-        desktopClasses,
-        className
-      )}
+      className={cn(baseClasses, mobileClasses, tabletClasses, desktopClasses, className)}
       {...props}
     >
       {children}
@@ -216,10 +205,7 @@ export function ResponsiveStack({
   }[breakpoint];
 
   return (
-    <div
-      className={cn("flex flex-col", horizontalClass, GAP_MAP[gap], className)}
-      {...props}
-    >
+    <div className={cn("flex flex-col", horizontalClass, GAP_MAP[gap], className)} {...props}>
       {children}
     </div>
   );
@@ -311,4 +297,3 @@ export function ShowOn({
 // ============================================================================
 
 export default ResponsiveContainer;
-

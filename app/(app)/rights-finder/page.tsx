@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
 import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useTranslation } from "@/lib/i18n";
-import { useChat } from "@/hooks/useChat";
+import { useEffect, useRef, useState } from "react";
 import { ModelSelector } from "@/components/chat/ModelSelector";
 import { Icon } from "@/components/ui/icon";
+import { api } from "@/convex/_generated/api";
+import { useChat } from "@/hooks/useChat";
+import { useTranslation } from "@/lib/i18n";
 
 export default function RightsFinderPage() {
   const { t, locale } = useTranslation();
@@ -42,16 +42,15 @@ export default function RightsFinderPage() {
   const welcomeMessage = {
     id: "welcome",
     role: "assistant" as const,
-    content: locale === "he"
-      ? "שלום! אני כאן לעזור לך לגלות את הזכויות שמגיעות לך. ספר לי על המצב שלך או שאל שאלה, ואני אחפש את המידע הרלוונטי עבורך."
-      : "Hello! I'm here to help you discover your rights. Tell me about your situation or ask a question, and I'll search for relevant information for you.",
+    content:
+      locale === "he"
+        ? "שלום! אני כאן לעזור לך לגלות את הזכויות שמגיעות לך. ספר לי על המצב שלך או שאל שאלה, ואני אחפש את המידע הרלוונטי עבורך."
+        : "Hello! I'm here to help you discover your rights. Tell me about your situation or ask a question, and I'll search for relevant information for you.",
     timestamp: Date.now(),
   };
 
   // All messages including welcome
-  const allMessages = messages.length === 0
-    ? [welcomeMessage]
-    : messages;
+  const allMessages = messages.length === 0 ? [welcomeMessage] : messages;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -74,19 +73,15 @@ export default function RightsFinderPage() {
     setInput(question);
   };
 
-  const suggestedQuestions = locale === "he"
-    ? [
-        "האם מגיע לי דמי אבטלה?",
-        "מה הזכויות שלי כהורה?",
-        "זכויות נכות רפואית",
-        "הנחות בארנונה",
-      ]
-    : [
-        "Am I eligible for unemployment benefits?",
-        "What are my rights as a parent?",
-        "Disability benefits rights",
-        "Property tax discounts",
-      ];
+  const suggestedQuestions =
+    locale === "he"
+      ? ["האם מגיע לי דמי אבטלה?", "מה הזכויות שלי כהורה?", "זכויות נכות רפואית", "הנחות בארנונה"]
+      : [
+          "Am I eligible for unemployment benefits?",
+          "What are my rights as a parent?",
+          "Disability benefits rights",
+          "Property tax discounts",
+        ];
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] md:h-[calc(100vh-2rem)]">
@@ -101,7 +96,9 @@ export default function RightsFinderPage() {
               <div>
                 <h1 className="text-xl font-black text-foreground">{t("rightsFinder.title")}</h1>
                 <p className="text-sm text-muted-foreground">
-                  {locale === "he" ? "שאל כל שאלה על זכויות והטבות" : "Ask any question about rights and benefits"}
+                  {locale === "he"
+                    ? "שאל כל שאלה על זכויות והטבות"
+                    : "Ask any question about rights and benefits"}
                 </p>
               </div>
             </div>
@@ -166,9 +163,7 @@ export default function RightsFinderPage() {
             >
               <div
                 className={`max-w-[85%] rounded-2xl p-4 ${
-                  message.role === "user"
-                    ? "bg-primary text-white"
-                    : "bg-card border border-border"
+                  message.role === "user" ? "bg-primary text-white" : "bg-card border border-border"
                 }`}
               >
                 {message.role === "assistant" && (
@@ -215,9 +210,18 @@ export default function RightsFinderPage() {
                 </div>
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <div className="flex gap-1">
-                    <span className="size-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="size-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="size-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    <span
+                      className="size-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: "0ms" }}
+                    />
+                    <span
+                      className="size-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: "150ms" }}
+                    />
+                    <span
+                      className="size-2 bg-primary rounded-full animate-bounce"
+                      style={{ animationDelay: "300ms" }}
+                    />
                   </div>
                   <span className="text-sm">{t("rightsFinder.searching")}</span>
                 </div>

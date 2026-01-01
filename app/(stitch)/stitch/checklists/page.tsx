@@ -215,10 +215,7 @@ export default function StitchChecklistsPage() {
             <span className="material-symbols-outlined text-[24px]">search</span>
             <span className="text-xs font-medium">חיפוש</span>
           </Link>
-          <Link
-            href="/stitch/checklists"
-            className="flex flex-col items-center gap-1 text-primary"
-          >
+          <Link href="/stitch/checklists" className="flex flex-col items-center gap-1 text-primary">
             <span className="material-symbols-outlined text-[24px]">checklist</span>
             <span className="text-xs font-bold">משימות</span>
           </Link>
@@ -234,4 +231,3 @@ export default function StitchChecklistsPage() {
     </div>
   );
 }
-

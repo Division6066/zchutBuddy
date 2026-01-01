@@ -25,9 +25,7 @@ export default function BottomNav() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-colors ${
-                isActive
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground"
+                isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               <span className="material-symbols-outlined text-[24px]">{item.icon}</span>
@@ -41,4 +39,3 @@ export default function BottomNav() {
     </nav>
   );
 }
-

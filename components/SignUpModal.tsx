@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useTranslation } from "@/lib/i18n";
 import { useGuestAuth } from "@/lib/guest-auth";
+import { useTranslation } from "@/lib/i18n";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -107,7 +107,10 @@ export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalPr
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="signup-email" className="block text-sm font-medium text-foreground mb-2">
+              <label
+                htmlFor="signup-email"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 {t("auth.email")}
               </label>
               <input
@@ -117,13 +120,16 @@ export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalPr
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                 placeholder="your@email.com"
-                required
+                required={true}
                 disabled={isLoading}
               />
             </div>
 
             <div>
-              <label htmlFor="signup-password" className="block text-sm font-medium text-foreground mb-2">
+              <label
+                htmlFor="signup-password"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 {t("auth.password")}
               </label>
               <input
@@ -133,7 +139,7 @@ export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalPr
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                 placeholder="••••••••"
-                required
+                required={true}
                 disabled={isLoading}
                 minLength={8}
               />
@@ -227,4 +233,3 @@ export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalPr
 }
 
 export default SignUpModal;
-

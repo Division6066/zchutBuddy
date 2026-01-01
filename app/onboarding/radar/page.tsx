@@ -33,22 +33,29 @@ export default function OnboardingRadarPage() {
         {/* Radar illustration */}
         <div className="w-full relative mb-10 flex justify-center">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-primary/10 rounded-full blur-2xl" />
-          
+
           {/* Radar circles */}
           <div className="relative w-72 h-72 flex items-center justify-center">
-            <div className="absolute w-72 h-72 rounded-full border-2 border-primary/10 animate-ping" style={{ animationDuration: "3s" }} />
+            <div
+              className="absolute w-72 h-72 rounded-full border-2 border-primary/10 animate-ping"
+              style={{ animationDuration: "3s" }}
+            />
             <div className="absolute w-56 h-56 rounded-full border-2 border-primary/20" />
             <div className="absolute w-40 h-40 rounded-full border-2 border-primary/30" />
             <div className="absolute w-24 h-24 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center">
-              <span className="material-symbols-outlined text-4xl text-primary">
-                radar
-              </span>
+              <span className="material-symbols-outlined text-4xl text-primary">radar</span>
             </div>
 
             {/* Radar dots */}
             <div className="absolute top-8 right-16 w-3 h-3 rounded-full bg-success animate-pulse" />
-            <div className="absolute bottom-12 left-8 w-3 h-3 rounded-full bg-warning animate-pulse" style={{ animationDelay: "0.5s" }} />
-            <div className="absolute top-20 left-12 w-2 h-2 rounded-full bg-info animate-pulse" style={{ animationDelay: "1s" }} />
+            <div
+              className="absolute bottom-12 left-8 w-3 h-3 rounded-full bg-warning animate-pulse"
+              style={{ animationDelay: "0.5s" }}
+            />
+            <div
+              className="absolute top-20 left-12 w-2 h-2 rounded-full bg-info animate-pulse"
+              style={{ animationDelay: "1s" }}
+            />
           </div>
         </div>
 
@@ -68,7 +75,10 @@ export default function OnboardingRadarPage() {
               { icon: "update", text: "עדכונים בזמן אמת" },
               { icon: "mail", text: "סיכום שבועי לאימייל" },
             ].map((feature, index) => (
-              <div key={index} className="flex items-center gap-3 bg-card p-3 rounded-xl border border-border">
+              <div
+                key={index}
+                className="flex items-center gap-3 bg-card p-3 rounded-xl border border-border"
+              >
                 <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                   <span className="material-symbols-outlined text-xl">{feature.icon}</span>
                 </div>

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 
 // ============================================
 // INTERNAL HELPERS
@@ -233,9 +233,7 @@ export const toggleItemComplete = mutation({
 
     // Update checklist completedItems count
     await ctx.db.patch(checklist._id, {
-      completedItems: newIsCompleted
-        ? checklist.completedItems + 1
-        : checklist.completedItems - 1,
+      completedItems: newIsCompleted ? checklist.completedItems + 1 : checklist.completedItems - 1,
       updatedAt: now,
     });
 
@@ -296,9 +294,7 @@ export const deleteItem = mutation({
     // Update checklist counts
     await ctx.db.patch(checklist._id, {
       totalItems: checklist.totalItems - 1,
-      completedItems: item.isCompleted
-        ? checklist.completedItems - 1
-        : checklist.completedItems,
+      completedItems: item.isCompleted ? checklist.completedItems - 1 : checklist.completedItems,
       updatedAt: now,
     });
 

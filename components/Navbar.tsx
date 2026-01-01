@@ -8,9 +8,9 @@ import { useEffect, useRef, useState } from "react";
 import SignInModal from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { debug } from "@/lib/debug";
 import { useGuestAuth } from "@/lib/guest-auth";
+import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
   { href: "/#how-it-works", label: "איך זה עובד?" },
@@ -142,10 +142,7 @@ function NavbarContent() {
             <div className="flex items-center gap-3">
               {/* Language Toggle */}
               <div className="hidden sm:flex items-center text-sm text-[#111817]/60 gap-1">
-                <Link
-                  href="/home-en"
-                  className="hover:text-[#0d968b] transition-colors px-1"
-                >
+                <Link href="/home-en" className="hover:text-[#0d968b] transition-colors px-1">
                   EN
                 </Link>
                 <span>|</span>
@@ -266,10 +263,7 @@ function NavbarContent() {
 
         {/* Mobile Menu */}
         {mobileMenuOpen && (
-          <div
-            id="mobile-menu"
-            className="md:hidden border-t border-gray-100 bg-white"
-          >
+          <div id="mobile-menu" className="md:hidden border-t border-gray-100 bg-white">
             <div className="container mx-auto px-4 py-4 space-y-1">
               {NAV_LINKS.map((link) => (
                 <Link

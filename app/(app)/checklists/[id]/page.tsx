@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
+import { useState } from "react";
 import { useTranslation } from "@/lib/i18n";
 
 interface Step {
@@ -14,7 +14,7 @@ interface Step {
 
 export default function ChecklistDetailPage({ params }: { params: { id: string } }) {
   const { t } = useTranslation();
-  
+
   // Mock data - in production, this would come from Convex
   const [steps, setSteps] = useState<Step[]>([
     {
@@ -72,9 +72,7 @@ export default function ChecklistDetailPage({ params }: { params: { id: string }
 
   const toggleStep = (stepId: string) => {
     setSteps((prev) =>
-      prev.map((step) =>
-        step.id === stepId ? { ...step, completed: !step.completed } : step
-      )
+      prev.map((step) => (step.id === stepId ? { ...step, completed: !step.completed } : step))
     );
   };
 
@@ -96,9 +94,7 @@ export default function ChecklistDetailPage({ params }: { params: { id: string }
 
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-xl font-black text-foreground mb-2">
-                הגשת תביעה לדמי אבטלה
-              </h1>
+              <h1 className="text-xl font-black text-foreground mb-2">הגשת תביעה לדמי אבטלה</h1>
               <p className="text-sm text-muted-foreground">
                 כל השלבים להגשת תביעה לדמי אבטלה בביטוח לאומי
               </p>
@@ -156,9 +152,7 @@ export default function ChecklistDetailPage({ params }: { params: { id: string }
             <div
               key={step.id}
               className={`bg-card rounded-2xl p-4 border transition-all ${
-                step.completed
-                  ? "border-success/30 bg-success/5"
-                  : "border-border"
+                step.completed ? "border-success/30 bg-success/5" : "border-border"
               }`}
             >
               <div className="flex items-start gap-4">
@@ -178,12 +172,12 @@ export default function ChecklistDetailPage({ params }: { params: { id: string }
                 </button>
 
                 <div className="flex-1 min-w-0">
-                  <h3 className={`font-bold mb-1 ${step.completed ? "text-muted-foreground line-through" : "text-foreground"}`}>
+                  <h3
+                    className={`font-bold mb-1 ${step.completed ? "text-muted-foreground line-through" : "text-foreground"}`}
+                  >
                     {step.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    {step.description}
-                  </p>
+                  <p className="text-sm text-muted-foreground mb-2">{step.description}</p>
 
                   {step.documents && step.documents.length > 0 && (
                     <div className="flex flex-wrap gap-2">
@@ -219,4 +213,3 @@ export default function ChecklistDetailPage({ params }: { params: { id: string }
     </div>
   );
 }
-

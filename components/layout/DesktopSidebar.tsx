@@ -1,31 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
-import { useClerk, useAuth, useUser } from "@clerk/nextjs";
+import { useAuth, useClerk, useUser } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import {
-  Home,
-  Search,
-  MessageSquare,
   Bell,
-  User,
-  Settings,
-  HelpCircle,
-  LogOut,
-  Sparkles,
   BookMarked,
   CheckSquare,
-  FileText,
-  Shield,
   ExternalLink,
+  FileText,
+  HelpCircle,
+  Home,
+  LogOut,
+  MessageSquare,
+  Search,
+  Settings,
+  Shield,
+  Sparkles,
+  User,
 } from "lucide-react";
-
-import { useTranslation, useDir, useToggleLocale } from "@/lib/i18n";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { api } from "@/convex/_generated/api";
 import { useGuestAuth } from "@/lib/guest-auth";
+import { useDir, useToggleLocale, useTranslation } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 // ============================================================================
@@ -79,9 +78,7 @@ function NavItem({ href, icon: Icon, label, isActive, badge }: NavItemProps) {
     >
       <div className="relative shrink-0">
         <Icon
-          className={cn(
-            "size-5 transition-transform group-hover:scale-105",
-          )}
+          className={cn("size-5 transition-transform group-hover:scale-105")}
           fill={isActive ? "currentColor" : "none"}
           stroke="currentColor"
           strokeWidth={isActive ? 1.5 : 2}
@@ -146,8 +143,14 @@ export default function DesktopSidebar() {
 
   // Convex queries - skip unless user is fully authenticated with Clerk
   const unreadCount = useQuery(api.alerts.getUnreadCount, shouldRunAuthQueries ? {} : "skip");
-  const usageSummary = useQuery(api.usageTracking.getUsageSummary, shouldRunAuthQueries ? {} : "skip");
-  const subscription = useQuery(api.subscriptions.getMySubscription, shouldRunAuthQueries ? {} : "skip");
+  const usageSummary = useQuery(
+    api.usageTracking.getUsageSummary,
+    shouldRunAuthQueries ? {} : "skip"
+  );
+  const subscription = useQuery(
+    api.subscriptions.getMySubscription,
+    shouldRunAuthQueries ? {} : "skip"
+  );
 
   // Don't render before mount (SSR safety)
   if (!mounted) {
@@ -157,7 +160,8 @@ export default function DesktopSidebar() {
   const isRTL = dir === "rtl";
 
   // User display info
-  const displayName = user?.firstName || user?.fullName || (isGuest ? t("common.guest") : t("common.user"));
+  const displayName =
+    user?.firstName || user?.fullName || (isGuest ? t("common.guest") : t("common.user"));
   const avatarUrl = user?.imageUrl;
 
   // Usage calculations
@@ -167,9 +171,10 @@ export default function DesktopSidebar() {
   const creditsRemaining = Math.max(0, creditsLimit - creditsUsed);
 
   // Tier info
-  const tierName = locale === "he" 
-    ? (usageSummary?.tierNameHe || subscription?.tier || t("sidebar.freeTrial"))
-    : (usageSummary?.tierName || subscription?.tier || t("sidebar.freeTrial"));
+  const tierName =
+    locale === "he"
+      ? usageSummary?.tierNameHe || subscription?.tier || t("sidebar.freeTrial")
+      : usageSummary?.tierName || subscription?.tier || t("sidebar.freeTrial");
   const isMaxTier = usageSummary?.tier === "max" || subscription?.tier === "max";
 
   // Handle logout
@@ -204,9 +209,7 @@ export default function DesktopSidebar() {
               <div className="size-10 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <span className="material-symbols-outlined text-2xl">accessibility_new</span>
               </div>
-              <span className="text-lg font-bold text-foreground">
-                {t("common.appName")}
-              </span>
+              <span className="text-lg font-bold text-foreground">{t("common.appName")}</span>
             </Link>
             <button
               onClick={toggleLocale}
@@ -249,15 +252,15 @@ export default function DesktopSidebar() {
             </div>
             {/* Name + Tier */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                {displayName}
-              </p>
-              <span className={cn(
-                "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
-                isMaxTier
-                  ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
-                  : "bg-primary/10 text-primary"
-              )}>
+              <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+              <span
+                className={cn(
+                  "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wide",
+                  isMaxTier
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 text-white"
+                    : "bg-primary/10 text-primary"
+                )}
+              >
                 {tierName}
               </span>
             </div>
@@ -351,9 +354,7 @@ export default function DesktopSidebar() {
           {/* Credits remaining */}
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted-foreground">{t("sidebar.creditsRemaining")}</span>
-            <span className="font-medium text-foreground">
-              ₪{creditsRemaining.toFixed(2)}
-            </span>
+            <span className="font-medium text-foreground">₪{creditsRemaining.toFixed(2)}</span>
           </div>
 
           {/* Upgrade CTA */}
@@ -435,4 +436,3 @@ export default function DesktopSidebar() {
     </>
   );
 }
-

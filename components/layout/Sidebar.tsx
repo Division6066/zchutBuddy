@@ -1,10 +1,10 @@
 "use client";
 
+import { useClerk } from "@clerk/nextjs";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useClerk } from "@clerk/nextjs";
-import { useTranslation, useToggleLocale } from "@/lib/i18n";
 import { useGuestAuth } from "@/lib/guest-auth";
+import { useToggleLocale, useTranslation } from "@/lib/i18n";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -42,7 +42,9 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside
         className={`fixed md:sticky top-0 h-screen w-64 bg-card border-e border-border z-50 transform transition-transform duration-300 ease-in-out ${
-          isOpen ? "translate-x-0" : "translate-x-full md:translate-x-0 rtl:-translate-x-full rtl:md:translate-x-0"
+          isOpen
+            ? "translate-x-0"
+            : "translate-x-full md:translate-x-0 rtl:-translate-x-full rtl:md:translate-x-0"
         }`}
       >
         <div className="flex flex-col h-full p-4">
@@ -108,4 +110,3 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     </>
   );
 }
-

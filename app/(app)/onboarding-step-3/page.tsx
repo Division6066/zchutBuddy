@@ -32,8 +32,8 @@ export default function StitchOnboardingStep3Page() {
 
       {/* Header */}
       <div className="flex items-center justify-between p-6 pt-12 z-20">
-          <Link
-            href="/onboarding-step-2"
+        <Link
+          href="/onboarding-step-2"
           className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-text-dark hover:bg-gray-100 transition-colors"
         >
           <span className="material-symbols-outlined text-[24px]">arrow_forward</span>
@@ -63,9 +63,7 @@ export default function StitchOnboardingStep3Page() {
           <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary mb-4 shadow-sm">
             <span className="material-symbols-outlined text-[26px]">home</span>
           </div>
-          <h1 className="text-text-dark text-[28px] font-extrabold leading-tight mb-2">
-            מצב חיים
-          </h1>
+          <h1 className="text-text-dark text-[28px] font-extrabold leading-tight mb-2">מצב חיים</h1>
           <p className="text-text-subtle text-[15px] font-medium leading-relaxed">
             ספר לנו קצת על מצב החיים שלך כדי שנוכל להתאים את הזכויות הרלוונטיות
           </p>
@@ -214,4 +212,3 @@ export default function StitchOnboardingStep3Page() {
     </div>
   );
 }
-

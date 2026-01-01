@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslation, useToggleLocale } from "@/lib/i18n";
+import { useToggleLocale, useTranslation } from "@/lib/i18n";
 
 export default function Footer() {
   const { t, locale } = useTranslation();
@@ -32,7 +32,7 @@ export default function Footer() {
               <span className="text-xl font-bold text-foreground">{t("common.appName")}</span>
             </Link>
             <p className="text-muted-foreground max-w-sm mb-6">{t("footer.description")}</p>
-            
+
             {/* Language Toggle */}
             <button
               onClick={toggleLocale}
@@ -94,4 +94,3 @@ export default function Footer() {
     </footer>
   );
 }
-

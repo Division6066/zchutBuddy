@@ -1,12 +1,12 @@
 "use client";
 
+import { useAuth } from "@clerk/nextjs";
 import Link from "next/link";
 import { useState } from "react";
-import { useAuth } from "@clerk/nextjs";
-import { useTranslation, useToggleLocale } from "@/lib/i18n";
-import { useGuestAuth } from "@/lib/guest-auth";
 import { SignInModal } from "@/components/SignInModal";
 import { SignUpModal } from "@/components/SignUpModal";
+import { useGuestAuth } from "@/lib/guest-auth";
+import { useToggleLocale, useTranslation } from "@/lib/i18n";
 
 export default function Navbar() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -65,8 +65,8 @@ export default function Navbar() {
             </button>
 
             {/* Auth Buttons */}
-            {!isLoading && (
-              isAuthenticated ? (
+            {!isLoading &&
+              (isAuthenticated ? (
                 <Link
                   href="/dashboard"
                   className="h-10 px-5 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold flex items-center gap-2 transition-colors shadow-primary"
@@ -89,8 +89,7 @@ export default function Navbar() {
                     {t("common.signUp")}
                   </button>
                 </div>
-              )
-            )}
+              ))}
 
             {/* Mobile Menu Toggle */}
             <button
@@ -98,9 +97,7 @@ export default function Navbar() {
               className="md:hidden flex items-center justify-center size-10 rounded-xl hover:bg-accent transition-colors"
               aria-label="Toggle menu"
             >
-              <span className="material-symbols-outlined">
-                {showMobileMenu ? "close" : "menu"}
-              </span>
+              <span className="material-symbols-outlined">{showMobileMenu ? "close" : "menu"}</span>
             </button>
           </div>
         </div>
@@ -136,16 +133,16 @@ export default function Navbar() {
       </header>
 
       {/* Auth Modals */}
-      <SignInModal 
-        isOpen={showSignIn} 
+      <SignInModal
+        isOpen={showSignIn}
         onClose={() => setShowSignIn(false)}
         onSwitchToSignUp={() => {
           setShowSignIn(false);
           setShowSignUp(true);
         }}
       />
-      <SignUpModal 
-        isOpen={showSignUp} 
+      <SignUpModal
+        isOpen={showSignUp}
         onClose={() => setShowSignUp(false)}
         onSwitchToSignIn={() => {
           setShowSignUp(false);
@@ -155,4 +152,3 @@ export default function Navbar() {
     </>
   );
 }
-

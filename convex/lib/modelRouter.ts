@@ -7,9 +7,9 @@
 
 import {
   AI_MODELS,
-  type ModelId,
-  isModelAvailableForTier,
   getDefaultModelForTier as getDefaultModel,
+  isModelAvailableForTier,
+  type ModelId,
 } from "./modelConfig";
 import { SUBSCRIPTION_TIERS, type SubscriptionTier } from "./subscriptionConfig";
 
@@ -251,4 +251,3 @@ export function getUpgradeSuggestion(
 
   return null;
 }
-

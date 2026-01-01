@@ -14,12 +14,12 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
 import { useQuery } from "convex/react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { Icon } from "@/components/ui/icon";
 import { api } from "@/convex/_generated/api";
 import { useTranslation } from "@/lib/i18n";
-import { Icon } from "@/components/ui/icon";
-import Link from "next/link";
 
 interface CapWarningProps {
   onUpgrade?: () => void;
@@ -89,11 +89,12 @@ export function CapWarning({
   };
 
   // Animation styles
-  const animationStyles = position !== "inline" && isAnimated
-    ? "translate-y-0 opacity-100"
-    : position !== "inline"
-      ? "translate-y-full opacity-0"
-      : "";
+  const animationStyles =
+    position !== "inline" && isAnimated
+      ? "translate-y-0 opacity-100"
+      : position !== "inline"
+        ? "translate-y-full opacity-0"
+        : "";
 
   // Hard cap reached - blocking banner
   if (usageCaps.hardCapReached) {
@@ -231,15 +232,8 @@ export function CapWarningInline({ className = "" }: { className?: string }) {
       } ${className}`}
     >
       <Icon name={isHardCap ? "error" : "warning"} className="text-sm" />
-      <span>
-        {locale === "he"
-          ? `${percentUsed}% נוצל`
-          : `${percentUsed}% used`}
-      </span>
-      <Link
-        href="/pricing"
-        className="underline hover:no-underline"
-      >
+      <span>{locale === "he" ? `${percentUsed}% נוצל` : `${percentUsed}% used`}</span>
+      <Link href="/pricing" className="underline hover:no-underline">
         {locale === "he" ? "שדרג" : "Upgrade"}
       </Link>
     </div>
@@ -285,22 +279,14 @@ export function CapWarningMini({ className = "" }: { className?: string }) {
       <div
         className={`
           size-8 rounded-full flex items-center justify-center
-          ${
-            isHardCap
-              ? "bg-red-200 dark:bg-red-800"
-              : "bg-yellow-200 dark:bg-yellow-800"
-          }
+          ${isHardCap ? "bg-red-200 dark:bg-red-800" : "bg-yellow-200 dark:bg-yellow-800"}
         `}
       >
         <Icon
           name={isHardCap ? "error" : "warning"}
           className={`
             text-lg
-            ${
-              isHardCap
-                ? "text-red-600 dark:text-red-300"
-                : "text-yellow-600 dark:text-yellow-300"
-            }
+            ${isHardCap ? "text-red-600 dark:text-red-300" : "text-yellow-600 dark:text-yellow-300"}
           `}
         />
       </div>
@@ -308,24 +294,15 @@ export function CapWarningMini({ className = "" }: { className?: string }) {
         <p
           className={`
             text-sm font-medium truncate
-            ${
-              isHardCap
-                ? "text-red-800 dark:text-red-200"
-                : "text-yellow-800 dark:text-yellow-200"
-            }
+            ${isHardCap ? "text-red-800 dark:text-red-200" : "text-yellow-800 dark:text-yellow-200"}
           `}
         >
-          {percentUsed}%{" "}
-          {locale === "he" ? "מהתקציב נוצל" : "budget used"}
+          {percentUsed}% {locale === "he" ? "מהתקציב נוצל" : "budget used"}
         </p>
         <p
           className={`
             text-xs truncate
-            ${
-              isHardCap
-                ? "text-red-600 dark:text-red-400"
-                : "text-yellow-600 dark:text-yellow-400"
-            }
+            ${isHardCap ? "text-red-600 dark:text-red-400" : "text-yellow-600 dark:text-yellow-400"}
           `}
         >
           {daysRemaining > 0
@@ -341,11 +318,7 @@ export function CapWarningMini({ className = "" }: { className?: string }) {
         name="chevron_right"
         className={`
           text-lg rtl:rotate-180
-          ${
-            isHardCap
-              ? "text-red-500 dark:text-red-400"
-              : "text-yellow-500 dark:text-yellow-400"
-          }
+          ${isHardCap ? "text-red-500 dark:text-red-400" : "text-yellow-500 dark:text-yellow-400"}
         `}
       />
     </Link>

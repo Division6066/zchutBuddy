@@ -123,7 +123,7 @@ export async function POST(request: Request): Promise<Response> {
   // For now, allow unauthenticated requests for guest mode
   // In production, you might want to add rate limiting for guests
   let userTier = "free_trial";
-  let canUseApi = true;
+  const canUseApi = true;
   let usageCheckResult: { softCapReached?: boolean; hardCapReached?: boolean } = {};
 
   // If authenticated, check subscription and usage
@@ -138,10 +138,7 @@ export async function POST(request: Request): Promise<Response> {
       // Check usage caps
       usageCheckResult = await convex.query(api.usageTracking.checkUsageCaps);
       if (usageCheckResult.hardCapReached) {
-        return errorResponse(
-          "הגעת למגבלת השימוש החודשית. שדרג את התוכנית שלך כדי להמשיך.",
-          429
-        );
+        return errorResponse("הגעת למגבלת השימוש החודשית. שדרג את התוכנית שלך כדי להמשיך.", 429);
       }
 
       // Check daily chat limit

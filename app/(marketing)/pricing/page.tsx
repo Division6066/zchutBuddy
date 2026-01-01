@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslation } from "@/lib/i18n";
 import { SignUpModal } from "@/components/SignUpModal";
+import { useTranslation } from "@/lib/i18n";
 
 export default function PricingPage() {
   const { t, locale } = useTranslation();
@@ -15,21 +15,22 @@ export default function PricingPage() {
       monthlyPrice: 69,
       annualPrice: 690, // 10 months instead of 12
       description: locale === "he" ? "לשימוש קבוע" : "For regular use",
-      features: locale === "he" 
-        ? [
-            "חיפושים ללא הגבלה",
-            "רשימות משימות מותאמות",
-            "אחסון מסמכים",
-            "תמיכה מועדפת",
-            "עדכונים בזמן אמת",
-          ]
-        : [
-            "Unlimited searches",
-            "Custom task lists",
-            "Document storage",
-            "Priority support",
-            "Real-time updates",
-          ],
+      features:
+        locale === "he"
+          ? [
+              "חיפושים ללא הגבלה",
+              "רשימות משימות מותאמות",
+              "אחסון מסמכים",
+              "תמיכה מועדפת",
+              "עדכונים בזמן אמת",
+            ]
+          : [
+              "Unlimited searches",
+              "Custom task lists",
+              "Document storage",
+              "Priority support",
+              "Real-time updates",
+            ],
       highlighted: false,
       cta: locale === "he" ? "בחר בפלוס" : "Choose Plus",
     },
@@ -38,21 +39,16 @@ export default function PricingPage() {
       monthlyPrice: 99,
       annualPrice: 990, // 10 months instead of 12
       description: locale === "he" ? "לצרכים מתקדמים" : "For advanced needs",
-      features: locale === "he"
-        ? [
-            "הכל בפלוס",
-            "יועץ אישי",
-            "עיבוד מואץ",
-            "דוחות מותאמים אישית",
-            "תמיכה טלפונית",
-          ]
-        : [
-            "Everything in Plus",
-            "Personal advisor",
-            "Expedited processing",
-            "Custom reports",
-            "Phone support",
-          ],
+      features:
+        locale === "he"
+          ? ["הכל בפלוס", "יועץ אישי", "עיבוד מואץ", "דוחות מותאמים אישית", "תמיכה טלפונית"]
+          : [
+              "Everything in Plus",
+              "Personal advisor",
+              "Expedited processing",
+              "Custom reports",
+              "Phone support",
+            ],
       highlighted: true,
       cta: locale === "he" ? "בחר בפרו" : "Choose Pro",
       badge: locale === "he" ? "הכי פופולרי" : "Most Popular",
@@ -62,21 +58,22 @@ export default function PricingPage() {
       monthlyPrice: 199,
       annualPrice: 1990, // 10 months instead of 12
       description: locale === "he" ? "לשירות פרימיום" : "For premium service",
-      features: locale === "he"
-        ? [
-            "הכל בפרו",
-            "מנהל חשבון ייעודי",
-            "ייעוץ אישי בלתי מוגבל",
-            "עדיפות מלאה בתורים",
-            "גישה ל-API לאינטגרציות",
-          ]
-        : [
-            "Everything in Pro",
-            "Dedicated account manager",
-            "Unlimited personal consulting",
-            "Full priority in queues",
-            "API access for integrations",
-          ],
+      features:
+        locale === "he"
+          ? [
+              "הכל בפרו",
+              "מנהל חשבון ייעודי",
+              "ייעוץ אישי בלתי מוגבל",
+              "עדיפות מלאה בתורים",
+              "גישה ל-API לאינטגרציות",
+            ]
+          : [
+              "Everything in Pro",
+              "Dedicated account manager",
+              "Unlimited personal consulting",
+              "Full priority in queues",
+              "API access for integrations",
+            ],
       highlighted: false,
       cta: locale === "he" ? "בחר במקס" : "Choose Max",
     },
@@ -86,9 +83,10 @@ export default function PricingPage() {
   const annualSaveText = locale === "he" ? "חסוך 2 חודשים!" : "Save 2 months!";
   const perMonthText = locale === "he" ? "/חודש" : "/mo";
   const billedAnnuallyText = locale === "he" ? "חיוב שנתי מראש" : "Billed annually upfront";
-  const allPlansIncludeText = locale === "he" 
-    ? "כל התוכניות כוללות 14 ימי ניסיון חינם. בטל בכל עת."
-    : "All plans include a 14-day free trial. Cancel anytime.";
+  const allPlansIncludeText =
+    locale === "he"
+      ? "כל התוכניות כוללות 14 ימי ניסיון חינם. בטל בכל עת."
+      : "All plans include a 14-day free trial. Cancel anytime.";
 
   return (
     <>
@@ -99,7 +97,7 @@ export default function PricingPage() {
             <span className="material-symbols-outlined text-base">verified</span>
             {freeTrialText}
           </div>
-          
+
           <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6">
             {t("pricing.title")}
           </h1>
@@ -143,7 +141,7 @@ export default function PricingPage() {
             {plans.map((plan, index) => {
               const displayPrice = isAnnual ? plan.annualPrice : plan.monthlyPrice;
               const monthlyEquivalent = isAnnual ? Math.round(plan.annualPrice / 12) : null;
-              
+
               return (
                 <div
                   key={index}
@@ -162,22 +160,20 @@ export default function PricingPage() {
                   <div className="text-center mb-8">
                     <h3 className="text-2xl font-black text-foreground mb-2">{plan.name}</h3>
                     <p className="text-muted-foreground text-sm mb-6">{plan.description}</p>
-                    
+
                     <div className="flex flex-col items-center">
                       <div className="flex items-baseline justify-center gap-1">
-                        <span className="text-5xl font-black text-primary">
-                          ₪{displayPrice}
-                        </span>
+                        <span className="text-5xl font-black text-primary">₪{displayPrice}</span>
                         {!isAnnual && (
                           <span className="text-muted-foreground font-medium">{perMonthText}</span>
                         )}
                       </div>
-                      
+
                       {isAnnual && (
                         <div className="mt-2 space-y-1">
                           <p className="text-sm text-muted-foreground">{billedAnnuallyText}</p>
                           <p className="text-xs text-primary font-bold">
-                            {locale === "he" 
+                            {locale === "he"
                               ? `(שווה ערך ל-₪${monthlyEquivalent}/חודש)`
                               : `(equivalent to ₪${monthlyEquivalent}/mo)`}
                           </p>
@@ -207,10 +203,8 @@ export default function PricingPage() {
                   >
                     {plan.cta}
                   </button>
-                  
-                  <p className="text-center text-xs text-muted-foreground mt-4">
-                    {freeTrialText}
-                  </p>
+
+                  <p className="text-center text-xs text-muted-foreground mt-4">{freeTrialText}</p>
                 </div>
               );
             })}
@@ -225,53 +219,53 @@ export default function PricingPage() {
             {locale === "he" ? "שאלות נפוצות" : "Frequently Asked Questions"}
           </h2>
           <div className="space-y-4">
-            {(locale === "he" ? [
-              {
-                q: "מה כלול בניסיון החינם?",
-                a: "ניסיון החינם כולל גישה מלאה לכל התכונות של התוכנית שבחרת למשך 14 יום. לא תחויב עד סוף תקופת הניסיון.",
-              },
-              {
-                q: "מה ההבדל בין חיוב חודשי לשנתי?",
-                a: "בחיוב שנתי אתה משלם מראש עבור 10 חודשים ומקבל 12 חודשי שירות - חיסכון של חודשיים!",
-              },
-              {
-                q: "האם אני יכול לבטל בכל עת?",
-                a: "כן, אתה יכול לבטל את המנוי שלך בכל עת. לא תחויב לאחר הביטול.",
-              },
-              {
-                q: "מה קורה לנתונים שלי אם אני מבטל?",
-                a: "הנתונים שלך נשמרים למשך 30 יום לאחר הביטול. אתה יכול לייצא אותם בכל עת.",
-              },
-              {
-                q: "האם ניתן לשדרג או לשנמך תוכנית?",
-                a: "בהחלט! תוכל לשנות את התוכנית שלך בכל עת ותחויב באופן יחסי.",
-              },
-            ] : [
-              {
-                q: "What's included in the free trial?",
-                a: "The free trial includes full access to all features of your chosen plan for 14 days. You won't be charged until the trial ends.",
-              },
-              {
-                q: "What's the difference between monthly and annual billing?",
-                a: "With annual billing, you pay upfront for 10 months and get 12 months of service - saving 2 months!",
-              },
-              {
-                q: "Can I cancel anytime?",
-                a: "Yes, you can cancel your subscription at any time. You won't be charged after cancellation.",
-              },
-              {
-                q: "What happens to my data if I cancel?",
-                a: "Your data is kept for 30 days after cancellation. You can export it at any time.",
-              },
-              {
-                q: "Can I upgrade or downgrade my plan?",
-                a: "Absolutely! You can change your plan at any time and you'll be charged proportionally.",
-              },
-            ]).map((faq, index) => (
-              <div
-                key={index}
-                className="bg-background p-6 rounded-xl border border-border"
-              >
+            {(locale === "he"
+              ? [
+                  {
+                    q: "מה כלול בניסיון החינם?",
+                    a: "ניסיון החינם כולל גישה מלאה לכל התכונות של התוכנית שבחרת למשך 14 יום. לא תחויב עד סוף תקופת הניסיון.",
+                  },
+                  {
+                    q: "מה ההבדל בין חיוב חודשי לשנתי?",
+                    a: "בחיוב שנתי אתה משלם מראש עבור 10 חודשים ומקבל 12 חודשי שירות - חיסכון של חודשיים!",
+                  },
+                  {
+                    q: "האם אני יכול לבטל בכל עת?",
+                    a: "כן, אתה יכול לבטל את המנוי שלך בכל עת. לא תחויב לאחר הביטול.",
+                  },
+                  {
+                    q: "מה קורה לנתונים שלי אם אני מבטל?",
+                    a: "הנתונים שלך נשמרים למשך 30 יום לאחר הביטול. אתה יכול לייצא אותם בכל עת.",
+                  },
+                  {
+                    q: "האם ניתן לשדרג או לשנמך תוכנית?",
+                    a: "בהחלט! תוכל לשנות את התוכנית שלך בכל עת ותחויב באופן יחסי.",
+                  },
+                ]
+              : [
+                  {
+                    q: "What's included in the free trial?",
+                    a: "The free trial includes full access to all features of your chosen plan for 14 days. You won't be charged until the trial ends.",
+                  },
+                  {
+                    q: "What's the difference between monthly and annual billing?",
+                    a: "With annual billing, you pay upfront for 10 months and get 12 months of service - saving 2 months!",
+                  },
+                  {
+                    q: "Can I cancel anytime?",
+                    a: "Yes, you can cancel your subscription at any time. You won't be charged after cancellation.",
+                  },
+                  {
+                    q: "What happens to my data if I cancel?",
+                    a: "Your data is kept for 30 days after cancellation. You can export it at any time.",
+                  },
+                  {
+                    q: "Can I upgrade or downgrade my plan?",
+                    a: "Absolutely! You can change your plan at any time and you'll be charged proportionally.",
+                  },
+                ]
+            ).map((faq, index) => (
+              <div key={index} className="bg-background p-6 rounded-xl border border-border">
                 <h3 className="font-bold text-foreground mb-2">{faq.q}</h3>
                 <p className="text-muted-foreground">{faq.a}</p>
               </div>

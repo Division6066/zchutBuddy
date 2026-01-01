@@ -64,7 +64,9 @@ export default function StitchHomeEnPage() {
           {/* Floating badge - Paperwork Done */}
           <div className="absolute top-10 left-0 md:left-4 bg-white/90 backdrop-blur-md border border-gray-100 rounded-xl py-2 px-4 shadow-md flex items-center gap-3 transform -rotate-3">
             <div className="bg-primary/10 p-1.5 rounded-lg">
-              <span className="material-symbols-outlined text-[18px] text-primary">description</span>
+              <span className="material-symbols-outlined text-[18px] text-primary">
+                description
+              </span>
             </div>
             <span className="text-[11px] text-text-dark font-bold">Paperwork: Done</span>
           </div>
@@ -128,4 +130,3 @@ export default function StitchHomeEnPage() {
     </div>
   );
 }
-

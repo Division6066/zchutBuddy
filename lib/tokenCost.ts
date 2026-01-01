@@ -43,9 +43,7 @@ export function estimateTokens(text: string): number {
 
   // Non-Hebrew text - word-based estimation
   const nonHebrewText = text.replace(/[\u0590-\u05FF]/g, "");
-  const words = nonHebrewText
-    .split(/\s+/)
-    .filter((w) => w.length > 0).length;
+  const words = nonHebrewText.split(/\s+/).filter((w) => w.length > 0).length;
   const englishTokens = words * 1.3;
 
   // Add some buffer for special characters and formatting
@@ -239,4 +237,3 @@ export function getModelPricingDisplay(modelId: string): {
     isFree: false,
   };
 }
-

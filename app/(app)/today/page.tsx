@@ -15,7 +15,7 @@ interface Task {
 
 export default function TodayPage() {
   const { t } = useTranslation();
-  
+
   const [tasks, setTasks] = useState<Task[]>([
     {
       id: "1",
@@ -57,9 +57,7 @@ export default function TodayPage() {
 
   const toggleTask = (taskId: string) => {
     setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
+      prev.map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task))
     );
   };
 
@@ -110,9 +108,7 @@ export default function TodayPage() {
             </div>
             <div>
               <h1 className="text-xl font-black text-foreground">{t("dashboard.todaysTasks")}</h1>
-              <p className="text-sm text-muted-foreground">
-                {pendingTasks.length} משימות ממתינות
-              </p>
+              <p className="text-sm text-muted-foreground">{pendingTasks.length} משימות ממתינות</p>
             </div>
           </div>
         </div>
@@ -157,7 +153,9 @@ export default function TodayPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2 mb-1">
                         <h3 className="font-bold text-foreground">{task.title}</h3>
-                        <span className={`shrink-0 px-2 py-1 rounded-lg text-xs font-bold ${getPriorityColor(task.priority)}`}>
+                        <span
+                          className={`shrink-0 px-2 py-1 rounded-lg text-xs font-bold ${getPriorityColor(task.priority)}`}
+                        >
                           {getPriorityLabel(task.priority)}
                         </span>
                       </div>
@@ -188,10 +186,7 @@ export default function TodayPage() {
             </h2>
             <div className="space-y-3">
               {completedTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="bg-card/50 rounded-2xl p-4 border border-border"
-                >
+                <div key={task.id} className="bg-card/50 rounded-2xl p-4 border border-border">
                   <div className="flex items-start gap-4">
                     <button
                       onClick={() => toggleTask(task.id)}

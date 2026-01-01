@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import Image from "next/image";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -33,7 +33,10 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, variant = "default", as: Component = "div", noHover, noPadding, ...props }, ref) => {
+  (
+    { className, variant = "default", as: Component = "div", noHover, noPadding, ...props },
+    ref
+  ) => {
     const isInteractive = variant === "interactive" || Component === "button";
 
     return (
@@ -43,7 +46,9 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         className={cn(
           "rounded-2xl text-card-foreground transition-shadow",
           cardVariants[variant],
-          isInteractive && !noHover && "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          isInteractive &&
+            !noHover &&
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           className
         )}
         {...props}
@@ -235,9 +240,7 @@ export interface CardSkeletonProps {
 
 const CardSkeleton: React.FC<CardSkeletonProps> = ({ hasImage = false, lines = 3, className }) => (
   <Card className={cn("animate-pulse", className)}>
-    {hasImage && (
-      <div className="h-48 bg-muted rounded-t-2xl" />
-    )}
+    {hasImage && <div className="h-48 bg-muted rounded-t-2xl" />}
     <CardHeader>
       <div className="h-6 bg-muted rounded w-3/4" />
       <div className="h-4 bg-muted rounded w-1/2 mt-2" />

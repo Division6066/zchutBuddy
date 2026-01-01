@@ -17,10 +17,10 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Simulate form submission
     await new Promise((resolve) => setTimeout(resolve, 1000));
-    
+
     setSubmitted(true);
     setIsSubmitting(false);
     setFormData({ name: "", email: "", subject: "", message: "" });
@@ -67,9 +67,7 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <div className="bg-card p-8 rounded-2xl border border-border">
-              <h2 className="text-2xl font-bold text-foreground mb-6">
-                שלח לנו הודעה
-              </h2>
+              <h2 className="text-2xl font-bold text-foreground mb-6">שלח לנו הודעה</h2>
 
               {submitted ? (
                 <div className="text-center py-12">
@@ -77,9 +75,7 @@ export default function ContactPage() {
                     <span className="material-symbols-outlined text-3xl">check_circle</span>
                   </div>
                   <h3 className="text-xl font-bold text-foreground mb-2">ההודעה נשלחה!</h3>
-                  <p className="text-muted-foreground">
-                    תודה על פנייתך. נחזור אליך בהקדם האפשרי.
-                  </p>
+                  <p className="text-muted-foreground">תודה על פנייתך. נחזור אליך בהקדם האפשרי.</p>
                   <button
                     onClick={() => setSubmitted(false)}
                     className="mt-6 text-primary hover:text-primary-dark font-medium"
@@ -90,7 +86,10 @@ export default function ContactPage() {
               ) : (
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="name"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       {t("contact.form.name")}
                     </label>
                     <input
@@ -99,12 +98,15 @@ export default function ContactPage() {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                      required
+                      required={true}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="email"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       {t("contact.form.email")}
                     </label>
                     <input
@@ -113,12 +115,15 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                      required
+                      required={true}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="subject" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="subject"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       {t("contact.form.subject")}
                     </label>
                     <input
@@ -127,12 +132,15 @@ export default function ContactPage() {
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                      required
+                      required={true}
                     />
                   </div>
 
                   <div>
-                    <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
+                    <label
+                      htmlFor="message"
+                      className="block text-sm font-medium text-foreground mb-2"
+                    >
                       {t("contact.form.message")}
                     </label>
                     <textarea
@@ -141,7 +149,7 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition resize-none"
-                      required
+                      required={true}
                     />
                   </div>
 
@@ -166,9 +174,7 @@ export default function ContactPage() {
             {/* Contact Info */}
             <div className="space-y-8">
               <div>
-                <h2 className="text-2xl font-bold text-foreground mb-6">
-                  דרכי התקשרות
-                </h2>
+                <h2 className="text-2xl font-bold text-foreground mb-6">דרכי התקשרות</h2>
                 <div className="space-y-4">
                   {contactMethods.map((method, index) => (
                     <div
@@ -217,4 +223,3 @@ export default function ContactPage() {
     </>
   );
 }
-

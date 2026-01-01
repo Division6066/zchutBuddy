@@ -2,8 +2,8 @@
 
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import * as React from "react";
 import { Loader2 } from "lucide-react";
+import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -33,8 +33,7 @@ const buttonVariants = cva(
         outline:
           "border-2 border-input bg-background hover:bg-primary-50 hover:text-primary hover:border-primary rounded-lg",
         ghost: "hover:bg-accent hover:text-accent-foreground rounded-lg",
-        danger:
-          "bg-error text-white hover:bg-error-dark shadow-lg shadow-error/20 rounded-lg",
+        danger: "bg-error text-white hover:bg-error-dark shadow-lg shadow-error/20 rounded-lg",
         success:
           "bg-success text-white hover:bg-success-dark shadow-lg shadow-success/20 rounded-lg",
         link: "text-primary underline-offset-4 hover:underline p-0 h-auto",
@@ -170,8 +169,12 @@ const ButtonGroup = React.forwardRef<HTMLDivElement, ButtonGroupProps>(
         className={cn(
           "inline-flex",
           orientation === "vertical" ? "flex-col" : "flex-row",
-          attached && orientation === "horizontal" && "[&>button:not(:first-child)]:rounded-s-none [&>button:not(:last-child)]:rounded-e-none [&>button:not(:last-child)]:border-e-0",
-          attached && orientation === "vertical" && "[&>button:not(:first-child)]:rounded-t-none [&>button:not(:last-child)]:rounded-b-none [&>button:not(:last-child)]:border-b-0",
+          attached &&
+            orientation === "horizontal" &&
+            "[&>button:not(:first-child)]:rounded-s-none [&>button:not(:last-child)]:rounded-e-none [&>button:not(:last-child)]:border-e-0",
+          attached &&
+            orientation === "vertical" &&
+            "[&>button:not(:first-child)]:rounded-t-none [&>button:not(:last-child)]:rounded-b-none [&>button:not(:last-child)]:border-b-0",
           !attached && "gap-2",
           className
         )}

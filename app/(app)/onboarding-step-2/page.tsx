@@ -32,8 +32,8 @@ export default function StitchOnboardingStep2Page() {
 
       {/* Header */}
       <div className="flex items-center justify-between p-6 pt-12 z-20">
-          <Link
-            href="/"
+        <Link
+          href="/"
           className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-text-dark hover:bg-gray-100 transition-colors"
         >
           <span className="material-symbols-outlined text-[24px]">arrow_forward</span>
@@ -137,7 +137,9 @@ export default function StitchOnboardingStep2Page() {
 
         {/* Security note */}
         <div className="flex gap-2 items-start mt-6 p-3 bg-gray-50 rounded-xl">
-          <span className="material-symbols-outlined text-text-subtle text-[18px] mt-0.5">lock</span>
+          <span className="material-symbols-outlined text-text-subtle text-[18px] mt-0.5">
+            lock
+          </span>
           <p className="text-xs text-text-subtle leading-relaxed text-right">
             המידע שלך מוצפן ומאובטח. אנחנו לא משתפים את המידע עם צד שלישי ללא הסכמתך.
           </p>
@@ -159,4 +161,3 @@ export default function StitchOnboardingStep2Page() {
     </div>
   );
 }
-

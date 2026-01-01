@@ -1,29 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useClerk, useAuth } from "@clerk/nextjs";
+import { useAuth, useClerk } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import {
-  Home,
-  Search,
-  MessageSquare,
   Bell,
-  User,
-  Settings,
-  HelpCircle,
   ChevronLeft,
   ChevronRight,
+  HelpCircle,
+  Home,
   LogOut,
+  MessageSquare,
+  Search,
+  Settings,
   Sparkles,
+  User,
 } from "lucide-react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { api } from "@/convex/_generated/api";
 
 import { useDeviceType } from "@/hooks/useDeviceType";
-import { useTranslation, useDir } from "@/lib/i18n";
 import { useGuestAuth } from "@/lib/guest-auth";
+import { useDir, useTranslation } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 // ============================================================================
@@ -66,7 +66,10 @@ export default function TabletSidebar() {
 
   // Convex queries - skip unless user is fully authenticated with Clerk
   const unreadCount = useQuery(api.alerts.getUnreadCount, shouldRunAuthQueries ? {} : "skip");
-  const usageSummary = useQuery(api.usageTracking.getUsageSummary, shouldRunAuthQueries ? {} : "skip");
+  const usageSummary = useQuery(
+    api.usageTracking.getUsageSummary,
+    shouldRunAuthQueries ? {} : "skip"
+  );
 
   // Collapsed state with localStorage persistence
   const [isCollapsed, setIsCollapsed] = useState(true);
@@ -182,8 +185,7 @@ export default function TabletSidebar() {
         <nav className="flex-1 p-2 overflow-y-auto">
           <motion.ul className="space-y-1">
             {NAV_ITEMS.map((item, index) => {
-              const isActive =
-                pathname === item.href || pathname.startsWith(item.href + "/");
+              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
               const Icon = item.icon;
               const showBadge = item.hasBadge && unreadCount !== undefined && unreadCount > 0;
 
@@ -365,4 +367,3 @@ export default function TabletSidebar() {
     </>
   );
 }
-

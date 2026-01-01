@@ -65,17 +65,18 @@ export default function AboutPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-black text-foreground mb-6">
-                למה אנחנו עושים את זה
-              </h2>
+              <h2 className="text-3xl font-black text-foreground mb-6">למה אנחנו עושים את זה</h2>
               <p className="text-muted-foreground mb-4">
-                מערכת הביטחון הסוציאלי בישראל מורכבת ומסובכת. אלפי ישראלים מפסידים זכויות שמגיעות להם פשוט כי הם לא יודעים עליהן או לא יודעים איך לממש אותן.
+                מערכת הביטחון הסוציאלי בישראל מורכבת ומסובכת. אלפי ישראלים מפסידים זכויות שמגיעות
+                להם פשוט כי הם לא יודעים עליהן או לא יודעים איך לממש אותן.
               </p>
               <p className="text-muted-foreground mb-4">
-                זכויות באדי נוצר כדי לשנות את זה. אנחנו משתמשים בטכנולוגיה מתקדמת כדי להפוך את תהליך מיצוי הזכויות לפשוט, נגיש ויעיל.
+                זכויות באדי נוצר כדי לשנות את זה. אנחנו משתמשים בטכנולוגיה מתקדמת כדי להפוך את תהליך
+                מיצוי הזכויות לפשוט, נגיש ויעיל.
               </p>
               <p className="text-muted-foreground">
-                המשימה שלנו היא לוודא שכל אזרח ישראלי יקבל את מה שמגיע לו - ללא בירוקרטיה מיותרת וללא ויתור על זכויות.
+                המשימה שלנו היא לוודא שכל אזרח ישראלי יקבל את מה שמגיע לו - ללא בירוקרטיה מיותרת
+                וללא ויתור על זכויות.
               </p>
             </div>
             <div className="flex justify-center">
@@ -95,15 +96,10 @@ export default function AboutPage() {
       {/* Values Section */}
       <section className="w-full bg-background py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <h2 className="text-3xl font-black text-foreground mb-12 text-center">
-            הערכים שלנו
-          </h2>
+          <h2 className="text-3xl font-black text-foreground mb-12 text-center">הערכים שלנו</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {values.map((value, index) => (
-              <div
-                key={index}
-                className="bg-card p-6 rounded-2xl border border-border text-center"
-              >
+              <div key={index} className="bg-card p-6 rounded-2xl border border-border text-center">
                 <div className="size-14 rounded-xl bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
                   <span className="material-symbols-outlined text-2xl">{value.icon}</span>
                 </div>
@@ -118,9 +114,7 @@ export default function AboutPage() {
       {/* Team Section */}
       <section className="w-full bg-card py-16 lg:py-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <h2 className="text-3xl font-black text-foreground mb-12 text-center">
-            הצוות שלנו
-          </h2>
+          <h2 className="text-3xl font-black text-foreground mb-12 text-center">הצוות שלנו</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {team.map((member, index) => (
               <div

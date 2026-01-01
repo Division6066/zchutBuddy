@@ -196,4 +196,3 @@ export function getTierPricingInfo() {
     ...calculateCaps(tier.id as SubscriptionTier),
   }));
 }
-

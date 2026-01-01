@@ -31,9 +31,7 @@ export default function OnboardingWelcomePage() {
         <div className="w-full relative mb-10 flex justify-center">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-56 h-56 bg-primary/10 rounded-full blur-2xl" />
           <div className="relative w-72 h-72 rounded-full overflow-hidden border-4 border-white shadow-2xl bg-gradient-to-b from-primary/10 to-white flex items-center justify-center">
-            <span className="material-symbols-outlined text-[120px] text-primary">
-              explore
-            </span>
+            <span className="material-symbols-outlined text-[120px] text-primary">explore</span>
           </div>
 
           {/* Floating badge - Rights Secured */}
@@ -94,7 +92,9 @@ export default function OnboardingWelcomePage() {
           href="/onboarding/radar"
           className="group relative flex w-full items-center justify-center overflow-hidden rounded-2xl h-14 bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-dark hover:shadow-primary/40 active:scale-[0.98]"
         >
-          <span className="text-lg font-bold tracking-tight ms-2">{t("onboarding.welcome.cta")}</span>
+          <span className="text-lg font-bold tracking-tight ms-2">
+            {t("onboarding.welcome.cta")}
+          </span>
           <span className="material-symbols-outlined transition-transform group-hover:-translate-x-1 rtl:group-hover:translate-x-1">
             arrow_back
           </span>

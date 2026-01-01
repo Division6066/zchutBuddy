@@ -101,7 +101,9 @@ export default function StitchAppPage() {
 
             <div className="relative flex items-start gap-4 mb-6">
               <div className="relative z-10 flex-shrink-0 w-14 h-14 rounded-2xl bg-white border-2 border-primary flex items-center justify-center shadow-soft">
-                <span className="material-symbols-outlined text-primary text-[24px]">upload_file</span>
+                <span className="material-symbols-outlined text-primary text-[24px]">
+                  upload_file
+                </span>
               </div>
               <div className="flex-1 bg-white p-4 rounded-2xl border border-gray-100 shadow-card">
                 <div className="flex justify-between items-start mb-1">
@@ -182,16 +184,25 @@ export default function StitchAppPage() {
           <span className="material-symbols-outlined text-[24px]">dashboard</span>
           <span>ראשי</span>
         </button>
-        <button type="button" className="flex flex-col items-center gap-1 hover:text-primary transition-colors">
+        <button
+          type="button"
+          className="flex flex-col items-center gap-1 hover:text-primary transition-colors"
+        >
           <span className="material-symbols-outlined text-[24px]">assignment</span>
           <span>משימות</span>
         </button>
         <div className="w-12" />
-        <button type="button" className="flex flex-col items-center gap-1 hover:text-primary transition-colors">
+        <button
+          type="button"
+          className="flex flex-col items-center gap-1 hover:text-primary transition-colors"
+        >
           <span className="material-symbols-outlined text-[24px]">chat_bubble</span>
           <span>צ&apos;אט</span>
         </button>
-        <button type="button" className="flex flex-col items-center gap-1 hover:text-primary transition-colors">
+        <button
+          type="button"
+          className="flex flex-col items-center gap-1 hover:text-primary transition-colors"
+        >
           <span className="material-symbols-outlined text-[24px]">person</span>
           <span>פרופיל</span>
         </button>

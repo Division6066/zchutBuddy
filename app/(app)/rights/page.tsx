@@ -92,7 +92,9 @@ export default function StitchRightsMapPage() {
           </p>
           <div className="bg-slate-50 rounded-xl p-3 mb-4">
             <div className="flex items-center gap-2 mb-2">
-              <span className="material-symbols-outlined text-primary text-[16px]">check_circle</span>
+              <span className="material-symbols-outlined text-primary text-[16px]">
+                check_circle
+              </span>
               <span className="text-xs font-bold text-text-dark">דרישות עיקריות:</span>
             </div>
             <ul className="text-xs text-text-subtle space-y-1 list-disc list-inside pr-1">

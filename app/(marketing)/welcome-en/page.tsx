@@ -41,8 +41,7 @@ export default function StitchWelcomeEnPage() {
               <div
                 className="w-full h-full bg-center bg-no-repeat bg-contain transform scale-110 mt-4"
                 style={{
-                  backgroundImage:
-                    'url("/stitch/home/hero-illustration.png")',
+                  backgroundImage: 'url("/stitch/home/hero-illustration.png")',
                 }}
               />
             </div>
@@ -137,4 +136,3 @@ export default function StitchWelcomeEnPage() {
     </div>
   );
 }
-

@@ -41,9 +41,7 @@ export default function ChecklistsPage() {
   ];
 
   const getStatusColor = (status: "in_progress" | "completed") => {
-    return status === "completed"
-      ? "bg-success-bg text-success"
-      : "bg-primary/10 text-primary";
+    return status === "completed" ? "bg-success-bg text-success" : "bg-primary/10 text-primary";
   };
 
   const getStatusLabel = (status: "in_progress" | "completed") => {
@@ -84,9 +82,13 @@ export default function ChecklistsPage() {
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-foreground mb-1 truncate">{checklist.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{checklist.description}</p>
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {checklist.description}
+                    </p>
                   </div>
-                  <span className={`shrink-0 px-3 py-1 rounded-lg text-xs font-bold ${getStatusColor(checklist.status)}`}>
+                  <span
+                    className={`shrink-0 px-3 py-1 rounded-lg text-xs font-bold ${getStatusColor(checklist.status)}`}
+                  >
                     {getStatusLabel(checklist.status)}
                   </span>
                 </div>

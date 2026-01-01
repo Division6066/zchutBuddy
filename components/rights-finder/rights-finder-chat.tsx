@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useCallback } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
 // ============================================
 // TYPES
@@ -28,10 +28,10 @@ interface Message {
 // ============================================
 
 const SUGGESTED_QUESTIONS = [
-  'מה הזכויות שלי כנכה?',
-  'איך מגישים תביעה לביטוח לאומי?',
+  "מה הזכויות שלי כנכה?",
+  "איך מגישים תביעה לביטוח לאומי?",
   'מה ההטבות לנכי צה"ל?',
-  'איך מגישים בקשה לדיור ציבורי?',
+  "איך מגישים בקשה לדיור ציבורי?",
 ];
 
 // ============================================
@@ -229,12 +229,8 @@ export function RightsFinderChat({
         {showSuggestions && !isCreatingSession && (
           <div className="flex flex-col items-center justify-center h-full space-y-6">
             <div className="text-center space-y-2">
-              <h3 className="text-lg font-semibold text-gray-700">
-                איך אוכל לעזור לך היום?
-              </h3>
-              <p className="text-sm text-gray-500">
-                בחר שאלה או כתוב את השאלה שלך
-              </p>
+              <h3 className="text-lg font-semibold text-gray-700">איך אוכל לעזור לך היום?</h3>
+              <p className="text-sm text-gray-500">בחר שאלה או כתוב את השאלה שלך</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
               {SUGGESTED_QUESTIONS.map((question, index) => (
@@ -259,9 +255,7 @@ export function RightsFinderChat({
         {streamingContent && (
           <div className="flex justify-start">
             <div className="max-w-[80%] p-4 rounded-2xl bg-gray-200 text-gray-800 rounded-tr-sm">
-              <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                {streamingContent}
-              </p>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed">{streamingContent}</p>
               <span className="inline-block w-2 h-4 bg-gray-500 animate-pulse mr-1" />
             </div>
           </div>
@@ -282,9 +276,7 @@ export function RightsFinderChat({
         {/* Error message */}
         {error && (
           <div className="flex justify-center">
-            <div className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm">
-              {error}
-            </div>
+            <div className="bg-red-50 text-red-600 px-4 py-2 rounded-lg text-sm">{error}</div>
           </div>
         )}
 
@@ -352,14 +344,7 @@ function LoadingSpinner() {
       fill="none"
       viewBox="0 0 24 24"
     >
-      <circle
-        className="opacity-25"
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="4"
-      />
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
       <path
         className="opacity-75"
         fill="currentColor"
@@ -372,9 +357,18 @@ function LoadingSpinner() {
 function LoadingDots() {
   return (
     <div className="flex gap-1">
-      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-      <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+      <span
+        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+        style={{ animationDelay: "0ms" }}
+      />
+      <span
+        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+        style={{ animationDelay: "150ms" }}
+      />
+      <span
+        className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+        style={{ animationDelay: "300ms" }}
+      />
     </div>
   );
 }
@@ -393,4 +387,3 @@ function SendIcon() {
 }
 
 export default RightsFinderChat;
-

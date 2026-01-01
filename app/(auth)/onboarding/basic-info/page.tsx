@@ -7,15 +7,15 @@
 
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation, useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useTranslation } from "@/lib/i18n";
 import { Icon } from "@/components/ui/icon";
+import { api } from "@/convex/_generated/api";
+import { useTranslation } from "@/lib/i18n";
 
 // Israeli cities list
 const ISRAELI_CITIES = [
@@ -235,8 +235,7 @@ export default function BasicInfoPage() {
         {/* City - Searchable Dropdown */}
         <div className="mb-6">
           <label className="block text-sm font-medium text-foreground mb-3">
-            {locale === "he" ? "עיר מגורים" : "City"}{" "}
-            <span className="text-destructive">*</span>
+            {locale === "he" ? "עיר מגורים" : "City"} <span className="text-destructive">*</span>
           </label>
           <div className="relative">
             <button
@@ -273,7 +272,7 @@ export default function BasicInfoPage() {
                       onChange={(e) => setCitySearch(e.target.value)}
                       placeholder={locale === "he" ? "חפש עיר..." : "Search city..."}
                       className="w-full ps-10 pe-4 py-2 rounded-lg bg-muted border-0 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                      autoFocus
+                      autoFocus={true}
                     />
                   </div>
                 </div>

@@ -1,6 +1,13 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import React, {
+  createContext,
+  type ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 
 type Locale = "en" | "he";
 
@@ -53,7 +60,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     (key: string): string => {
       const keys = key.split(".");
       let value: unknown = translations[locale];
-      
+
       for (const k of keys) {
         if (value && typeof value === "object" && k in value) {
           value = (value as Record<string, unknown>)[k];
@@ -61,7 +68,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
           return key; // Return key if translation not found
         }
       }
-      
+
       return typeof value === "string" ? value : key;
     },
     [locale]
@@ -113,4 +120,3 @@ export function useDir() {
   const { dir } = useTranslation();
   return dir;
 }
-

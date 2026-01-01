@@ -1,11 +1,7 @@
 import { v } from "convex/values";
-import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
-import {
-  SUBSCRIPTION_TIERS,
-  calculateCaps,
-  type SubscriptionTier,
-} from "./lib/subscriptionConfig";
+import type { Id } from "./_generated/dataModel";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
+import { calculateCaps, SUBSCRIPTION_TIERS, type SubscriptionTier } from "./lib/subscriptionConfig";
 
 // ============================================
 // INTERNAL HELPERS
@@ -283,7 +279,8 @@ export const initializeUsage = mutation({
     const now = Date.now();
 
     // Get tier configuration
-    const tierConfig = SUBSCRIPTION_TIERS[tier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
+    const tierConfig =
+      SUBSCRIPTION_TIERS[tier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
     const periodEnd = now + 30 * 24 * 60 * 60 * 1000; // 30 days
 
     // Check if usage already exists
@@ -511,7 +508,8 @@ export const updateLimitsForTier = mutation({
       return;
     }
 
-    const tierConfig = SUBSCRIPTION_TIERS[tier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
+    const tierConfig =
+      SUBSCRIPTION_TIERS[tier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
     const caps = calculateCaps(tier as SubscriptionTier);
 
     // Recalculate caps with new limits
@@ -569,10 +567,7 @@ export const getUsageSummary = query({
 
     // Calculate days remaining in period
     const now = Date.now();
-    const daysRemaining = Math.max(
-      0,
-      Math.ceil((usage.periodEnd - now) / (24 * 60 * 60 * 1000))
-    );
+    const daysRemaining = Math.max(0, Math.ceil((usage.periodEnd - now) / (24 * 60 * 60 * 1000)));
 
     return {
       tier: tierConfig.id,
@@ -639,10 +634,7 @@ export const getCapStatus = query({
     const caps = calculateCaps(tierConfig.id as SubscriptionTier);
 
     const now = Date.now();
-    const daysUntilReset = Math.max(
-      0,
-      Math.ceil((usage.periodEnd - now) / (24 * 60 * 60 * 1000))
-    );
+    const daysUntilReset = Math.max(0, Math.ceil((usage.periodEnd - now) / (24 * 60 * 60 * 1000)));
 
     const percentUsed = Math.round((usage.apiCreditsUsed / caps.totalBudget) * 100);
 
@@ -786,7 +778,8 @@ export const handleDowngrade = mutation({
       return;
     }
 
-    const newTierConfig = SUBSCRIPTION_TIERS[newTier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
+    const newTierConfig =
+      SUBSCRIPTION_TIERS[newTier as SubscriptionTier] || SUBSCRIPTION_TIERS.free_trial;
     const newCaps = calculateCaps(newTier as SubscriptionTier);
 
     // Calculate new cap status with new limits

@@ -60,10 +60,7 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
 
           {/* Title */}
           <div className="text-center mb-6">
-            <h2
-              id="signup-modal-title"
-              className="text-2xl font-extrabold text-text-dark mb-2"
-            >
+            <h2 id="signup-modal-title" className="text-2xl font-extrabold text-text-dark mb-2">
               הרשמה
             </h2>
             <p className="text-text-subtle text-sm">צור חשבון חדש כדי להתחיל</p>
@@ -188,4 +185,3 @@ export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
     </div>
   );
 }
-

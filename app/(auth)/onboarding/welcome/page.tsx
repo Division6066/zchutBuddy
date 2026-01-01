@@ -7,13 +7,13 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useTranslation, useToggleLocale } from "@/lib/i18n";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Icon } from "@/components/ui/icon";
+import { api } from "@/convex/_generated/api";
+import { useToggleLocale, useTranslation } from "@/lib/i18n";
 
 export default function WelcomePage() {
   const { locale } = useTranslation();
@@ -140,10 +140,7 @@ export default function WelcomePage() {
         </h3>
         <div className="space-y-3">
           {features.map((feature, index) => (
-            <div
-              key={index}
-              className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl"
-            >
+            <div key={index} className="flex items-center gap-4 p-4 bg-muted/50 rounded-xl">
               <div className="size-12 shrink-0 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
                 <Icon name={feature.icon} className="text-2xl" />
               </div>
@@ -162,7 +159,10 @@ export default function WelcomePage() {
 
       {/* Privacy Note */}
       <div className="flex items-start gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl mb-6">
-        <Icon name="shield" className="text-green-600 dark:text-green-400 text-2xl shrink-0 mt-0.5" />
+        <Icon
+          name="shield"
+          className="text-green-600 dark:text-green-400 text-2xl shrink-0 mt-0.5"
+        />
         <div>
           <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
             {locale === "he" ? "הפרטיות שלך מוגנת" : "Your privacy is protected"}
@@ -192,47 +192,29 @@ export default function WelcomePage() {
                   : "border-border group-hover:border-primary/50"
               }`}
             >
-              {termsAccepted && (
-                <Icon name="check" className="text-white text-sm" />
-              )}
+              {termsAccepted && <Icon name="check" className="text-white text-sm" />}
             </div>
           </div>
           <span className="text-sm text-foreground">
             {locale === "he" ? (
               <>
                 אני מסכים/ה ל
-                <Link
-                  href="/terms"
-                  target="_blank"
-                  className="text-primary hover:underline mx-1"
-                >
+                <Link href="/terms" target="_blank" className="text-primary hover:underline mx-1">
                   תנאי השימוש
                 </Link>
                 ול
-                <Link
-                  href="/privacy"
-                  target="_blank"
-                  className="text-primary hover:underline mx-1"
-                >
+                <Link href="/privacy" target="_blank" className="text-primary hover:underline mx-1">
                   מדיניות הפרטיות
                 </Link>
               </>
             ) : (
               <>
                 I agree to the{" "}
-                <Link
-                  href="/terms"
-                  target="_blank"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/terms" target="_blank" className="text-primary hover:underline">
                   Terms of Service
                 </Link>{" "}
                 and{" "}
-                <Link
-                  href="/privacy"
-                  target="_blank"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/privacy" target="_blank" className="text-primary hover:underline">
                   Privacy Policy
                 </Link>
               </>

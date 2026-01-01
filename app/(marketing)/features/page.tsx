@@ -1,8 +1,8 @@
 "use client";
 
-import { useTranslation } from "@/lib/i18n";
 import { useState } from "react";
 import { SignUpModal } from "@/components/SignUpModal";
+import { useTranslation } from "@/lib/i18n";
 
 export default function FeaturesPage() {
   const { t } = useTranslation();
@@ -23,51 +23,31 @@ export default function FeaturesPage() {
       icon: "checklist",
       title: t("home.features.checklists.title"),
       description: t("home.features.checklists.description"),
-      details: [
-        "רשימות משימות צעד אחר צעד",
-        "תזכורות אוטומטיות למועדים",
-        "מעקב התקדמות בזמן אמת",
-      ],
+      details: ["רשימות משימות צעד אחר צעד", "תזכורות אוטומטיות למועדים", "מעקב התקדמות בזמן אמת"],
     },
     {
       icon: "notifications_active",
       title: t("home.features.updates.title"),
       description: t("home.features.updates.description"),
-      details: [
-        "עדכונים על שינויים בחקיקה",
-        "התראות על זכויות חדשות",
-        "סיכום שבועי מותאם אישית",
-      ],
+      details: ["עדכונים על שינויים בחקיקה", "התראות על זכויות חדשות", "סיכום שבועי מותאם אישית"],
     },
     {
       icon: "folder_shared",
       title: "כספת מסמכים",
       description: "אחסון מאובטח לכל המסמכים החשובים שלך",
-      details: [
-        "העלאה קלה של מסמכים",
-        "ארגון אוטומטי לפי קטגוריות",
-        "גישה מכל מקום",
-      ],
+      details: ["העלאה קלה של מסמכים", "ארגון אוטומטי לפי קטגוריות", "גישה מכל מקום"],
     },
     {
       icon: "support_agent",
       title: "תמיכה מותאמת",
       description: "צוות תמיכה זמין לעזור לך בכל שלב",
-      details: [
-        "צ'אט חי עם צוות תמיכה",
-        "מדריכים מפורטים",
-        "קהילת משתמשים פעילה",
-      ],
+      details: ["צ'אט חי עם צוות תמיכה", "מדריכים מפורטים", "קהילת משתמשים פעילה"],
     },
     {
       icon: "security",
       title: "אבטחה מתקדמת",
       description: "המידע שלך מוגן בסטנדרטים הגבוהים ביותר",
-      details: [
-        "הצפנה מקצה לקצה",
-        "אימות דו-שלבי",
-        "תאימות GDPR",
-      ],
+      details: ["הצפנה מקצה לקצה", "אימות דו-שלבי", "תאימות GDPR"],
     },
   ];
 
@@ -102,7 +82,9 @@ export default function FeaturesPage() {
                 <ul className="space-y-2">
                   {feature.details.map((detail, idx) => (
                     <li key={idx} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <span className="material-symbols-outlined text-primary text-base mt-0.5">check_circle</span>
+                      <span className="material-symbols-outlined text-primary text-base mt-0.5">
+                        check_circle
+                      </span>
                       {detail}
                     </li>
                   ))}
@@ -116,9 +98,7 @@ export default function FeaturesPage() {
       {/* CTA Section */}
       <section className="w-full bg-card py-16">
         <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-black text-foreground mb-6">
-            מוכן להתחיל?
-          </h2>
+          <h2 className="text-3xl font-black text-foreground mb-6">מוכן להתחיל?</h2>
           <p className="text-muted-foreground text-lg mb-8">
             הצטרף עכשיו והתחל לגלות את הזכויות שמגיעות לך
           </p>
@@ -136,4 +116,3 @@ export default function FeaturesPage() {
     </>
   );
 }
-

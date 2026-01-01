@@ -640,9 +640,7 @@ export const checkTrialExpiry = query({
     const now = Date.now();
     const trialEnd = subscription.trialEndsAt || now;
     const isExpired = now > trialEnd;
-    const daysRemaining = isExpired
-      ? 0
-      : Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000));
+    const daysRemaining = isExpired ? 0 : Math.ceil((trialEnd - now) / (24 * 60 * 60 * 1000));
 
     return {
       isExpired,

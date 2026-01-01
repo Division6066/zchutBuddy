@@ -1,16 +1,14 @@
 "use client";
 
 import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import Link from "next/link";
+import { api } from "@/convex/_generated/api";
 
 export function UsageDashboard() {
   const usageSummary = useQuery(api.usageTracking.getUsageSummary);
 
   if (!usageSummary) {
-    return (
-      <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-48" />
-    );
+    return <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-48" />;
   }
 
   const percentUsed = usageSummary.apiUsagePercent || 0;
@@ -24,9 +22,7 @@ export function UsageDashboard() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6" dir="rtl">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-          📊 שימוש חודשי
-        </h2>
+        <h2 className="text-lg font-bold text-gray-900 dark:text-white">📊 שימוש חודשי</h2>
         <span className="px-3 py-1 text-sm bg-primary/10 text-primary rounded-full font-medium">
           {usageSummary.tierNameHe || usageSummary.tierName}
         </span>
@@ -35,9 +31,7 @@ export function UsageDashboard() {
       {/* Progress bar */}
       <div className="mb-4">
         <div className="flex justify-between text-sm mb-2">
-          <span className="text-gray-600 dark:text-gray-300">
-            קרדיטים בשימוש
-          </span>
+          <span className="text-gray-600 dark:text-gray-300">קרדיטים בשימוש</span>
           <span className="font-medium text-gray-900 dark:text-white">
             ₪{usageSummary.apiCreditsUsed?.toFixed(2)} / ₪{usageSummary.apiCreditsLimit?.toFixed(2)}
           </span>
@@ -142,4 +136,3 @@ export function UsageDashboard() {
     </div>
   );
 }
-

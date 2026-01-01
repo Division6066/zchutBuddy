@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useQuery } from "convex/react";
+import { useState } from "react";
 import { api } from "@/convex/_generated/api";
 
 export function DeepResearch() {
@@ -41,17 +41,13 @@ export function DeepResearch() {
   };
 
   if (!usageSummary) {
-    return (
-      <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-64" />
-    );
+    return <div className="animate-pulse bg-gray-200 dark:bg-gray-700 rounded-xl h-64" />;
   }
 
   return (
     <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-sm" dir="rtl">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-          🔬 מחקר מעמיק
-        </h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">🔬 מחקר מעמיק</h2>
         {!isAvailable && (
           <span className="px-3 py-1 text-xs bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-200 rounded-full">
             Plus+ בלבד
@@ -78,9 +74,7 @@ export function DeepResearch() {
 
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {remainingResearches === -1
-              ? "ללא הגבלה"
-              : `נותרו ${remainingResearches} מחקרים החודש`}
+            {remainingResearches === -1 ? "ללא הגבלה" : `נותרו ${remainingResearches} מחקרים החודש`}
           </span>
 
           <button
@@ -97,9 +91,7 @@ export function DeepResearch() {
                 מחפש...
               </>
             ) : (
-              <>
-                🔍 התחל מחקר
-              </>
+              <>🔍 התחל מחקר</>
             )}
           </button>
         </div>
@@ -107,11 +99,8 @@ export function DeepResearch() {
 
       {/* Results area - placeholder */}
       <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg min-h-[200px] flex items-center justify-center">
-        <p className="text-gray-500 dark:text-gray-400 text-center">
-          תוצאות המחקר יופיעו כאן
-        </p>
+        <p className="text-gray-500 dark:text-gray-400 text-center">תוצאות המחקר יופיעו כאן</p>
       </div>
     </div>
   );
 }
-

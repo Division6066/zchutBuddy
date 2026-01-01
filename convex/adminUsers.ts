@@ -22,7 +22,6 @@ const subscriptionStatusValidator = v.union(
   v.literal("trialing")
 );
 
-
 // ============================================
 // QUERIES
 // ============================================

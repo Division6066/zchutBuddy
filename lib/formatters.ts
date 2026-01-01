@@ -383,4 +383,3 @@ export function formatOrdinal(num: number, locale: Locale): string {
 
   return `${num}${suffixes[pr.select(num)]}`;
 }
-

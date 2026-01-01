@@ -1,9 +1,9 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
 const priorityColors = {
   low: "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
@@ -37,18 +37,14 @@ export function AlertsPanel() {
   };
 
   if (alerts === undefined) {
-    return (
-      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm animate-pulse h-64" />
-    );
+    return <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm animate-pulse h-64" />;
   }
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm" dir="rtl">
       <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            🔔 התראות
-          </h2>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">🔔 התראות</h2>
           {unreadCount !== undefined && unreadCount > 0 && (
             <span className="px-2 py-0.5 text-xs bg-red-500 text-white rounded-full">
               {unreadCount}
@@ -68,9 +64,7 @@ export function AlertsPanel() {
 
       <div className="divide-y divide-gray-200 dark:divide-gray-700 max-h-[400px] overflow-y-auto">
         {alerts.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-            אין התראות חדשות
-          </div>
+          <div className="p-8 text-center text-gray-500 dark:text-gray-400">אין התראות חדשות</div>
         ) : (
           alerts.map((alert) => (
             <div
@@ -132,4 +126,3 @@ export function AlertsPanel() {
     </div>
   );
 }
-

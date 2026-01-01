@@ -7,10 +7,10 @@
 
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { useTranslation } from "@/lib/i18n";
+import { usePathname, useRouter } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
+import { useTranslation } from "@/lib/i18n";
 
 /**
  * Onboarding steps configuration with Hebrew labels
@@ -58,19 +58,13 @@ const ONBOARDING_STEPS = [
   },
 ];
 
-export default function OnboardingLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
   const { locale } = useTranslation();
   const pathname = usePathname();
   const router = useRouter();
 
   // Determine current step index
-  const currentStepIndex = ONBOARDING_STEPS.findIndex((step) =>
-    pathname.includes(step.id)
-  );
+  const currentStepIndex = ONBOARDING_STEPS.findIndex((step) => pathname.includes(step.id));
   const currentStep = currentStepIndex >= 0 ? currentStepIndex : 0;
   const totalSteps = ONBOARDING_STEPS.length;
   const progressPercent = ((currentStep + 1) / totalSteps) * 100;
@@ -225,9 +219,7 @@ export default function OnboardingLayout({
               className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors rounded-xl hover:bg-muted"
             >
               <Icon name="arrow_back" className="text-lg rtl:rotate-180" />
-              <span className="font-medium">
-                {locale === "he" ? "חזור" : "Back"}
-              </span>
+              <span className="font-medium">{locale === "he" ? "חזור" : "Back"}</span>
             </button>
           ) : (
             <div />

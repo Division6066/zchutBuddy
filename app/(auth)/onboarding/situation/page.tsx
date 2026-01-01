@@ -6,12 +6,12 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Icon } from "@/components/ui/icon";
 import { api } from "@/convex/_generated/api";
 import { useTranslation } from "@/lib/i18n";
-import { Icon } from "@/components/ui/icon";
 
 const EMPLOYMENT_OPTIONS = [
   { value: "employed", labelHe: "עובד/ת", labelEn: "Employed", icon: "work" },
@@ -145,9 +145,7 @@ export default function SituationPage() {
         employmentStatus: employmentStatus || undefined,
         idfService: idfService || undefined,
         isIdfDisabled:
-          idfService === "served" || idfService === "currently_serving"
-            ? isIdfDisabled
-            : undefined,
+          idfService === "served" || idfService === "currently_serving" ? isIdfDisabled : undefined,
         isRecognizedIdfDisabled:
           idfService === "served" && isIdfDisabled ? isRecognizedIdfDisabled : undefined,
         receivingDisabilityBenefit,
@@ -164,8 +162,7 @@ export default function SituationPage() {
   };
 
   const isValid = employmentStatus && idfService;
-  const showIdfDisabilityQuestion =
-    idfService === "served" || idfService === "currently_serving";
+  const showIdfDisabilityQuestion = idfService === "served" || idfService === "currently_serving";
 
   return (
     <div className="p-6 md:p-8">
@@ -381,9 +378,7 @@ export default function SituationPage() {
           </div>
           <div className="flex-1">
             <span className="font-medium text-foreground">
-              {locale === "he"
-                ? "האם יש לך ילדים מתחת לגיל 18?"
-                : "Do you have children under 18?"}
+              {locale === "he" ? "האם יש לך ילדים מתחת לגיל 18?" : "Do you have children under 18?"}
             </span>
           </div>
           <Icon

@@ -6,8 +6,8 @@
 
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -60,7 +60,14 @@ function generateMessageId(): string {
  * Provides chat functionality with streaming and Convex persistence.
  */
 export function useChat(options: UseChatOptions = {}) {
-  const { type = "rights_finder", sessionId: initialSessionId, preferredModel, onMessage, onError, onSoftCapWarning } = options;
+  const {
+    type = "rights_finder",
+    sessionId: initialSessionId,
+    preferredModel,
+    onMessage,
+    onError,
+    onSoftCapWarning,
+  } = options;
 
   // State
   const [state, setState] = useState<ChatState>({
@@ -306,9 +313,7 @@ export function useChat(options: UseChatOptions = {}) {
         // Remove the empty assistant message on error
         setState((prev) => ({
           ...prev,
-          messages: prev.messages.filter(
-            (m) => m.role !== "assistant" || m.content.length > 0
-          ),
+          messages: prev.messages.filter((m) => m.role !== "assistant" || m.content.length > 0),
         }));
       }
     },
@@ -413,4 +418,3 @@ export function useChat(options: UseChatOptions = {}) {
 }
 
 export default useChat;
-

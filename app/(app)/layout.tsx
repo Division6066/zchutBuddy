@@ -3,11 +3,7 @@
 import { useAuth } from "@clerk/nextjs";
 import { MainLayout } from "@/components/layout";
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isLoaded } = useAuth();
 
   // Show loading state while Clerk auth is loading

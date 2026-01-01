@@ -1,6 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query, QueryCtx, MutationCtx } from "./_generated/server";
-import { Id } from "./_generated/dataModel";
+import type { Id } from "./_generated/dataModel";
+import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
 
 // ============================================
 // INTERNAL HELPERS
@@ -108,9 +108,7 @@ export const getUnreadCount = query({
     const alerts = await ctx.db
       .query("alerts")
       .withIndex("by_userId", (q) => q.eq("userId", user._id))
-      .filter((q) =>
-        q.and(q.eq(q.field("isRead"), false), q.eq(q.field("isDismissed"), false))
-      )
+      .filter((q) => q.and(q.eq(q.field("isRead"), false), q.eq(q.field("isDismissed"), false)))
       .collect();
 
     // Filter out expired
@@ -422,4 +420,3 @@ export const clearDismissedAlerts = mutation({
     return alerts.length;
   },
 });
-

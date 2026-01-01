@@ -7,9 +7,9 @@
  * for consistent loading UX throughout the application.
  */
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
+import type * as React from "react";
+import { cn } from "@/lib/utils";
 
 /* ==========================================================================
    Spinner Component
@@ -145,11 +145,7 @@ export function SkeletonText({
   return (
     <div className={cn("flex flex-col", gapClasses[gap], className)}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          shape="text"
-          className={cn(i === lines - 1 && lastLineWidth)}
-        />
+        <Skeleton key={i} shape="text" className={cn(i === lines - 1 && lastLineWidth)} />
       ))}
     </div>
   );
@@ -186,9 +182,7 @@ export function PageLoader({ message, progress, className }: PageLoaderProps) {
       </div>
 
       {/* Message */}
-      {message && (
-        <p className="text-lg font-medium text-foreground mb-4">{message}</p>
-      )}
+      {message && <p className="text-lg font-medium text-foreground mb-4">{message}</p>}
 
       {/* Progress Bar */}
       {progress !== undefined && (
@@ -238,11 +232,7 @@ interface ContentLoaderProps {
   className?: string;
 }
 
-export function ContentLoader({
-  type = "text",
-  count = 1,
-  className,
-}: ContentLoaderProps) {
+export function ContentLoader({ type = "text", count = 1, className }: ContentLoaderProps) {
   const renderItem = (index: number) => {
     switch (type) {
       case "card":
@@ -302,11 +292,7 @@ interface ChatLoaderProps {
   className?: string;
 }
 
-export function ChatLoader({
-  showText = true,
-  text = "AI חושב...",
-  className,
-}: ChatLoaderProps) {
+export function ChatLoader({ showText = true, text = "AI חושב...", className }: ChatLoaderProps) {
   return (
     <div className={cn("flex items-center gap-3", className)} role="status">
       <div className="flex gap-1">
@@ -321,9 +307,7 @@ export function ChatLoader({
           />
         ))}
       </div>
-      {showText && (
-        <span className="text-sm text-muted-foreground">{text}</span>
-      )}
+      {showText && <span className="text-sm text-muted-foreground">{text}</span>}
       <span className="sr-only">{text}</span>
     </div>
   );
@@ -377,10 +361,7 @@ export function ProgressBar({
   return (
     <div className={cn("w-full", className)}>
       <div
-        className={cn(
-          "w-full bg-muted rounded-full overflow-hidden",
-          sizeClasses[size]
-        )}
+        className={cn("w-full bg-muted rounded-full overflow-hidden", sizeClasses[size])}
         role="progressbar"
         aria-valuenow={value}
         aria-valuemin={0}
@@ -418,11 +399,7 @@ interface PulseProps {
 }
 
 export function Pulse({ children, active = true, className }: PulseProps) {
-  return (
-    <div className={cn(active && "animate-pulse", className)}>
-      {children}
-    </div>
-  );
+  return <div className={cn(active && "animate-pulse", className)}>{children}</div>;
 }
 
 /* ==========================================================================
@@ -457,4 +434,3 @@ export default {
   Pulse,
   InlineLoader,
 };
-

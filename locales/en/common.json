@@ -329,21 +329,39 @@
       "monthlyPrice": "69",
       "annualPrice": "690",
       "description": "For regular use",
-      "features": ["Unlimited searches", "Custom task lists", "Document storage", "Priority support", "Real-time updates"]
+      "features": [
+        "Unlimited searches",
+        "Custom task lists",
+        "Document storage",
+        "Priority support",
+        "Real-time updates"
+      ]
     },
     "pro": {
       "name": "Pro",
       "monthlyPrice": "99",
       "annualPrice": "990",
       "description": "For advanced needs",
-      "features": ["Everything in Plus", "Personal advisor", "Expedited processing", "Custom reports", "Phone support"]
+      "features": [
+        "Everything in Plus",
+        "Personal advisor",
+        "Expedited processing",
+        "Custom reports",
+        "Phone support"
+      ]
     },
     "max": {
       "name": "Max",
       "monthlyPrice": "199",
       "annualPrice": "1990",
       "description": "For premium service",
-      "features": ["Everything in Pro", "Dedicated account manager", "Unlimited personal consulting", "Full priority in queues", "API access for integrations"]
+      "features": [
+        "Everything in Pro",
+        "Dedicated account manager",
+        "Unlimited personal consulting",
+        "Full priority in queues",
+        "API access for integrations"
+      ]
     }
   },
   "about": {

@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "convex/react";
-import { Home, Search, MessageSquare, Bell, User } from "lucide-react";
+import { Bell, Home, MessageSquare, Search, User } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 import { api } from "@/convex/_generated/api";
 import { useDeviceType } from "@/hooks/useDeviceType";
-import { cn } from "@/lib/utils";
 import { useDir, useTranslations } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 type NavItem = {
   href: string;
@@ -69,8 +69,7 @@ export default function MobileNav({ className }: MobileNavProps) {
         )}
       >
         {NAV_ITEMS.map((item) => {
-          const isActive =
-            pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
 
           const isAlertsTab = item.key === "alerts";
 
@@ -108,9 +107,7 @@ export default function MobileNav({ className }: MobileNavProps) {
                         ? "opacity-100 scale-100"
                         : "opacity-0 scale-75 pointer-events-none"
                     )}
-                    aria-label={
-                      alertsCount > 0 ? `${alertsCount} unread notifications` : undefined
-                    }
+                    aria-label={alertsCount > 0 ? `${alertsCount} unread notifications` : undefined}
                   >
                     {alertsCount > 99 ? "99+" : alertsCount}
                   </span>
@@ -131,5 +128,3 @@ export default function MobileNav({ className }: MobileNavProps) {
     </nav>
   );
 }
-
-

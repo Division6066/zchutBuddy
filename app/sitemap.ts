@@ -88,4 +88,3 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Combine all entries
   return [...staticEntries, ...legalEntries, ...featureEntries];
 }
-

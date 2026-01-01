@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // ============================================================================
 // Types
@@ -29,8 +29,7 @@ export interface DeviceInfo {
 
 // User agent patterns
 const TABLET_UA_PATTERN = /iPad|Android(?!.*Mobile)|Tablet/i;
-const MOBILE_UA_PATTERN =
-  /iPhone|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i;
+const MOBILE_UA_PATTERN = /iPhone|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i;
 
 // Browser detection patterns (order matters - check specific before generic)
 const BROWSER_PATTERNS: Array<{
@@ -142,10 +141,7 @@ function detectTouchDevice(): boolean {
   );
 }
 
-function detectDeviceType(
-  width: number,
-  userAgent: string
-): "mobile" | "tablet" | "desktop" {
+function detectDeviceType(width: number, userAgent: string): "mobile" | "tablet" | "desktop" {
   const isTabletUA = TABLET_UA_PATTERN.test(userAgent);
   const isMobileUA = MOBILE_UA_PATTERN.test(userAgent);
 
@@ -171,10 +167,7 @@ function detectDeviceType(
   return "desktop";
 }
 
-function detectOrientation(
-  width: number,
-  height: number
-): "portrait" | "landscape" {
+function detectOrientation(width: number, height: number): "portrait" | "landscape" {
   return height > width ? "portrait" : "landscape";
 }
 
@@ -264,4 +257,3 @@ export function useDeviceType(): DeviceInfo {
 }
 
 export default useDeviceType;
-

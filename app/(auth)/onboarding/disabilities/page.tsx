@@ -7,20 +7,30 @@
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "convex/react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { Icon } from "@/components/ui/icon";
 import { api } from "@/convex/_generated/api";
 import { useTranslation } from "@/lib/i18n";
-import { Icon } from "@/components/ui/icon";
 
 const DISABILITY_TYPES = [
   { value: "mobility", labelHe: "ניידות", labelEn: "Mobility", icon: "accessible" },
   { value: "vision", labelHe: "ראייה", labelEn: "Vision", icon: "visibility_off" },
   { value: "hearing", labelHe: "שמיעה", labelEn: "Hearing", icon: "hearing_disabled" },
   { value: "cognitive", labelHe: "קוגניטיבי", labelEn: "Cognitive", icon: "psychology" },
-  { value: "mental", labelHe: "בריאות הנפש", labelEn: "Mental Health", icon: "sentiment_dissatisfied" },
-  { value: "chronic", labelHe: "מחלה כרונית", labelEn: "Chronic Illness", icon: "medical_services" },
+  {
+    value: "mental",
+    labelHe: "בריאות הנפש",
+    labelEn: "Mental Health",
+    icon: "sentiment_dissatisfied",
+  },
+  {
+    value: "chronic",
+    labelHe: "מחלה כרונית",
+    labelEn: "Chronic Illness",
+    icon: "medical_services",
+  },
   { value: "developmental", labelHe: "התפתחותית", labelEn: "Developmental", icon: "child_care" },
   { value: "other", labelHe: "אחר", labelEn: "Other", icon: "more_horiz" },
 ];
@@ -115,7 +125,13 @@ export default function DisabilitiesPage() {
       disabilityRecognizedBy,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }, [hasDisability, disabilities, severityPerDisability, disabilityPercentage, disabilityRecognizedBy]);
+  }, [
+    hasDisability,
+    disabilities,
+    severityPerDisability,
+    disabilityPercentage,
+    disabilityRecognizedBy,
+  ]);
 
   const toggleDisability = (value: string) => {
     setDisabilities((prev) => {
@@ -266,12 +282,8 @@ export default function DisabilitiesPage() {
                       name={type.icon}
                       className={`text-xl ${isSelected ? "text-primary" : "text-muted-foreground"}`}
                     />
-                    <span className="text-sm">
-                      {locale === "he" ? type.labelHe : type.labelEn}
-                    </span>
-                    {isSelected && (
-                      <Icon name="check_circle" className="text-primary ms-auto" />
-                    )}
+                    <span className="text-sm">{locale === "he" ? type.labelHe : type.labelEn}</span>
+                    {isSelected && <Icon name="check_circle" className="text-primary ms-auto" />}
                   </button>
                 );
               })}
@@ -290,10 +302,7 @@ export default function DisabilitiesPage() {
                 const currentSeverity = severityPerDisability[disValue] || 0;
 
                 return (
-                  <div
-                    key={disValue}
-                    className="p-4 bg-muted/50 rounded-xl"
-                  >
+                  <div key={disValue} className="p-4 bg-muted/50 rounded-xl">
                     <div className="flex items-center gap-2 mb-3">
                       <Icon name={type.icon} className="text-primary" />
                       <span className="font-medium text-foreground">
@@ -340,9 +349,7 @@ export default function DisabilitiesPage() {
               }
               className="w-full px-4 py-3 rounded-xl border border-border bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
             >
-              <option value="">
-                {locale === "he" ? "בחר אחוזי נכות" : "Select percentage"}
-              </option>
+              <option value="">{locale === "he" ? "בחר אחוזי נכות" : "Select percentage"}</option>
               {DISABILITY_PERCENTAGES.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {locale === "he" ? opt.labelHe : opt.labelEn}

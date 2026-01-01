@@ -231,9 +231,7 @@ export async function streamChat(params: StreamChatParams): Promise<ReadableStre
 /**
  * Non-streaming chat completion (for simple requests)
  */
-export async function chat(
-  params: Omit<StreamChatParams, "stream">
-): Promise<{
+export async function chat(params: Omit<StreamChatParams, "stream">): Promise<{
   content: string;
   usage: { promptTokens: number; completionTokens: number; totalTokens: number };
 }> {
@@ -321,4 +319,3 @@ export async function checkModelAvailability(modelId: string): Promise<boolean> 
     return false;
   }
 }
-

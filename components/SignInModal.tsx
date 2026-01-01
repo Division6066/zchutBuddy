@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useTranslation } from "@/lib/i18n";
 import { useGuestAuth } from "@/lib/guest-auth";
+import { useTranslation } from "@/lib/i18n";
 
 interface SignInModalProps {
   // New interface
@@ -22,7 +22,8 @@ interface SignInModalProps {
 export function SignInModal(props: SignInModalProps) {
   // Support both old and new interfaces
   const isOpen = props.isOpen ?? props.open ?? false;
-  const onClose = props.onClose ?? (props.onOpenChange ? () => props.onOpenChange?.(false) : () => {});
+  const onClose =
+    props.onClose ?? (props.onOpenChange ? () => props.onOpenChange?.(false) : () => {});
   const { onSwitchToSignUp } = props;
   const { signIn, setActive } = useSignIn();
   const { isSignedIn } = useUser();
@@ -104,14 +105,15 @@ export function SignInModal(props: SignInModalProps) {
             <DialogTitle className="text-2xl font-bold text-foreground text-center">
               {t("auth.signInTitle")}
             </DialogTitle>
-            <p className="text-muted-foreground text-center mt-2">
-              {t("auth.haveAccount")}
-            </p>
+            <p className="text-muted-foreground text-center mt-2">{t("auth.haveAccount")}</p>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="signin-email" className="block text-sm font-medium text-foreground mb-2">
+              <label
+                htmlFor="signin-email"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 {t("auth.email")}
               </label>
               <input
@@ -121,13 +123,16 @@ export function SignInModal(props: SignInModalProps) {
                 onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                 placeholder="your@email.com"
-                required
+                required={true}
                 disabled={isLoading}
               />
             </div>
 
             <div>
-              <label htmlFor="signin-password" className="block text-sm font-medium text-foreground mb-2">
+              <label
+                htmlFor="signin-password"
+                className="block text-sm font-medium text-foreground mb-2"
+              >
                 {t("auth.password")}
               </label>
               <input
@@ -137,7 +142,7 @@ export function SignInModal(props: SignInModalProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
                 placeholder="••••••••"
-                required
+                required={true}
                 disabled={isLoading}
               />
             </div>

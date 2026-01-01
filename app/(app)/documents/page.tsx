@@ -68,9 +68,10 @@ export default function DocumentsPage() {
     },
   ];
 
-  const filteredDocuments = activeCategory === "all"
-    ? documents
-    : documents.filter((doc) => doc.category === activeCategory);
+  const filteredDocuments =
+    activeCategory === "all"
+      ? documents
+      : documents.filter((doc) => doc.category === activeCategory);
 
   const getCategoryIcon = (category: string) => {
     const cat = categories.find((c) => c.id === category);
@@ -133,7 +134,9 @@ export default function DocumentsPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-bold text-foreground truncate">{doc.name}</h3>
-                    <p className="text-xs text-muted-foreground">{doc.type} • {doc.size}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {doc.type} • {doc.size}
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between text-xs">
@@ -156,9 +159,7 @@ export default function DocumentsPage() {
               <span className="material-symbols-outlined text-4xl">folder_off</span>
             </div>
             <h3 className="text-lg font-bold text-foreground mb-2">{t("documents.empty")}</h3>
-            <p className="text-muted-foreground mb-6">
-              העלה מסמכים לאחסון מאובטח
-            </p>
+            <p className="text-muted-foreground mb-6">העלה מסמכים לאחסון מאובטח</p>
             <button className="h-12 px-6 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold flex items-center gap-2 mx-auto transition-colors shadow-primary">
               <span className="material-symbols-outlined">upload</span>
               {t("documents.upload")}

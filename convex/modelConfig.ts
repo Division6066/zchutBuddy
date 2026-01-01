@@ -398,4 +398,3 @@ export const seedDefaultModels = internalMutation({
     return insertedIds;
   },
 });
-

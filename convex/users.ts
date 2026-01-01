@@ -31,9 +31,7 @@ function calculateRelevantMinistries(profile: {
   }
 
   // Ministry of Health - for chronic illness or medical conditions
-  if (profile.disabilities?.some((d) =>
-    ["chronic", "mental", "vision", "hearing"].includes(d)
-  )) {
+  if (profile.disabilities?.some((d) => ["chronic", "mental", "vision", "hearing"].includes(d))) {
     ministries.add("health");
   }
 
@@ -442,7 +440,8 @@ export const updateUserProfile = mutation({
     const relevantMinistries = calculateRelevantMinistries({
       isIdfDisabled: args.isIdfDisabled ?? profile?.isIdfDisabled,
       isRecognizedIdfDisabled: args.isRecognizedIdfDisabled ?? profile?.isRecognizedIdfDisabled,
-      receivingDisabilityBenefit: args.receivingDisabilityBenefit ?? profile?.receivingDisabilityBenefit,
+      receivingDisabilityBenefit:
+        args.receivingDisabilityBenefit ?? profile?.receivingDisabilityBenefit,
       disabilities: args.disabilities ?? profile?.disabilities,
       city: args.city ?? profile?.city,
     });
@@ -613,7 +612,7 @@ export const getUserAlerts = query({
       return [];
     }
 
-    let alertsQuery = ctx.db
+    const alertsQuery = ctx.db
       .query("alerts")
       .withIndex("by_userId", (q) => q.eq("userId", user._id));
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { useTranslation, useToggleLocale } from "@/lib/i18n";
 import Link from "next/link";
+import { useState } from "react";
+import { useToggleLocale, useTranslation } from "@/lib/i18n";
 
 export default function SettingsPage() {
   const { t, locale } = useTranslation();
@@ -226,9 +226,7 @@ export default function SettingsPage() {
         </div>
 
         {/* App Version */}
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          גרסה 1.0.0
-        </p>
+        <p className="text-center text-sm text-muted-foreground mt-6">גרסה 1.0.0</p>
       </div>
     </div>
   );

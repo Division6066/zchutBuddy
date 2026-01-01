@@ -8,8 +8,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslation } from "@/lib/i18n";
 import { Icon } from "@/components/ui/icon";
+import { useTranslation } from "@/lib/i18n";
 
 /**
  * Model configuration
@@ -129,11 +129,31 @@ function getModelsForTier(tier: string): ModelInfo[] {
  * Tier badge colors
  */
 const TIER_BADGES: Record<number, { label: string; labelHe: string; className: string }> = {
-  1: { label: "Max", labelHe: "מקס", className: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300" },
-  2: { label: "Pro", labelHe: "פרו", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
-  3: { label: "Pro", labelHe: "פרו", className: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300" },
-  4: { label: "Plus", labelHe: "פלוס", className: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300" },
-  5: { label: "Free", labelHe: "חינם", className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
+  1: {
+    label: "Max",
+    labelHe: "מקס",
+    className: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",
+  },
+  2: {
+    label: "Pro",
+    labelHe: "פרו",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
+  },
+  3: {
+    label: "Pro",
+    labelHe: "פרו",
+    className: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
+  },
+  4: {
+    label: "Plus",
+    labelHe: "פלוס",
+    className: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
+  },
+  5: {
+    label: "Free",
+    labelHe: "חינם",
+    className: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  },
 };
 
 export function ModelSelector({
@@ -185,10 +205,7 @@ export function ModelSelector({
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
-          />
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
 
           {/* Menu */}
           <div className="absolute top-full mt-2 end-0 z-50 w-72 bg-card border border-border rounded-xl shadow-lg overflow-hidden">
@@ -280,4 +297,3 @@ export function ModelSelector({
 }
 
 export default ModelSelector;
-

@@ -56,10 +56,7 @@ export default function WelcomePage() {
       <header className="z-10 flex items-center justify-between p-6 pt-12">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/30">
-            <span
-              className="material-symbols-outlined text-[20px] font-bold"
-              aria-hidden="true"
-            >
+            <span className="material-symbols-outlined text-[20px] font-bold" aria-hidden="true">
               shield
             </span>
           </div>
@@ -91,8 +88,8 @@ export default function WelcomePage() {
               <Image
                 src={heroImageUrl}
                 alt={copy.heroImageAlt}
-                fill
-                priority
+                fill={true}
+                priority={true}
                 sizes="(max-width: 768px) 280px, 320px"
                 className="object-contain"
               />
@@ -105,10 +102,7 @@ export default function WelcomePage() {
             aria-label={`${copy.statusLabel}: ${copy.statusValue}`}
           >
             <div className="rounded-full bg-green-100 p-2 text-green-600">
-              <span
-                className="material-symbols-outlined text-[20px]"
-                aria-hidden="true"
-              >
+              <span className="material-symbols-outlined text-[20px]" aria-hidden="true">
                 verified
               </span>
             </div>
@@ -116,9 +110,7 @@ export default function WelcomePage() {
               <span className="text-[10px] font-semibold uppercase tracking-wider text-text-subtle">
                 {copy.statusLabel}
               </span>
-              <span className="text-xs font-bold text-text-dark">
-                {copy.statusValue}
-              </span>
+              <span className="text-xs font-bold text-text-dark">{copy.statusValue}</span>
             </div>
           </div>
 
@@ -127,15 +119,10 @@ export default function WelcomePage() {
             className="absolute right-0 top-10 flex rotate-6 items-center gap-2 rounded-2xl border border-white/50 bg-white/80 px-3 py-2 shadow-md backdrop-blur-sm md:right-4"
             aria-label={copy.paperworkBadge}
           >
-            <span
-              className="material-symbols-outlined text-[18px] text-primary"
-              aria-hidden="true"
-            >
+            <span className="material-symbols-outlined text-[18px] text-primary" aria-hidden="true">
               description
             </span>
-            <span className="text-[10px] font-bold text-text-dark">
-              {copy.paperworkBadge}
-            </span>
+            <span className="text-[10px] font-bold text-text-dark">{copy.paperworkBadge}</span>
           </div>
         </div>
 
@@ -152,12 +139,7 @@ export default function WelcomePage() {
                 viewBox="0 0 100 10"
                 aria-hidden="true"
               >
-                <path
-                  d="M0 5 Q 50 10 100 5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="3"
-                />
+                <path d="M0 5 Q 50 10 100 5" fill="none" stroke="currentColor" strokeWidth="3" />
               </svg>
             </span>
           </h1>
@@ -170,10 +152,7 @@ export default function WelcomePage() {
       {/* CTA Section */}
       <section className="z-10 flex w-full flex-col gap-5 bg-white p-6 pb-10">
         {/* Progress dots */}
-        <div
-          className="mb-2 flex flex-row-reverse justify-center gap-2"
-          aria-hidden="true"
-        >
+        <div className="mb-2 flex flex-row-reverse justify-center gap-2" aria-hidden="true">
           <div className="h-2 w-8 rounded-full bg-primary shadow-sm shadow-primary/30" />
           <div className="h-2 w-2 rounded-full bg-gray-200" />
           <div className="h-2 w-2 rounded-full bg-gray-200" />
@@ -184,9 +163,7 @@ export default function WelcomePage() {
           href={routes.startClaim}
           className="group relative flex h-14 w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl bg-primary text-white shadow-lg shadow-primary/25 transition-all hover:bg-primary-light hover:shadow-primary/40 active:scale-[0.98]"
         >
-          <span className="ml-2 text-lg font-bold tracking-tight">
-            {copy.startClaimButton}
-          </span>
+          <span className="ml-2 text-lg font-bold tracking-tight">{copy.startClaimButton}</span>
           <span
             className="material-symbols-outlined transition-transform group-hover:-translate-x-1"
             aria-hidden="true"
@@ -215,4 +192,3 @@ export default function WelcomePage() {
     </main>
   );
 }
-

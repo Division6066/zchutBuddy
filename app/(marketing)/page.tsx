@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useConvexAuth } from "convex/react";
-import { useTranslation } from "@/lib/i18n";
+import Link from "next/link";
 import { useState } from "react";
 import { SignUpModal } from "@/components/SignUpModal";
+import { useTranslation } from "@/lib/i18n";
 
 export default function HomePage() {
   const { isAuthenticated } = useConvexAuth();
@@ -112,7 +112,10 @@ export default function HomePage() {
                 </div>
 
                 {/* Floating badges */}
-                <div className="absolute -bottom-4 -left-4 bg-card border border-border rounded-2xl p-3 shadow-lg flex items-center gap-3 animate-bounce" style={{ animationDuration: "3s" }}>
+                <div
+                  className="absolute -bottom-4 -left-4 bg-card border border-border rounded-2xl p-3 shadow-lg flex items-center gap-3 animate-bounce"
+                  style={{ animationDuration: "3s" }}
+                >
                   <div className="bg-success-bg p-2 rounded-full text-success">
                     <span className="material-symbols-outlined text-lg">verified</span>
                   </div>
@@ -125,7 +128,9 @@ export default function HomePage() {
                 </div>
 
                 <div className="absolute top-4 -right-4 bg-card/90 backdrop-blur-sm border border-border rounded-2xl py-2 px-3 shadow-md flex items-center gap-2 rotate-6">
-                  <span className="material-symbols-outlined text-lg text-primary">description</span>
+                  <span className="material-symbols-outlined text-lg text-primary">
+                    description
+                  </span>
                   <span className="text-[10px] text-foreground font-bold">ניירת: הושלמה</span>
                 </div>
               </div>
@@ -220,10 +225,7 @@ export default function HomePage() {
       </section>
 
       {/* Sign Up Modal */}
-      <SignUpModal
-        isOpen={showSignUp}
-        onClose={() => setShowSignUp(false)}
-      />
+      <SignUpModal isOpen={showSignUp} onClose={() => setShowSignUp(false)} />
     </>
   );
 }

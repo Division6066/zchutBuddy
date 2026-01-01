@@ -17,21 +17,21 @@
  * - Animated with Framer Motion
  */
 
-import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@clerk/nextjs";
 import { useMutation } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useTranslation, useLocale } from "@/lib/i18n";
-import { cn } from "@/lib/utils";
+import { AnimatePresence, motion } from "framer-motion";
+import { Check, ChevronDown, Globe } from "lucide-react";
+import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Check, ChevronDown, Globe } from "lucide-react";
+import { api } from "@/convex/_generated/api";
+import { useLocale, useTranslation } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 type Locale = "he" | "en";
 
@@ -148,9 +148,7 @@ export function LanguageSwitcher({
               className={cn(
                 "relative rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 sizes.toggle,
-                isActive
-                  ? "text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground"
+                isActive ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
               )}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -180,7 +178,7 @@ export function LanguageSwitcher({
 
     return (
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
+        <DropdownMenuTrigger asChild={true}>
           <motion.button
             type="button"
             className={cn(
@@ -320,4 +318,3 @@ export function LanguageToggleIcon({
 }
 
 export default LanguageSwitcher;
-

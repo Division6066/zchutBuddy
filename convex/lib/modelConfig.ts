@@ -124,7 +124,9 @@ export function getActiveModels(): ModelConfig[] {
  */
 export function getModelsForTier(subscriptionTier: string): ModelConfig[] {
   return Object.values(AI_MODELS)
-    .filter((m) => m.isActive && (m.availableForTiers as readonly string[]).includes(subscriptionTier))
+    .filter(
+      (m) => m.isActive && (m.availableForTiers as readonly string[]).includes(subscriptionTier)
+    )
     .sort((a, b) => a.tier - b.tier);
 }
 
@@ -133,7 +135,10 @@ export function getModelsForTier(subscriptionTier: string): ModelConfig[] {
  */
 export function getBestModelForTier(subscriptionTier: string): ModelId {
   const models = Object.entries(AI_MODELS)
-    .filter(([_, m]) => m.isActive && (m.availableForTiers as readonly string[]).includes(subscriptionTier))
+    .filter(
+      ([_, m]) =>
+        m.isActive && (m.availableForTiers as readonly string[]).includes(subscriptionTier)
+    )
     .sort((a, b) => a[1].tier - b[1].tier);
 
   return (models[0]?.[0] as ModelId) || "gemma-2-9b";
@@ -162,7 +167,9 @@ export function getDefaultModelForTier(subscriptionTier: string): ModelId {
  */
 export function isModelAvailableForTier(modelId: ModelId, subscriptionTier: string): boolean {
   const model = AI_MODELS[modelId];
-  return model.isActive && (model.availableForTiers as readonly string[]).includes(subscriptionTier);
+  return (
+    model.isActive && (model.availableForTiers as readonly string[]).includes(subscriptionTier)
+  );
 }
 
 /**
@@ -246,4 +253,3 @@ export function getModelPricingInfo() {
     outputPricePerMillionILS: model.outputPricePerMillion * USD_TO_ILS,
   }));
 }
-

@@ -10,12 +10,9 @@ export default function TestChatPage() {
           בדיקת צ'אט מוצא זכויות
         </h1>
         <div className="h-[600px]">
-          <RightsFinderChat
-            onSessionCreated={(id) => console.log("Session created:", id)}
-          />
+          <RightsFinderChat onSessionCreated={(id) => console.log("Session created:", id)} />
         </div>
       </div>
     </div>
   );
 }
-

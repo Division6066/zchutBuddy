@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useDeviceType } from "@/hooks/useDeviceType";
 import { cn } from "@/lib/utils";
-
+import DesktopSidebar from "./DesktopSidebar";
 import MobileNav from "./MobileNav";
 import TabletSidebar from "./TabletSidebar";
-import DesktopSidebar from "./DesktopSidebar";
 
 // ============================================================================
 // Constants
@@ -70,11 +69,7 @@ export interface MainLayoutProps {
  * MainLayout component that combines Navigation with properly margined content area.
  * Handles responsive margins based on device type and tablet sidebar state.
  */
-export function MainLayout({
-  children,
-  showNav = true,
-  className,
-}: MainLayoutProps) {
+export function MainLayout({ children, showNav = true, className }: MainLayoutProps) {
   const { isMobile, isTablet, isDesktop } = useDeviceType();
   const [mounted, setMounted] = useState(false);
   const [tabletCollapsed, setTabletCollapsed] = useState(true);
@@ -179,4 +174,3 @@ export function MainLayout({
 // ============================================================================
 
 export default Navigation;
-

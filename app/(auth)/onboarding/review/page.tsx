@@ -7,13 +7,13 @@
 
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMutation, useQuery } from "convex/react";
 import Link from "next/link";
-import { useQuery, useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { Icon } from "@/components/ui/icon";
 import { api } from "@/convex/_generated/api";
 import { useTranslation } from "@/lib/i18n";
-import { Icon } from "@/components/ui/icon";
 
 export default function ReviewPage() {
   const { locale } = useTranslation();
@@ -145,9 +145,18 @@ export default function ReviewPage() {
 
         {/* Loading dots */}
         <div className="flex gap-1 mt-4">
-          <div className="size-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-          <div className="size-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
-          <div className="size-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+          <div
+            className="size-2 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: "0ms" }}
+          />
+          <div
+            className="size-2 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: "150ms" }}
+          />
+          <div
+            className="size-2 rounded-full bg-primary animate-bounce"
+            style={{ animationDelay: "300ms" }}
+          />
         </div>
       </div>
     );
@@ -357,9 +366,7 @@ export default function ReviewPage() {
             />
             <div
               className={`size-6 rounded-md border-2 transition-all flex items-center justify-center ${
-                isAnonymous
-                  ? "bg-primary border-primary"
-                  : "border-border hover:border-primary/50"
+                isAnonymous ? "bg-primary border-primary" : "border-border hover:border-primary/50"
               }`}
             >
               {isAnonymous && <Icon name="check" className="text-white text-sm" />}
@@ -367,9 +374,7 @@ export default function ReviewPage() {
           </div>
           <div>
             <span className="font-medium text-foreground">
-              {locale === "he"
-                ? "שמור את המידע שלי באנונימיות"
-                : "Keep my information anonymous"}
+              {locale === "he" ? "שמור את המידע שלי באנונימיות" : "Keep my information anonymous"}
             </span>
             <p className="text-xs text-muted-foreground mt-1">
               {locale === "he"
@@ -399,10 +404,7 @@ export default function ReviewPage() {
       {/* Back to edit hint */}
       <p className="text-center text-sm text-muted-foreground mt-4">
         {locale === "he" ? "משהו לא נכון? " : "Something wrong? "}
-        <Link
-          href="/onboarding/basic-info"
-          className="text-primary hover:underline"
-        >
+        <Link href="/onboarding/basic-info" className="text-primary hover:underline">
           {locale === "he" ? "חזור לעריכה" : "Go back to edit"}
         </Link>
       </p>
