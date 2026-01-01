@@ -33,6 +33,7 @@ import { cn } from "@/lib/utils";
 const COLLAPSED_WIDTH = 64;
 const EXPANDED_WIDTH = 240;
 const STORAGE_KEY = "tabletSidebar_collapsed";
+const SIDEBAR_TOGGLE_EVENT = "tabletSidebarToggle";
 
 // Navigation items configuration
 const NAV_ITEMS = [
@@ -80,11 +81,18 @@ export default function TabletSidebar() {
     }
   }, []);
 
-  // Save collapsed state to localStorage
+  // Save collapsed state to localStorage and emit event for MainLayout sync
   const toggleCollapsed = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
     localStorage.setItem(STORAGE_KEY, String(newState));
+
+    // Dispatch custom event so MainLayout can update its margin
+    window.dispatchEvent(
+      new CustomEvent(SIDEBAR_TOGGLE_EVENT, {
+        detail: { collapsed: newState },
+      })
+    );
   };
 
   // Handle logout
@@ -121,15 +129,7 @@ export default function TabletSidebar() {
 
   return (
     <>
-      {/* Spacer div to push content */}
-      <motion.div
-        className="hidden md:block lg:hidden shrink-0"
-        initial={false}
-        animate={{ width: currentWidth }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      />
-
-      {/* Fixed sidebar */}
+      {/* Fixed sidebar - MainLayout handles content offset */}
       <motion.aside
         dir={dir}
         className={cn(

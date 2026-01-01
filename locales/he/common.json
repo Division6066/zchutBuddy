@@ -23,7 +23,9 @@
     "notProvided": "לא צוין",
     "edit": "עריכה",
     "continue": "המשך",
-    "finish": "סיים"
+    "finish": "סיים",
+    "guest": "אורח",
+    "user": "משתמש"
   },
   "nav": {
     "features": "תכונות",
@@ -35,12 +37,58 @@
     "checklists": "הרשימות שלי",
     "documents": "מסמכים",
     "profile": "פרופיל",
+    "profileDescription": "הגדרות אישיות",
     "settings": "הגדרות",
+    "home": "בית",
+    "rights": "זכויות",
+    "rightsDescription": "מצא את הזכויות שלך",
+    "chat": "צ'אט",
+    "chatDescription": "שוחח עם AI",
+    "alerts": "התראות",
+    "alertsDescription": "עדכונים והודעות",
+    "help": "עזרה",
+    "deepResearch": "חיפוש מעמיק",
+    "savedRights": "זכויות שמורות",
+    "logout": "התנתק",
+    "login": "התחבר",
+    "signup": "הרשמה"
+  },
+  "mobileNav": {
     "home": "בית",
     "rights": "זכויות",
     "chat": "צ'אט",
     "alerts": "התראות",
-    "help": "עזרה"
+    "profile": "פרופיל"
+  },
+  "device": {
+    "rotateForBetterExperience": "סובב את המכשיר לחוויה טובה יותר",
+    "downloadApp": "הורד את האפליקציה",
+    "continueInBrowser": "המשך בדפדפן"
+  },
+  "seo": {
+    "homeTitle": "זכויות באדי | מצא את הזכויות שמגיעות לך",
+    "homeDescription": "פלטפורמת AI לניווט זכויות נכים בישראל. גלה הטבות מביטוח לאומי, משרד הביטחון ועוד.",
+    "rightsTitle": "מצא זכויות | זכויות באדי",
+    "rightsDescription": "חפש וגלה את כל הזכויות וההטבות שמגיעות לך מהמדינה",
+    "pricingTitle": "מחירים | זכויות באדי",
+    "pricingDescription": "בחר את התוכנית המתאימה לך",
+    "chatTitle": "צ'אט AI | זכויות באדי",
+    "aboutTitle": "אודות | זכויות באדי"
+  },
+  "sidebar": {
+    "main": "ראשי",
+    "features": "תכונות",
+    "account": "חשבון",
+    "usage": "שימוש",
+    "monthlyUsage": "שימוש חודשי",
+    "creditsRemaining": "קרדיטים נותרים",
+    "upgrade": "שדרג תוכנית",
+    "helpSupport": "עזרה ותמיכה",
+    "terms": "תנאי שימוש",
+    "privacy": "פרטיות",
+    "logout": "התנתק",
+    "version": "גרסה",
+    "freeTrial": "תקופת ניסיון"
   },
   "home": {
     "hero": {
@@ -255,6 +303,14 @@
       "yourInfo": "הפרטים שלך",
       "complete": "סיים והתחל לחפש זכויות",
       "completionSuccess": "הפרופיל נשמר בהצלחה!"
+    },
+    "radar": {
+      "title": "רדאר עדכונים",
+      "description": "הישאר מעודכן לגבי שינויים שמשפיעים על הזכויות שלך עם מערכת הניטור בזמן אמת."
+    },
+    "profile": {
+      "title": "ספר לנו על עצמך",
+      "description": "עזור לנו להתאים את החוויה שלך על ידי שיתוף מידע על מצבך."
     }
   },
   "pricing": {
@@ -336,5 +392,65 @@
     "minLength": "אורך מינימלי הוא {min} תווים",
     "maxLength": "אורך מקסימלי הוא {max} תווים",
     "selectOption": "נא לבחור אפשרות"
+  },
+  "errors": {
+    "required": "שדה חובה",
+    "invalidEmail": "כתובת אימייל לא תקינה",
+    "tooShort": "קצר מדי (מינימום {{min}} תווים)",
+    "tooLong": "ארוך מדי (מקסימום {{max}} תווים)",
+    "invalidPhone": "מספר טלפון לא תקין",
+    "networkError": "בעיית תקשורת. נסה שוב.",
+    "serverError": "שגיאת שרת. נסה מאוחר יותר.",
+    "unauthorized": "אין הרשאה לפעולה זו",
+    "sessionExpired": "פג תוקף ההתחברות. התחבר מחדש.",
+    "rateLimited": "יותר מדי בקשות. נסה שוב בעוד דקה.",
+    "notFound": "הדף לא נמצא",
+    "generic": "משהו השתבש. נסה שוב."
+  },
+  "a11y": {
+    "openMenu": "פתח תפריט",
+    "closeMenu": "סגור תפריט",
+    "loading": "טוען...",
+    "skipToContent": "דלג לתוכן הראשי",
+    "newNotifications": "{{count}} התראות חדשות",
+    "menuExpanded": "התפריט פתוח",
+    "menuCollapsed": "התפריט סגור",
+    "expandSidebar": "הרחב סרגל צד",
+    "collapseSidebar": "כווץ סרגל צד",
+    "currentPage": "עמוד נוכחי",
+    "externalLink": "קישור חיצוני"
+  },
+  "time": {
+    "now": "עכשיו",
+    "today": "היום",
+    "yesterday": "אתמול",
+    "tomorrow": "מחר",
+    "daysAgo": "לפני {{count}} ימים",
+    "hoursAgo": "לפני {{count}} שעות",
+    "minutesAgo": "לפני {{count}} דקות",
+    "justNow": "הרגע",
+    "secondsAgo": "לפני {{count}} שניות",
+    "weeksAgo": "לפני {{count}} שבועות",
+    "monthsAgo": "לפני {{count}} חודשים",
+    "inDays": "בעוד {{count}} ימים",
+    "inHours": "בעוד {{count}} שעות",
+    "inMinutes": "בעוד {{count}} דקות"
+  },
+  "israeliTerms": {
+    "bituachLeumi": "ביטוח לאומי",
+    "kupotCholim": "קופות חולים",
+    "misradHabitachon": "משרד הביטחון",
+    "misradHarevacha": "משרד הרווחה",
+    "arnona": "ארנונה",
+    "kupat_cholim_clalit": "שירותי בריאות כללית",
+    "kupat_cholim_maccabi": "מכבי שירותי בריאות",
+    "kupat_cholim_meuhedet": "קופת חולים מאוחדת",
+    "kupat_cholim_leumit": "קופת חולים לאומית"
+  },
+  "languageSwitcher": {
+    "switchLanguage": "החלף שפה",
+    "hebrew": "עברית",
+    "english": "אנגלית",
+    "currentLanguage": "השפה הנוכחית"
   }
 }

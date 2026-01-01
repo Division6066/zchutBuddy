@@ -23,7 +23,9 @@
     "notProvided": "Not specified",
     "edit": "Edit",
     "continue": "Continue",
-    "finish": "Finish"
+    "finish": "Finish",
+    "guest": "Guest",
+    "user": "User"
   },
   "nav": {
     "features": "Features",
@@ -35,12 +37,58 @@
     "checklists": "My Checklists",
     "documents": "Documents",
     "profile": "Profile",
+    "profileDescription": "Personal settings",
     "settings": "Settings",
+    "home": "Home",
+    "rights": "Rights",
+    "rightsDescription": "Find your benefits",
+    "chat": "Chat",
+    "chatDescription": "Talk with AI",
+    "alerts": "Alerts",
+    "alertsDescription": "Updates and notifications",
+    "help": "Help",
+    "deepResearch": "Deep Research",
+    "savedRights": "Saved Rights",
+    "logout": "Log out",
+    "login": "Log in",
+    "signup": "Sign up"
+  },
+  "mobileNav": {
     "home": "Home",
     "rights": "Rights",
     "chat": "Chat",
     "alerts": "Alerts",
-    "help": "Help"
+    "profile": "Profile"
+  },
+  "device": {
+    "rotateForBetterExperience": "Rotate your device for a better experience",
+    "downloadApp": "Download the app",
+    "continueInBrowser": "Continue in browser"
+  },
+  "seo": {
+    "homeTitle": "ZchuyotBuddy | Find Your Israeli Benefits",
+    "homeDescription": "AI-powered platform for navigating disability rights in Israel. Discover benefits from Bituach Leumi, Ministry of Defense, and more.",
+    "rightsTitle": "Find Rights | ZchuyotBuddy",
+    "rightsDescription": "Search and discover all the benefits and rights you're entitled to",
+    "pricingTitle": "Pricing | ZchuyotBuddy",
+    "pricingDescription": "Choose the plan that's right for you",
+    "chatTitle": "AI Chat | ZchuyotBuddy",
+    "aboutTitle": "About | ZchuyotBuddy"
+  },
+  "sidebar": {
+    "main": "Main",
+    "features": "Features",
+    "account": "Account",
+    "usage": "Usage",
+    "monthlyUsage": "Monthly usage",
+    "creditsRemaining": "Credits remaining",
+    "upgrade": "Upgrade Plan",
+    "helpSupport": "Help & Support",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "logout": "Log out",
+    "version": "Version",
+    "freeTrial": "Free Trial"
   },
   "home": {
     "hero": {
@@ -344,5 +392,65 @@
     "minLength": "Minimum length is {min} characters",
     "maxLength": "Maximum length is {max} characters",
     "selectOption": "Please select an option"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Please enter a valid email",
+    "tooShort": "Too short (minimum {{min}} characters)",
+    "tooLong": "Too long (maximum {{max}} characters)",
+    "invalidPhone": "Invalid phone number",
+    "networkError": "Network error. Please try again.",
+    "serverError": "Server error. Please try later.",
+    "unauthorized": "You don't have permission for this action",
+    "sessionExpired": "Your session expired. Please log in again.",
+    "rateLimited": "Too many requests. Please try again in a minute.",
+    "notFound": "Page not found",
+    "generic": "Something went wrong. Please try again."
+  },
+  "a11y": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "loading": "Loading...",
+    "skipToContent": "Skip to main content",
+    "newNotifications": "{{count}} new notifications",
+    "menuExpanded": "Menu expanded",
+    "menuCollapsed": "Menu collapsed",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "currentPage": "Current page",
+    "externalLink": "External link"
+  },
+  "time": {
+    "now": "Now",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "tomorrow": "Tomorrow",
+    "daysAgo": "{{count}} days ago",
+    "hoursAgo": "{{count}} hours ago",
+    "minutesAgo": "{{count}} minutes ago",
+    "justNow": "Just now",
+    "secondsAgo": "{{count}} seconds ago",
+    "weeksAgo": "{{count}} weeks ago",
+    "monthsAgo": "{{count}} months ago",
+    "inDays": "In {{count}} days",
+    "inHours": "In {{count}} hours",
+    "inMinutes": "In {{count}} minutes"
+  },
+  "israeliTerms": {
+    "bituachLeumi": "Bituach Leumi (National Insurance)",
+    "kupotCholim": "Health Funds (HMOs)",
+    "misradHabitachon": "Ministry of Defense",
+    "misradHarevacha": "Ministry of Welfare",
+    "arnona": "Arnona (Property Tax)",
+    "kupat_cholim_clalit": "Clalit Health Services",
+    "kupat_cholim_maccabi": "Maccabi Healthcare Services",
+    "kupat_cholim_meuhedet": "Meuhedet Health Fund",
+    "kupat_cholim_leumit": "Leumit Health Fund"
+  },
+  "languageSwitcher": {
+    "switchLanguage": "Switch language",
+    "hebrew": "Hebrew",
+    "english": "English",
+    "currentLanguage": "Current language"
   }
 }

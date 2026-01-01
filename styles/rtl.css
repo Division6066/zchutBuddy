@@ -1,0 +1,279 @@
+/**
+ * RTL (Right-to-Left) Edge Case Fixes
+ *
+ * ZchuyotBuddy uses Tailwind CSS v4 with built-in RTL support via logical properties.
+ * This file handles edge cases that Tailwind's automatic RTL doesn't cover.
+ *
+ * Note: Most RTL layout is handled by Tailwind's logical properties (ms-, me-, ps-, pe-).
+ * Only use these overrides for specific edge cases.
+ */
+
+/* ==========================================================================
+   1. Directional Icon Mirroring
+   --------------------------------------------------------------------------
+   Icons that indicate direction should be flipped in RTL mode.
+   Add .icon-no-flip to prevent flipping when needed.
+   ========================================================================== */
+
+[dir="rtl"] .icon-chevron-right,
+[dir="rtl"] .icon-arrow-right,
+[dir="rtl"] .icon-arrow-forward,
+[dir="rtl"] .icon-external-link,
+[dir="rtl"] .icon-chevron-left,
+[dir="rtl"] .icon-arrow-left,
+[dir="rtl"] .icon-arrow-back {
+  transform: scaleX(-1);
+}
+
+/* Prevent flipping for icons that should remain unchanged */
+[dir="rtl"] .icon-no-flip {
+  transform: none !important;
+}
+
+/* ==========================================================================
+   2. Form Element Text Alignment
+   --------------------------------------------------------------------------
+   Text inputs should align text to the start direction.
+   Number inputs stay LTR for consistent digit ordering.
+   ========================================================================== */
+
+[dir="rtl"] input[type="text"],
+[dir="rtl"] input[type="email"],
+[dir="rtl"] input[type="password"],
+[dir="rtl"] input[type="tel"],
+[dir="rtl"] input[type="search"],
+[dir="rtl"] input[type="url"],
+[dir="rtl"] textarea {
+  text-align: right;
+}
+
+/* Number fields should stay LTR for consistent digit ordering */
+[dir="rtl"] input[type="number"] {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ==========================================================================
+   3. Phone Number Fields
+   --------------------------------------------------------------------------
+   Phone numbers with country codes should always be LTR.
+   ========================================================================== */
+
+[dir="rtl"] .phone-input,
+[dir="rtl"] input[type="tel"].phone-input {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ==========================================================================
+   4. Code Blocks
+   --------------------------------------------------------------------------
+   Code should always be displayed LTR regardless of page direction.
+   ========================================================================== */
+
+[dir="rtl"] pre,
+[dir="rtl"] code,
+[dir="rtl"] .code-block,
+[dir="rtl"] .monospace {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ==========================================================================
+   5. Progress Bars
+   --------------------------------------------------------------------------
+   Progress bars need to fill from the correct direction in RTL.
+   ========================================================================== */
+
+[dir="rtl"] .progress-bar {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .progress-bar .progress-bar-value,
+[dir="rtl"] .progress-bar .progress-bar-fill {
+  transform: scaleX(-1);
+}
+
+/* Alternative: Use logical transform-origin instead of full flip */
+[dir="rtl"] .progress-bar-rtl {
+  transform-origin: right center;
+}
+
+/* ==========================================================================
+   6. Animation Direction Overrides
+   --------------------------------------------------------------------------
+   Slide animations should come from the visually correct direction.
+   ========================================================================== */
+
+[dir="rtl"] .slide-in-from-right {
+  --tw-enter-translate-x: -100%;
+}
+
+[dir="rtl"] .slide-in-from-left {
+  --tw-enter-translate-x: 100%;
+}
+
+[dir="rtl"] .slide-out-to-right {
+  --tw-exit-translate-x: -100%;
+}
+
+[dir="rtl"] .slide-out-to-left {
+  --tw-exit-translate-x: 100%;
+}
+
+/* ==========================================================================
+   7. Scrollbar Position (Firefox)
+   --------------------------------------------------------------------------
+   Ensure scrollbar gutter is stable and positioned correctly.
+   ========================================================================== */
+
+[dir="rtl"] {
+  scrollbar-gutter: stable;
+}
+
+/* ==========================================================================
+   8. Custom Bullet Lists
+   --------------------------------------------------------------------------
+   Lists with custom bullet styling need RTL-aware padding.
+   ========================================================================== */
+
+[dir="rtl"] ul.custom-bullets,
+[dir="rtl"] ol.custom-bullets {
+  padding-inline-start: 1.5rem;
+  padding-inline-end: 0;
+}
+
+[dir="rtl"] ul.custom-bullets li::before,
+[dir="rtl"] ol.custom-bullets li::before {
+  inset-inline-start: 0;
+  inset-inline-end: auto;
+}
+
+/* ==========================================================================
+   9. Pill-Shaped Elements
+   --------------------------------------------------------------------------
+   Ensure pill shapes have correct border radius in RTL.
+   Using logical properties for proper RTL support.
+   ========================================================================== */
+
+[dir="rtl"] .rounded-s-full {
+  border-start-start-radius: 9999px;
+  border-end-start-radius: 9999px;
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+[dir="rtl"] .rounded-e-full {
+  border-start-end-radius: 9999px;
+  border-end-end-radius: 9999px;
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+/* ==========================================================================
+   10. Tooltip & Popover Positioning
+   --------------------------------------------------------------------------
+   Ensure tooltips and popovers appear on the correct side.
+   ========================================================================== */
+
+[dir="rtl"] [data-side="left"] {
+  --radix-tooltip-content-transform-origin: right center;
+}
+
+[dir="rtl"] [data-side="right"] {
+  --radix-tooltip-content-transform-origin: left center;
+}
+
+/* ==========================================================================
+   11. Checkbox & Radio Alignment
+   --------------------------------------------------------------------------
+   Ensure checkboxes and radios align correctly with labels.
+   ========================================================================== */
+
+[dir="rtl"] .checkbox-label,
+[dir="rtl"] .radio-label {
+  padding-inline-start: 0.5rem;
+  padding-inline-end: 0;
+}
+
+/* ==========================================================================
+   12. Table Alignment
+   --------------------------------------------------------------------------
+   Table cells should align text correctly in RTL.
+   ========================================================================== */
+
+[dir="rtl"] th,
+[dir="rtl"] td {
+  text-align: right;
+}
+
+[dir="rtl"] th.text-center,
+[dir="rtl"] td.text-center {
+  text-align: center;
+}
+
+[dir="rtl"] th.text-start,
+[dir="rtl"] td.text-start {
+  text-align: right;
+}
+
+[dir="rtl"] th.text-end,
+[dir="rtl"] td.text-end {
+  text-align: left;
+}
+
+/* Numeric columns should stay LTR */
+[dir="rtl"] th.numeric,
+[dir="rtl"] td.numeric {
+  direction: ltr;
+  text-align: left;
+}
+
+/* ==========================================================================
+   13. Icon Button Group Borders
+   --------------------------------------------------------------------------
+   Button groups need proper border radius handling in RTL.
+   ========================================================================== */
+
+[dir="rtl"] .btn-group > button:first-child,
+[dir="rtl"] .btn-group > a:first-child {
+  border-start-start-radius: var(--radius-md, 0.375rem);
+  border-end-start-radius: var(--radius-md, 0.375rem);
+  border-start-end-radius: 0;
+  border-end-end-radius: 0;
+}
+
+[dir="rtl"] .btn-group > button:last-child,
+[dir="rtl"] .btn-group > a:last-child {
+  border-start-end-radius: var(--radius-md, 0.375rem);
+  border-end-end-radius: var(--radius-md, 0.375rem);
+  border-start-start-radius: 0;
+  border-end-start-radius: 0;
+}
+
+/* ==========================================================================
+   14. Floating Labels
+   --------------------------------------------------------------------------
+   Floating label position in form fields.
+   ========================================================================== */
+
+[dir="rtl"] .floating-label {
+  right: 0.75rem;
+  left: auto;
+  transform-origin: top right;
+}
+
+/* ==========================================================================
+   15. Sidebar Navigation Icons
+   --------------------------------------------------------------------------
+   Chevron icons in collapsible sidebars need RTL-aware rotation.
+   ========================================================================== */
+
+[dir="rtl"] .sidebar-collapse-icon {
+  transform: rotate(180deg);
+}
+
+[dir="rtl"] .sidebar-collapse-icon.expanded {
+  transform: rotate(0deg);
+}
+
