@@ -85,6 +85,18 @@ export function useTranslation() {
   return ctx;
 }
 
+/**
+ * next-intl-style helper to get a namespaced translator.
+ * Example: const tNav = useTranslations("nav"); tNav("home") -> t("nav.home")
+ */
+export function useTranslations(namespace?: string) {
+  const { t } = useTranslation();
+  return useCallback(
+    (key: string) => (namespace ? t(`${namespace}.${key}`) : t(key)),
+    [namespace, t]
+  );
+}
+
 export function useToggleLocale() {
   const { locale, setLocale } = useTranslation();
   return useCallback(() => {

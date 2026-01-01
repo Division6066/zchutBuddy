@@ -533,11 +533,27 @@ export const updateLimitsForTier = mutation({
 
 /**
  * Get usage summary for display
+ * Returns null for unauthenticated users (graceful fallback for guest mode).
  */
 export const getUsageSummary = query({
   args: {},
   handler: async (ctx) => {
-    const userId = await getCurrentUserId(ctx);
+    // Gracefully handle unauthenticated users (e.g., guest mode)
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      return null; // Return null for guests instead of throwing
+    }
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .unique();
+
+    if (!user) {
+      return null; // User not found in DB yet
+    }
+
+    const userId = user._id;
 
     const usage = await ctx.db
       .query("usageTracking")

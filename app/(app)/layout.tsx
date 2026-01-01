@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useGuestAuth } from "@/lib/guest-auth";
-import { Sidebar, BottomNav } from "@/components/layout";
+import { Sidebar, BottomNav, TabletSidebar } from "@/components/layout";
 
 export default function AppLayout({
   children,
@@ -34,12 +34,15 @@ export default function AppLayout({
 
   return (
     <div className="flex min-h-screen bg-background">
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block">
+      {/* Desktop Sidebar (lg and up) */}
+      <div className="hidden lg:block">
         <Sidebar isOpen={true} onClose={() => {}} />
       </div>
 
-      {/* Mobile Sidebar */}
+      {/* Tablet Sidebar (md only - 768px to 1023px) */}
+      <TabletSidebar />
+
+      {/* Mobile Sidebar (overlay for hamburger menu) */}
       <div className="md:hidden">
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       </div>

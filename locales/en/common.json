@@ -36,7 +36,11 @@
     "documents": "Documents",
     "profile": "Profile",
     "settings": "Settings",
-    "home": "Home"
+    "home": "Home",
+    "rights": "Rights",
+    "chat": "Chat",
+    "alerts": "Alerts",
+    "help": "Help"
   },
   "home": {
     "hero": {

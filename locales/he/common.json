@@ -36,7 +36,11 @@
     "documents": "מסמכים",
     "profile": "פרופיל",
     "settings": "הגדרות",
-    "home": "בית"
+    "home": "בית",
+    "rights": "זכויות",
+    "chat": "צ'אט",
+    "alerts": "התראות",
+    "help": "עזרה"
   },
   "home": {
     "hero": {

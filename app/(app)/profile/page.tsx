@@ -47,7 +47,7 @@ export default function ProfilePage() {
   return (
     <div className="p-4 md:p-6 lg:p-8">
       <div className="max-w-3xl mx-auto">
-        {/* Header */}
+      {/* Header */}
         <div className="mb-8">
           <h1 className="text-xl font-black text-foreground">{t("profile.title")}</h1>
         </div>
@@ -57,7 +57,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-4 mb-6">
             <div className="size-20 rounded-2xl bg-primary/10 text-primary flex items-center justify-center">
               <span className="material-symbols-outlined text-4xl">person</span>
-            </div>
+              </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">{user.name}</h2>
               <p className="text-muted-foreground">{user.email}</p>
@@ -98,7 +98,7 @@ export default function ProfilePage() {
               <span className="material-symbols-outlined text-muted-foreground">chevron_left</span>
             </Link>
           ))}
-        </div>
+      </div>
 
         {/* Upgrade Banner */}
         <div className="mt-6 bg-gradient-to-br from-primary to-primary-dark rounded-2xl p-6 text-white">
