@@ -91,7 +91,7 @@ export function RightsFinderChat({
       if (!initialSessionId && !currentSessionId && !isCreatingSession) {
         setIsCreatingSession(true);
         try {
-          const newSessionId = await createChatSession();
+          const newSessionId = await createChatSession({ type: "rights_finder" });
           setCurrentSessionId(newSessionId);
           onSessionCreated?.(newSessionId);
         } catch (err) {

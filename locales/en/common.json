@@ -314,6 +314,7 @@
     }
   },
   "pricing": {
+    "upgrade": "Upgrade Now",
     "title": "Subscription Plans",
     "subtitle": "Choose the plan that's right for you. All plans include a 14-day free trial.",
     "monthly": "Monthly",

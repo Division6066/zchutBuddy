@@ -1,0 +1,16 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="tealGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d968b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#065f5b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <!-- Full background for Apple touch icon -->
+  <rect x="0" y="0" width="180" height="180" rx="36" ry="36" fill="url(#tealGradient)"/>
+  <!-- Stylized "Z" letter -->
+  <path d="M50 50H130L70 130H130" stroke="white" stroke-width="13" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Small checkmark accent -->
+  <circle cx="140" cy="140" r="15" fill="white" fill-opacity="0.25"/>
+  <path d="M132 140L138 146L148 134" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>
+

@@ -85,11 +85,11 @@ export const metadata: Metadata = {
       "פלטפורמת AI לניווט זכויות נכים בישראל. גלה הטבות מביטוח לאומי, משרד הביטחון ועוד.",
     images: [
       {
-        url: "/og-image-he.png",
+        url: "/og-image-he.svg",
         width: 1200,
         height: 630,
         alt: "זכויות באדי - מצא את הזכויות שלך",
-        type: "image/png",
+        type: "image/svg+xml",
       },
     ],
   },
@@ -98,7 +98,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "זכויות באדי | מצא את הזכויות שמגיעות לך",
     description: "פלטפורמת AI לניווט זכויות נכים בישראל",
-    images: ["/twitter-image-he.png"],
+    images: ["/twitter-image-he.svg"],
     creator: "@zchuyotbuddy",
   },
 
@@ -112,12 +112,12 @@ export const metadata: Metadata = {
 
   icons: {
     icon: [
-      { url: "/favicon.ico", sizes: "any" },
-      { url: "/icons/icon-512.svg", type: "image/svg+xml" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/icons/icon-512.svg", sizes: "512x512", type: "image/svg+xml" },
       { url: "/icons/icon-192.svg", sizes: "192x192", type: "image/svg+xml" },
     ],
-    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
-    shortcut: "/icons/icon-192.svg",
+    apple: [{ url: "/apple-touch-icon.svg", sizes: "180x180", type: "image/svg+xml" }],
+    shortcut: "/icon.svg",
   },
 
   manifest: "/manifest.json",

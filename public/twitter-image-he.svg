@@ -1,0 +1,31 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d968b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#065f5b;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="1050" cy="150" r="180" fill="white" fill-opacity="0.05"/>
+  <circle cx="150" cy="480" r="120" fill="white" fill-opacity="0.05"/>
+  
+  <!-- Logo centered -->
+  <g transform="translate(540, 150)">
+    <rect x="0" y="0" width="120" height="120" rx="24" fill="white" fill-opacity="0.2"/>
+    <path d="M30 30H90L45 90H90" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  
+  <!-- Hebrew title centered -->
+  <text x="600" y="340" text-anchor="middle" font-family="Heebo, Arial Hebrew, sans-serif" font-size="64" font-weight="700" fill="white">זכויות באדי</text>
+  
+  <!-- Hebrew subtitle centered -->
+  <text x="600" y="410" text-anchor="middle" font-family="Heebo, Arial Hebrew, sans-serif" font-size="32" font-weight="400" fill="white" fill-opacity="0.9">מצא את הזכויות שמגיעות לך</text>
+  
+  <!-- Bottom URL -->
+  <text x="600" y="560" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="24" font-weight="500" fill="white" fill-opacity="0.6">zchuyotbuddy.com</text>
+</svg>
+

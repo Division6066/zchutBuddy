@@ -1,0 +1,43 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d968b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#065f5b;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="overlayGradient" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" style="stop-color:#000000;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#000000;stop-opacity:0" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bgGradient)"/>
+  <rect width="1200" height="630" fill="url(#overlayGradient)"/>
+  
+  <!-- Decorative circles -->
+  <circle cx="1100" cy="100" r="200" fill="white" fill-opacity="0.05"/>
+  <circle cx="100" cy="530" r="150" fill="white" fill-opacity="0.05"/>
+  <circle cx="900" cy="500" r="100" fill="white" fill-opacity="0.03"/>
+  
+  <!-- Logo icon -->
+  <g transform="translate(100, 180)">
+    <rect x="0" y="0" width="120" height="120" rx="24" fill="white" fill-opacity="0.15"/>
+    <path d="M30 30H90L45 90H90" stroke="white" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  </g>
+  
+  <!-- Hebrew title (right-aligned for RTL) -->
+  <text x="1100" y="220" text-anchor="end" font-family="Heebo, Arial Hebrew, sans-serif" font-size="72" font-weight="700" fill="white">זכויות באדי</text>
+  
+  <!-- Hebrew subtitle -->
+  <text x="1100" y="300" text-anchor="end" font-family="Heebo, Arial Hebrew, sans-serif" font-size="36" font-weight="400" fill="white" fill-opacity="0.9">מצא את הזכויות שמגיעות לך</text>
+  
+  <!-- Description -->
+  <text x="1100" y="380" text-anchor="end" font-family="Heebo, Arial Hebrew, sans-serif" font-size="24" font-weight="400" fill="white" fill-opacity="0.7">פלטפורמת AI לניווט זכויות נכים בישראל</text>
+  
+  <!-- Bottom tagline -->
+  <text x="600" y="560" text-anchor="middle" font-family="Heebo, Arial Hebrew, sans-serif" font-size="20" font-weight="500" fill="white" fill-opacity="0.6">ביטוח לאומי • משרד הביטחון • קופות חולים • משרד הרווחה</text>
+  
+  <!-- Decorative line -->
+  <rect x="800" y="320" width="300" height="3" rx="1.5" fill="white" fill-opacity="0.3"/>
+</svg>
+
