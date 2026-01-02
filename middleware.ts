@@ -1,6 +1,22 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { convexAuthNextjsMiddleware, createRouteMatcher, isAuthenticatedNextjs, nextjsMiddlewareRedirect } from "@convex-dev/auth/nextjs/server";
 
-export default clerkMiddleware();
+// Define routes that require authentication
+const isProtectedRoute = createRouteMatcher(["/dashboard(.*)", "/onboarding(.*)", "/settings(.*)"]);
+
+// Define routes that should redirect authenticated users (e.g., sign-in page)
+const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
+
+export default convexAuthNextjsMiddleware(async (request) => {
+  // Redirect authenticated users away from auth pages
+  if (isAuthRoute(request) && (await isAuthenticatedNextjs())) {
+    return nextjsMiddlewareRedirect(request, "/dashboard");
+  }
+
+  // Redirect unauthenticated users away from protected pages
+  if (isProtectedRoute(request) && !(await isAuthenticatedNextjs())) {
+    return nextjsMiddlewareRedirect(request, "/sign-in");
+  }
+});
 
 export const config = {
   matcher: [

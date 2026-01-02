@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuth, useClerk, useUser } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import {
   Bell,
   BookMarked,
@@ -127,9 +127,8 @@ export default function DesktopSidebar() {
   const dir = useDir();
   const { t, locale } = useTranslation();
   const toggleLocale = useToggleLocale();
-  const { signOut: clerkSignOut } = useClerk();
-  const { isSignedIn, isLoaded: authLoaded } = useAuth();
-  const { user } = useUser();
+  const { signOut } = useAuthActions();
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
   const { logoutGuest, isGuest } = useGuestAuth();
 
   const [mounted, setMounted] = useState(false);
@@ -139,9 +138,9 @@ export default function DesktopSidebar() {
   }, []);
 
   // Determine if we should run authenticated queries
-  const shouldRunAuthQueries = authLoaded && isSignedIn === true;
+  const shouldRunAuthQueries = !authLoading && isAuthenticated;
 
-  // Convex queries - skip unless user is fully authenticated with Clerk
+  // Convex queries - skip unless user is fully authenticated with Convex Auth
   const unreadCount = useQuery(api.alerts.getUnreadCount, shouldRunAuthQueries ? {} : "skip");
   const usageSummary = useQuery(
     api.usageTracking.getUsageSummary,
@@ -149,6 +148,12 @@ export default function DesktopSidebar() {
   );
   const subscription = useQuery(
     api.subscriptions.getMySubscription,
+    shouldRunAuthQueries ? {} : "skip"
+  );
+  
+  // Fetch user profile if authenticated
+  const userProfile = useQuery(
+    api.users.getCurrentUser,
     shouldRunAuthQueries ? {} : "skip"
   );
 
@@ -161,8 +166,8 @@ export default function DesktopSidebar() {
 
   // User display info
   const displayName =
-    user?.firstName || user?.fullName || (isGuest ? t("common.guest") : t("common.user"));
-  const avatarUrl = user?.imageUrl;
+    userProfile?.name || (isGuest ? t("common.guest") : t("common.user"));
+  const avatarUrl = userProfile?.imageUrl;
 
   // Usage calculations
   const usagePercent = usageSummary?.apiUsagePercent ?? 0;
@@ -178,11 +183,11 @@ export default function DesktopSidebar() {
   const isMaxTier = usageSummary?.tier === "max" || subscription?.tier === "max";
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (isGuest) {
       logoutGuest();
     } else {
-      clerkSignOut();
+      await signOut();
     }
     router.push("/");
   };

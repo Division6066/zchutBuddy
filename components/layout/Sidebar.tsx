@@ -1,6 +1,6 @@
 "use client";
 
-import { useClerk } from "@clerk/nextjs";
+import { useAuthActions } from "@convex-dev/auth/react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useGuestAuth } from "@/lib/guest-auth";
@@ -14,7 +14,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { signOut: clerkSignOut } = useClerk();
+  const { signOut } = useAuthActions();
   const { logoutGuest, isGuest } = useGuestAuth();
   const { t, locale } = useTranslation();
   const toggleLocale = useToggleLocale();
@@ -91,11 +91,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
             {/* Sign Out */}
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (isGuest) {
                   logoutGuest();
                 } else {
-                  clerkSignOut();
+                  await signOut();
                 }
                 router.push("/");
               }}

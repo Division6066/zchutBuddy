@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
@@ -7,21 +8,11 @@ import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/s
 // ============================================
 
 async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users">> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) {
     throw new Error("Not authenticated");
   }
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-    .unique();
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user._id;
+  return userId;
 }
 
 // ============================================
@@ -89,25 +80,16 @@ export const getUnreadCount = query({
   args: {},
   handler: async (ctx) => {
     // Gracefully handle unauthenticated users (e.g., guest mode)
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return 0; // Return 0 for guests instead of throwing
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return 0; // User not found in DB yet
     }
 
     const now = Date.now();
 
     const alerts = await ctx.db
       .query("alerts")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .filter((q) => q.and(q.eq(q.field("isRead"), false), q.eq(q.field("isDismissed"), false)))
       .collect();
 

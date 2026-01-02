@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { internalMutation, mutation, query } from "./_generated/server";
 
@@ -83,17 +84,13 @@ export const getByModelId = query({
 export const getAllModels = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+    const user = await ctx.db.get(userId);
+    if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
       throw new Error("Admin access required");
     }
 
@@ -161,17 +158,13 @@ export const createModel = mutation({
     isDefault: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+    const user = await ctx.db.get(userId);
+    if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
       throw new Error("Admin access required");
     }
 
@@ -231,17 +224,13 @@ export const updateModel = mutation({
     isDefault: v.optional(v.boolean()),
   },
   handler: async (ctx, { modelId, ...updates }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+    const user = await ctx.db.get(userId);
+    if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
       throw new Error("Admin access required");
     }
 
@@ -287,17 +276,13 @@ export const deleteModel = mutation({
     modelId: v.string(),
   },
   handler: async (ctx, { modelId }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user || !ADMIN_EMAILS.includes(user.email)) {
+    const user = await ctx.db.get(userId);
+    if (!user || !user.email || !ADMIN_EMAILS.includes(user.email)) {
       throw new Error("Admin access required");
     }
 

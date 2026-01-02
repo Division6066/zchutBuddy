@@ -1,10 +1,11 @@
 "use client";
 
-import { useSignUp, useUser } from "@clerk/nextjs";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { UserCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+import { useConvexAuth } from "convex/react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
@@ -15,17 +16,40 @@ interface SignUpModalProps {
   onSwitchToSignIn?: () => void;
 }
 
+type AuthStep = "email" | "code";
+
 export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalProps) {
-  const { signUp, setActive } = useSignUp();
-  const { isSignedIn } = useUser();
+  const { signIn } = useAuthActions();
+  const { isAuthenticated } = useConvexAuth();
   const { loginAsGuest } = useGuestAuth();
   const { t } = useTranslation();
   const router = useRouter();
+
+  const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
   const hasRedirectedRef = useRef(false);
+
+  useEffect(() => {
+    if (isAuthenticated && isOpen && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true;
+      onClose();
+      router.push("/onboarding");
+    }
+  }, [isAuthenticated, isOpen, onClose, router]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      hasRedirectedRef.current = false;
+      setStep("email");
+      setEmail("");
+      setCode("");
+      setError("");
+    }
+  }, [isOpen]);
 
   const handleGuestLogin = () => {
     loginAsGuest();
@@ -33,63 +57,94 @@ export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalPr
     router.push("/dashboard");
   };
 
-  useEffect(() => {
-    if (isSignedIn && isOpen && !hasRedirectedRef.current) {
-      hasRedirectedRef.current = true;
-      onClose();
-      router.push("/onboarding");
-    }
-  }, [isSignedIn, isOpen, onClose, router]);
-
-  useEffect(() => {
-    if (!isOpen) {
-      hasRedirectedRef.current = false;
-    }
-  }, [isOpen]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signUp) return;
+    if (!email) return;
 
     setIsLoading(true);
     setError("");
 
     try {
-      const result = await signUp.create({
-        emailAddress: email,
-        password,
-      });
+      await signIn("resend", { email });
+      setStep("code");
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        onClose();
-        router.push("/onboarding");
-      } else if (result.status === "missing_requirements") {
-        // Email verification might be required
-        await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
-        setError("Please check your email for verification code");
-      } else {
-        setError(t("auth.signUpTitle") + ": " + result.status);
-      }
+      setCooldown(60);
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err: unknown) {
-      const error = err as { errors?: Array<{ message?: string }> };
-      setError(error.errors?.[0]?.message || t("common.error"));
+      const error = err as { message?: string };
+      setError(error.message || "שגיאה בשליחת קוד האימות");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await signIn("resend", { email, code });
+      onClose();
+      router.push("/onboarding");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error.message || "קוד אימות שגוי");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (cooldown > 0) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await signIn("resend", { email });
+
+      setCooldown(60);
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error.message || "שגיאה בשליחת קוד חדש");
     } finally {
       setIsLoading(false);
     }
   };
 
   const signUpWithGoogle = async () => {
-    if (!signUp) return;
     try {
-      await signUp.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/onboarding",
-      });
+      await signIn("google");
     } catch (err) {
       console.error("Google OAuth error:", err);
+      setError("שגיאה בהרשמה עם Google");
     }
+  };
+
+  const handleBackToEmail = () => {
+    setStep("email");
+    setCode("");
+    setError("");
   };
 
   return (
@@ -101,72 +156,116 @@ export function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignUpModalPr
               {t("auth.signUpTitle")}
             </DialogTitle>
             <p className="text-muted-foreground text-center mt-2">
-              צור חשבון והתחל לגלות את הזכויות שלך
+              {step === "email"
+                ? "צור חשבון והתחל לגלות את הזכויות שלך"
+                : `קוד אימות נשלח ל-${email}`}
             </p>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label
-                htmlFor="signup-email"
-                className="block text-sm font-medium text-foreground mb-2"
-              >
-                {t("auth.email")}
-              </label>
-              <input
-                id="signup-email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                placeholder="your@email.com"
-                required={true}
-                disabled={isLoading}
-              />
-            </div>
-
-            <div>
-              <label
-                htmlFor="signup-password"
-                className="block text-sm font-medium text-foreground mb-2"
-              >
-                {t("auth.password")}
-              </label>
-              <input
-                id="signup-password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-                placeholder="••••••••"
-                required={true}
-                disabled={isLoading}
-                minLength={8}
-              />
-              <p className="text-xs text-muted-foreground mt-1">לפחות 8 תווים</p>
-            </div>
-
-            {error && (
-              <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
-                {error}
+          {step === "email" ? (
+            <form onSubmit={handleSendCode} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="signup-email"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  {t("auth.email")}
+                </label>
+                <input
+                  id="signup-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+                  placeholder="your@email.com"
+                  required={true}
+                  disabled={isLoading}
+                />
               </div>
-            )}
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-primary"
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  <span>{t("common.loading")}</span>
+              {error && (
+                <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
+                  {error}
                 </div>
-              ) : (
-                t("common.signUp")
               )}
-            </button>
-          </form>
+
+              <button
+                type="submit"
+                disabled={isLoading || !email}
+                className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-primary"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>שולח קוד...</span>
+                  </div>
+                ) : (
+                  "שלח קוד אימות"
+                )}
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleVerifyCode} className="space-y-4">
+              <div>
+                <label
+                  htmlFor="signup-code"
+                  className="block text-sm font-medium text-foreground mb-2"
+                >
+                  קוד אימות
+                </label>
+                <input
+                  id="signup-code"
+                  type="text"
+                  inputMode="numeric"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                  className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition text-center text-2xl tracking-widest"
+                  placeholder="000000"
+                  required={true}
+                  disabled={isLoading}
+                />
+              </div>
+
+              {error && (
+                <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isLoading || code.length < 6}
+                className="w-full bg-primary hover:bg-primary-dark text-white py-3 px-4 rounded-xl font-bold focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-primary"
+              >
+                {isLoading ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <span>מאמת...</span>
+                  </div>
+                ) : (
+                  "אמת והירשם"
+                )}
+              </button>
+
+              <div className="flex items-center justify-between text-sm">
+                <button
+                  type="button"
+                  onClick={handleBackToEmail}
+                  className="text-muted-foreground hover:text-foreground transition"
+                >
+                  ← שנה כתובת מייל
+                </button>
+                <button
+                  type="button"
+                  onClick={handleResendCode}
+                  disabled={cooldown > 0 || isLoading}
+                  className="text-primary hover:text-primary-dark disabled:text-muted-foreground disabled:cursor-not-allowed transition"
+                >
+                  {cooldown > 0 ? `שלח שוב (${cooldown}s)` : "שלח קוד חדש"}
+                </button>
+              </div>
+            </form>
+          )}
 
           <div className="relative my-6">
             <div className="absolute inset-0 flex items-center">

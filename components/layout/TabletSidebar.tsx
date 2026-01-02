@@ -1,7 +1,7 @@
 "use client";
 
-import { useAuth, useClerk } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,
@@ -56,15 +56,14 @@ export default function TabletSidebar() {
   const router = useRouter();
   const dir = useDir();
   const { t } = useTranslation();
-  const { signOut: clerkSignOut } = useClerk();
-  const { isSignedIn, isLoaded: authLoaded } = useAuth();
+  const { signOut } = useAuthActions();
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
   const { logoutGuest, isGuest } = useGuestAuth();
 
   // Determine if we should run authenticated queries
-  // Only run if: auth is loaded AND user is signed in with Clerk (not just guest)
-  const shouldRunAuthQueries = authLoaded && isSignedIn === true;
+  const shouldRunAuthQueries = !authLoading && isAuthenticated;
 
-  // Convex queries - skip unless user is fully authenticated with Clerk
+  // Convex queries - skip unless user is fully authenticated with Convex Auth
   const unreadCount = useQuery(api.alerts.getUnreadCount, shouldRunAuthQueries ? {} : "skip");
   const usageSummary = useQuery(
     api.usageTracking.getUsageSummary,
@@ -99,11 +98,11 @@ export default function TabletSidebar() {
   };
 
   // Handle logout
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (isGuest) {
       logoutGuest();
     } else {
-      clerkSignOut();
+      await signOut();
     }
     router.push("/");
   };

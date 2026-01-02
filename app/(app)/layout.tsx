@@ -1,13 +1,13 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import { MainLayout } from "@/components/layout";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { isLoaded } = useAuth();
+  const { isLoading } = useConvexAuth();
 
-  // Show loading state while Clerk auth is loading
-  if (!isLoaded) {
+  // Show loading state while Convex auth is loading
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">

@@ -1,31 +1,41 @@
+import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
   // ============================================
+  // CONVEX AUTH TABLES
+  // ============================================
+  ...authTables,
+
+  // ============================================
   // USERS & AUTH
   // ============================================
   users: defineTable({
-    clerkId: v.string(),
-    email: v.string(),
+    // Convex Auth user fields (linked via authTables)
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    image: v.optional(v.string()),
     name: v.optional(v.string()),
-    imageUrl: v.optional(v.string()),
-    language: v.string(), // "he" | "en"
-    createdAt: v.number(),
+    isAnonymous: v.optional(v.boolean()),
+
+    // App-specific fields
+    language: v.optional(v.string()), // "he" | "en"
+    createdAt: v.optional(v.number()),
     lastLoginAt: v.optional(v.number()),
-    onboardingCompleted: v.boolean(),
+    onboardingCompleted: v.optional(v.boolean()),
 
     // Legacy fields for backwards compatibility
+    clerkId: v.optional(v.string()), // Legacy - kept for existing data
     fullName: v.optional(v.string()),
+    imageUrl: v.optional(v.string()),
     isActive: v.optional(v.boolean()),
     role: v.optional(v.string()),
     subscriptionStatus: v.optional(v.string()),
     subscriptionTier: v.optional(v.string()),
     updatedAt: v.optional(v.number()),
     trialEndsAt: v.optional(v.number()),
-  })
-    .index("by_clerkId", ["clerkId"])
-    .index("by_email", ["email"]),
+  }).index("by_email", ["email"]),
 
   // ============================================
   // SUBSCRIPTIONS

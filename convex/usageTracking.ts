@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
@@ -8,21 +9,11 @@ import { calculateCaps, SUBSCRIPTION_TIERS, type SubscriptionTier } from "./lib/
 // ============================================
 
 async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users">> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) {
     throw new Error("Not authenticated");
   }
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-    .unique();
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user._id;
+  return userId;
 }
 
 /**
@@ -537,21 +528,10 @@ export const getUsageSummary = query({
   args: {},
   handler: async (ctx) => {
     // Gracefully handle unauthenticated users (e.g., guest mode)
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null; // Return null for guests instead of throwing
     }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return null; // User not found in DB yet
-    }
-
-    const userId = user._id;
 
     const usage = await ctx.db
       .query("usageTracking")

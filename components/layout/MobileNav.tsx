@@ -1,7 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { Bell, Home, MessageSquare, Search, User } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -35,14 +34,14 @@ export interface MobileNavProps {
 export default function MobileNav({ className }: MobileNavProps) {
   const pathname = usePathname();
   const { isMobile } = useDeviceType();
-  const { isSignedIn, isLoaded: authLoaded } = useAuth();
+  const { isAuthenticated, isLoading: authLoading } = useConvexAuth();
   const dir = useDir();
   const tNav = useTranslations("nav");
 
-  // Only run authenticated queries if auth is loaded AND user is signed in with Clerk
-  const shouldRunAuthQueries = authLoaded && isSignedIn === true;
+  // Determine if we should run authenticated queries
+  const shouldRunAuthQueries = !authLoading && isAuthenticated;
 
-  // Skip Convex query unless user is fully authenticated with Clerk
+  // Skip Convex query unless user is fully authenticated with Convex Auth
   const unreadCount = useQuery(api.alerts.getUnreadCount, shouldRunAuthQueries ? {} : "skip");
   const alertsCount = typeof unreadCount === "number" ? unreadCount : 0;
 

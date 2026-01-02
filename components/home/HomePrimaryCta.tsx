@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -9,7 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
 
 export default function HomePrimaryCta() {
-  const { isSignedIn } = useAuth();
+  const { isAuthenticated } = useConvexAuth();
+  const isSignedIn = isAuthenticated;
   const router = useRouter();
   const [showSignInModal, setShowSignInModal] = useState(false);
 

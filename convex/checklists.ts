@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
@@ -7,24 +8,14 @@ import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/s
 // ============================================
 
 /**
- * Get the current user's ID from Clerk identity.
+ * Get the current user's ID from Convex Auth.
  */
 async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users">> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) {
     throw new Error("Not authenticated");
   }
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-    .unique();
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user._id;
+  return userId;
 }
 
 /**
@@ -340,23 +331,14 @@ export const listMyChecklists = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, { type, limit = 50 }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return [];
     }
 
     let checklists = await ctx.db
       .query("checklists")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .order("desc")
       .collect();
 
@@ -459,17 +441,8 @@ export const getUpcomingDueDates = query({
     daysAhead: v.optional(v.number()),
   },
   handler: async (ctx, { daysAhead = 7 }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return [];
     }
 
@@ -478,7 +451,7 @@ export const getUpcomingDueDates = query({
 
     const checklists = await ctx.db
       .query("checklists")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .collect();
 
     return checklists

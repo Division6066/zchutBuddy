@@ -1,74 +1,132 @@
 "use client";
 
-import { useSignIn, useUser } from "@clerk/nextjs";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useConvexAuth } from "convex/react";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
 
+type AuthStep = "email" | "code";
+
 export default function SignInPage() {
-  const { signIn, setActive } = useSignIn();
-  const { isSignedIn } = useUser();
+  const { signIn } = useAuthActions();
+  const { isAuthenticated, isLoading: isAuthLoading } = useConvexAuth();
   const { loginAsGuest } = useGuestAuth();
   const { t } = useTranslation();
   const router = useRouter();
+
+  const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [code, setCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cooldown, setCooldown] = useState(0);
 
-  useEffect(() => {
-    if (isSignedIn) {
-      router.push("/dashboard");
-    }
-  }, [isSignedIn, router]);
+  // Redirect if already authenticated
+  if (isAuthenticated && !isAuthLoading) {
+    router.push("/dashboard");
+    return null;
+  }
 
   const handleGuestLogin = () => {
     loginAsGuest();
     router.push("/dashboard");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signIn) return;
+    if (!email) return;
 
     setIsLoading(true);
     setError("");
 
     try {
-      const result = await signIn.create({
-        identifier: email,
-        password,
-      });
+      // Use Resend OTP provider for email verification
+      await signIn("resend", { email });
+      setStep("code");
 
-      if (result.status === "complete") {
-        await setActive({ session: result.createdSessionId });
-        router.push("/dashboard");
-      } else {
-        setError("התחברות לא הושלמה. סטטוס: " + result.status);
-      }
+      // Start cooldown for resend
+      setCooldown(60);
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
     } catch (err: unknown) {
-      const error = err as { errors?: Array<{ message?: string }> };
-      setError(error.errors?.[0]?.message || t("common.error"));
+      const error = err as { message?: string };
+      setError(error.message || "שגיאה בשליחת קוד האימות");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await signIn("resend", { email, code });
+      router.push("/dashboard");
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error.message || "קוד אימות שגוי");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    if (cooldown > 0) return;
+
+    setIsLoading(true);
+    setError("");
+
+    try {
+      await signIn("resend", { email });
+
+      // Reset cooldown
+      setCooldown(60);
+      const interval = setInterval(() => {
+        setCooldown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    } catch (err: unknown) {
+      const error = err as { message?: string };
+      setError(error.message || "שגיאה בשליחת קוד חדש");
     } finally {
       setIsLoading(false);
     }
   };
 
   const signInWithGoogle = async () => {
-    if (!signIn) return;
     try {
-      await signIn.authenticateWithRedirect({
-        strategy: "oauth_google",
-        redirectUrl: "/sso-callback",
-        redirectUrlComplete: "/dashboard",
-      });
+      await signIn("google");
     } catch (err) {
       console.error("Google OAuth error:", err);
+      setError("שגיאה בהתחברות עם Google");
     }
+  };
+
+  const handleBackToEmail = () => {
+    setStep("email");
+    setCode("");
+    setError("");
   };
 
   return (
@@ -84,69 +142,111 @@ export default function SignInPage() {
 
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-foreground mb-2">{t("auth.signInTitle")}</h1>
-        <p className="text-muted-foreground">התחבר לחשבון שלך</p>
+        <p className="text-muted-foreground">
+          {step === "email" ? "התחבר לחשבון שלך" : `קוד אימות נשלח ל-${email}`}
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
-            {t("auth.email")}
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-            placeholder="your@email.com"
-            required={true}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-foreground mb-2">
-            {t("auth.password")}
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
-            placeholder="••••••••"
-            required={true}
-            disabled={isLoading}
-          />
-        </div>
-
-        <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-sm text-primary hover:text-primary-dark">
-            {t("auth.forgotPassword")}
-          </Link>
-        </div>
-
-        {error && (
-          <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
-            {error}
+      {step === "email" ? (
+        <form onSubmit={handleSendCode} className="space-y-4">
+          <div>
+            <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+              {t("auth.email")}
+            </label>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition"
+              placeholder="your@email.com"
+              required={true}
+              disabled={isLoading}
+              autoFocus
+            />
           </div>
-        )}
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-12 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold transition-all shadow-primary disabled:opacity-50"
-        >
-          {isLoading ? (
-            <div className="flex items-center justify-center gap-2">
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-              <span>{t("common.loading")}</span>
+          {error && (
+            <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
+              {error}
             </div>
-          ) : (
-            t("common.signIn")
           )}
-        </button>
-      </form>
+
+          <button
+            type="submit"
+            disabled={isLoading || !email}
+            className="w-full h-12 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold transition-all shadow-primary disabled:opacity-50"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>שולח קוד...</span>
+              </div>
+            ) : (
+              "שלח קוד אימות"
+            )}
+          </button>
+        </form>
+      ) : (
+        <form onSubmit={handleVerifyCode} className="space-y-4">
+          <div>
+            <label htmlFor="code" className="block text-sm font-medium text-foreground mb-2">
+              קוד אימות
+            </label>
+            <input
+              id="code"
+              type="text"
+              inputMode="numeric"
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+              className="w-full px-4 py-3 bg-background border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition text-center text-2xl tracking-widest"
+              placeholder="000000"
+              required={true}
+              disabled={isLoading}
+              autoFocus
+            />
+          </div>
+
+          {error && (
+            <div className="bg-error-bg border border-error text-error px-4 py-3 rounded-xl text-sm">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={isLoading || code.length < 6}
+            className="w-full h-12 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold transition-all shadow-primary disabled:opacity-50"
+          >
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                <span>מאמת...</span>
+              </div>
+            ) : (
+              "אמת והתחבר"
+            )}
+          </button>
+
+          <div className="flex items-center justify-between text-sm">
+            <button
+              type="button"
+              onClick={handleBackToEmail}
+              className="text-muted-foreground hover:text-foreground transition"
+            >
+              ← שנה כתובת מייל
+            </button>
+            <button
+              type="button"
+              onClick={handleResendCode}
+              disabled={cooldown > 0 || isLoading}
+              className="text-primary hover:text-primary-dark disabled:text-muted-foreground disabled:cursor-not-allowed transition"
+            >
+              {cooldown > 0 ? `שלח שוב (${cooldown}s)` : "שלח קוד חדש"}
+            </button>
+          </div>
+        </form>
+      )}
 
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">

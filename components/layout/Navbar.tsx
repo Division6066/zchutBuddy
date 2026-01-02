@@ -1,6 +1,6 @@
 "use client";
 
-import { useAuth } from "@clerk/nextjs";
+import { useConvexAuth } from "convex/react";
 import Link from "next/link";
 import { useState } from "react";
 import { SignInModal } from "@/components/SignInModal";
@@ -9,10 +9,11 @@ import { useGuestAuth } from "@/lib/guest-auth";
 import { useToggleLocale, useTranslation } from "@/lib/i18n";
 
 export default function Navbar() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isAuthenticated: isConvexAuth, isLoading: authLoading } = useConvexAuth();
   const { isGuest } = useGuestAuth();
+  const isSignedIn = isConvexAuth;
   const isAuthenticated = isSignedIn || isGuest;
-  const isLoading = !isLoaded;
+  const isLoading = authLoading;
   const { t, locale } = useTranslation();
   const toggleLocale = useToggleLocale();
   const [showMobileMenu, setShowMobileMenu] = useState(false);

@@ -1,10 +1,12 @@
 "use client";
 
-import { useClerk, useUser } from "@clerk/nextjs";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { LogOut, Menu, User, UserCircle, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { useConvexAuth, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import SignInModal from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,8 +22,9 @@ const NAV_LINKS = [
 
 function NavbarContent() {
   const pathname = usePathname();
-  const { isSignedIn, user } = useUser();
-  const { signOut } = useClerk();
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { signOut } = useAuthActions();
+  const currentUser = useQuery(api.users.getCurrentUser);
   const { isGuest, guestUser, logoutGuest } = useGuestAuth();
   const router = useRouter();
 
@@ -33,7 +36,7 @@ function NavbarContent() {
   const profileRef = useRef<HTMLDivElement>(null);
   const hasRedirectedRef = useRef(false);
 
-  const isAnyUserLoggedIn = isSignedIn || isGuest;
+  const isAnyUserLoggedIn = isAuthenticated || isGuest;
 
   // Track hash changes for active link highlighting
   useEffect(() => {
@@ -56,13 +59,13 @@ function NavbarContent() {
 
   // Redirect to /dashboard when user becomes signed in
   useEffect(() => {
-    if (isSignedIn && !hasRedirectedRef.current && showSignInModal) {
+    if (isAuthenticated && !hasRedirectedRef.current && showSignInModal) {
       const currentPath = typeof window !== "undefined" ? window.location.pathname : "";
       if (currentPath === "/" || currentPath === "") {
         debug.info({
           location: "Navbar.tsx:useEffect",
           message: "Fallback: User signed in - redirecting to /dashboard",
-          data: { isSignedIn, showSignInModal, currentPath },
+          data: { isAuthenticated, showSignInModal, currentPath },
         });
         hasRedirectedRef.current = true;
         setShowSignInModal(false);
@@ -73,7 +76,7 @@ function NavbarContent() {
         }
       }
     }
-  }, [isSignedIn, showSignInModal, router]);
+  }, [isAuthenticated, showSignInModal, router]);
 
   useEffect(() => {
     if (!showSignInModal) {
@@ -100,6 +103,31 @@ function NavbarContent() {
     }
     return pathname === href || pathname.startsWith(href + "/");
   };
+
+  // Show loading state while auth is being determined
+  if (isLoading) {
+    return (
+      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex h-16 items-center justify-between">
+            <Link
+              href="/"
+              className="flex items-center gap-2.5 hover:opacity-80 transition-opacity"
+              aria-label="דף הבית"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#0d968b] flex items-center justify-center text-white shadow-lg shadow-[#0d968b]/30">
+                <span className="material-symbols-outlined text-[20px]">accessible</span>
+              </div>
+              <span className="text-[#111817] font-extrabold text-lg tracking-tight hidden sm:inline">
+                ZchuyotBuddy
+              </span>
+            </Link>
+            <div className="h-8 w-24 bg-gray-200 rounded-xl animate-pulse" />
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <>
@@ -172,9 +200,7 @@ function NavbarContent() {
                       )}
                     </div>
                     <span className="text-sm font-medium text-[#111817] hidden sm:inline">
-                      {isGuest
-                        ? guestUser?.name
-                        : user?.firstName || user?.emailAddresses[0]?.emailAddress.split("@")[0]}
+                      {isGuest ? guestUser?.name : currentUser?.name || currentUser?.email?.split("@")[0]}
                     </span>
                   </Button>
 
@@ -185,13 +211,12 @@ function NavbarContent() {
                           <p className="text-sm font-semibold text-[#111817] mb-1">
                             {isGuest
                               ? guestUser?.name
-                              : user?.firstName ||
-                                user?.emailAddresses[0]?.emailAddress.split("@")[0]}
+                              : currentUser?.name || currentUser?.email?.split("@")[0]}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
                             {isGuest
                               ? "מצב אורח - נתונים נשמרים מקומית"
-                              : user?.emailAddresses[0]?.emailAddress}
+                              : currentUser?.email}
                           </p>
                           {isGuest && (
                             <p className="text-xs text-orange-500 mt-1">
@@ -322,14 +347,10 @@ function NavbarContent() {
 }
 
 export default function Navbar() {
-  const hasValidClerkKey =
-    typeof window !== "undefined"
-      ? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-        !process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY.includes("YOUR_CLERK")
-      : false;
+  const hasValidConvexUrl = process.env.NEXT_PUBLIC_CONVEX_URL !== undefined;
 
-  // If Clerk is not available, render navbar without auth features
-  if (!hasValidClerkKey) {
+  // If Convex is not available, render navbar without auth features
+  if (!hasValidConvexUrl) {
     return (
       <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="container mx-auto px-4 md:px-6">

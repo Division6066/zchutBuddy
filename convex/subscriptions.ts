@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 
@@ -114,23 +115,14 @@ const FREE_TRIAL_DAILY_LIMITS: Partial<Record<FeatureAccess, number>> = {
 export const getMySubscription = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -152,9 +144,9 @@ export const hasFeatureAccess = query({
     feature: featureAccessValidator,
   },
   handler: async (ctx, { feature }) => {
-    const identity = await ctx.auth.getUserIdentity();
+    const userId = await getAuthUserId(ctx);
 
-    if (!identity) {
+    if (!userId) {
       return {
         hasAccess: false,
         reason: "Not authenticated",
@@ -162,22 +154,9 @@ export const hasFeatureAccess = query({
       };
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      return {
-        hasAccess: false,
-        reason: "User not found",
-        remaining: null,
-      };
-    }
-
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -230,7 +209,7 @@ export const hasFeatureAccess = query({
 
         const usageTracking = await ctx.db
           .query("usageTracking")
-          .withIndex("by_userId", (q) => q.eq("userId", user._id))
+          .withIndex("by_userId", (q) => q.eq("userId", userId))
           .unique();
 
         // If no usage tracking exists or it's from a previous period, user has full limit
@@ -246,7 +225,7 @@ export const hasFeatureAccess = query({
         if (feature === "rights_finder") {
           const todaySessions = await ctx.db
             .query("chatSessions")
-            .withIndex("by_userId", (q) => q.eq("userId", user._id))
+            .withIndex("by_userId", (q) => q.eq("userId", userId))
             .filter((q) => q.gte(q.field("createdAt"), startOfDay))
             .collect();
 
@@ -326,8 +305,8 @@ export const createSubscription = mutation({
     trialEndsAt: v.optional(v.number()),
   },
   handler: async (ctx, { userId, tier, status, trialEndsAt }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const authUserId = await getAuthUserId(ctx);
+    if (!authUserId) {
       throw new Error("Not authenticated");
     }
 
@@ -364,23 +343,14 @@ export const updateTier = mutation({
     tier: subscriptionTierValidator,
   },
   handler: async (ctx, { tier }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -408,23 +378,14 @@ export const updateTier = mutation({
 export const cancelSubscription = mutation({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -450,23 +411,14 @@ export const changeTier = mutation({
     billingCycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (ctx, { newTier, billingCycle = "monthly" }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -503,7 +455,7 @@ export const changeTier = mutation({
     // Create alert based on change type
     if (isUpgrade) {
       await ctx.db.insert("alerts", {
-        userId: user._id,
+        userId,
         type: "system",
         title: "המנוי שלך שודרג!",
         message: `שודרגת בהצלחה למנוי ${newTier === "plus" ? "פלוס" : newTier === "pro" ? "פרו" : "מקס"}. נהנה מכל היתרונות החדשים!`,
@@ -516,7 +468,7 @@ export const changeTier = mutation({
       });
     } else if (isDowngrade) {
       await ctx.db.insert("alerts", {
-        userId: user._id,
+        userId,
         type: "system",
         title: "המנוי שלך שונה",
         message: `המנוי שלך שונה. חלק מהתכונות עשויות להיות מוגבלות.`,
@@ -545,23 +497,14 @@ export const reactivateSubscription = mutation({
     tier: v.optional(subscriptionTierValidator),
   },
   handler: async (ctx, { tier }) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -582,7 +525,7 @@ export const reactivateSubscription = mutation({
 
     // Create reactivation alert
     await ctx.db.insert("alerts", {
-      userId: user._id,
+      userId,
       type: "system",
       title: "ברוך שובך!",
       message: "המנוי שלך הופעל מחדש. שמחים לראות אותך חוזר!",
@@ -604,23 +547,14 @@ export const reactivateSubscription = mutation({
 export const checkTrialExpiry = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return { isExpired: false, daysRemaining: null };
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return { isExpired: false, daysRemaining: null };
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     if (!subscription) {
@@ -658,23 +592,14 @@ export const checkTrialExpiry = query({
 export const handleExpiredTrial = mutation({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!user) {
-      throw new Error("User not found");
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .unique();
 
     if (!subscription) {
@@ -701,7 +626,7 @@ export const handleExpiredTrial = mutation({
 
     // Create trial expired alert
     await ctx.db.insert("alerts", {
-      userId: user._id,
+      userId,
       type: "system",
       title: "תקופת הניסיון הסתיימה",
       message: "תקופת הניסיון שלך הסתיימה. שדרג עכשיו כדי להמשיך ליהנות מכל התכונות.",
@@ -723,23 +648,14 @@ export const handleExpiredTrial = mutation({
 export const getUpgradeOptions = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return [];
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     const currentTier = (subscription?.tier as SubscriptionTier) || "free_trial";

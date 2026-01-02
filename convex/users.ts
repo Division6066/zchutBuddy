@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
 import { SUBSCRIPTION_TIERS, type SubscriptionTier } from "./lib/subscriptionConfig";
@@ -54,15 +55,12 @@ function calculateRelevantMinistries(profile: {
 export const getCurrentUser = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
-    return await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
+    return await ctx.db.get(userId);
   },
 });
 
@@ -77,7 +75,7 @@ export const getById = query({
 });
 
 /**
- * Get or create a user based on Clerk identity.
+ * Get or create a user based on Convex Auth identity.
  * Creates a new user with default values if not found.
  * Also creates:
  * - Default subscription (free trial)
@@ -88,18 +86,13 @@ export const getById = query({
 export const getOrCreateUser = mutation({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const clerkId = identity.subject;
-
-    // Check if user exists
-    const existingUser = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", clerkId))
-      .first();
+    // Get the user record (Convex Auth creates this)
+    const existingUser = await ctx.db.get(userId);
 
     if (existingUser) {
       // Update last login
@@ -109,17 +102,50 @@ export const getOrCreateUser = mutation({
       return existingUser;
     }
 
+    // This shouldn't happen with Convex Auth as it creates the user,
+    // but we handle it just in case
+    throw new Error("User not found after authentication");
+  },
+});
+
+/**
+ * Initialize a new user after first sign-in
+ * Called after authentication to set up subscription, usage tracking, etc.
+ */
+export const initializeNewUser = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Not authenticated");
+    }
+
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    // Check if already initialized (has subscription)
+    const existingSubscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (existingSubscription) {
+      // Already initialized, just update last login
+      await ctx.db.patch(userId, {
+        lastLoginAt: Date.now(),
+      });
+      return user;
+    }
+
     // Get free trial configuration
     const trialConfig = SUBSCRIPTION_TIERS.free_trial;
     const now = Date.now();
     const trialEnd = now + trialConfig.trialDays * 24 * 60 * 60 * 1000;
 
-    // Create new user
-    const userId = await ctx.db.insert("users", {
-      clerkId,
-      email: identity.email ?? "",
-      name: identity.name ?? identity.nickname ?? undefined,
-      imageUrl: identity.pictureUrl ?? undefined,
+    // Update user with app-specific fields
+    await ctx.db.patch(userId, {
       language: "he", // Default to Hebrew
       createdAt: now,
       lastLoginAt: now,
@@ -186,23 +212,14 @@ export const getOrCreateUser = mutation({
 export const getUserSubscription = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
     const subscription = await ctx.db
       .query("subscriptions")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     if (!subscription) {
@@ -225,23 +242,14 @@ export const getUserSubscription = query({
 export const getUserUsage = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
     return await ctx.db
       .query("usageTracking")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
   },
 });
@@ -257,16 +265,12 @@ export const updateUser = mutation({
     onboardingCompleted: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
+    const user = await ctx.db.get(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -279,10 +283,10 @@ export const updateUser = mutation({
       updateData.onboardingCompleted = args.onboardingCompleted;
 
     if (Object.keys(updateData).length > 0) {
-      await ctx.db.patch(user._id, updateData);
+      await ctx.db.patch(userId, updateData);
     }
 
-    return await ctx.db.get(user._id);
+    return await ctx.db.get(userId);
   },
 });
 
@@ -292,35 +296,31 @@ export const updateUser = mutation({
 export const completeOnboarding = mutation({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
+    const user = await ctx.db.get(userId);
     if (!user) {
       throw new Error("User not found");
     }
 
     const now = Date.now();
 
-    await ctx.db.patch(user._id, {
+    await ctx.db.patch(userId, {
       onboardingCompleted: true,
     });
 
     // Get user profile to calculate recommendations
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     // Create onboarding complete alert
     await ctx.db.insert("alerts", {
-      userId: user._id,
+      userId,
       type: "system",
       title: "הפרופיל שלך מוכן!",
       message: "אנחנו מחפשים זכויות שמתאימות לפרופיל שלך. בינתיים, נסה את מנוע החיפוש שלנו.",
@@ -335,7 +335,7 @@ export const completeOnboarding = mutation({
     // If user has disabilities or special conditions, create a targeted alert
     if (profile?.disabilities && profile.disabilities.length > 0) {
       await ctx.db.insert("alerts", {
-        userId: user._id,
+        userId,
         type: "rights_update",
         title: "מצאנו זכויות פוטנציאליות",
         message: `על סמך הפרופיל שלך, ייתכן שאתה זכאי לזכויות נוספות. לחץ לפרטים.`,
@@ -348,7 +348,7 @@ export const completeOnboarding = mutation({
       });
     }
 
-    return user._id;
+    return userId;
   },
 });
 
@@ -358,23 +358,14 @@ export const completeOnboarding = mutation({
 export const getUserProfile = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return null;
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return null;
     }
 
     return await ctx.db
       .query("userProfiles")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
   },
 });
@@ -415,23 +406,19 @@ export const updateUserProfile = mutation({
     preferredLanguage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
+    const user = await ctx.db.get(userId);
     if (!user) {
       throw new Error("User not found");
     }
 
     const profile = await ctx.db
       .query("userProfiles")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     const now = Date.now();
@@ -464,7 +451,7 @@ export const updateUserProfile = mutation({
 
       // Also update user's language preference if changed
       if (args.preferredLanguage && args.preferredLanguage !== user.language) {
-        await ctx.db.patch(user._id, {
+        await ctx.db.patch(userId, {
           language: args.preferredLanguage,
         });
       }
@@ -474,7 +461,7 @@ export const updateUserProfile = mutation({
 
     // Create new profile
     return await ctx.db.insert("userProfiles", {
-      userId: user._id,
+      userId,
       ...args,
       relevantMinistries,
       isAnonymous: args.isAnonymous ?? false,
@@ -515,16 +502,12 @@ export const saveUserProfile = mutation({
     preferredLanguage: v.string(),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
+    const user = await ctx.db.get(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -543,7 +526,7 @@ export const saveUserProfile = mutation({
     // Get existing profile
     const existingProfile = await ctx.db
       .query("userProfiles")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id))
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
       .first();
 
     const profileData = {
@@ -574,14 +557,14 @@ export const saveUserProfile = mutation({
       profileId = existingProfile._id;
     } else {
       profileId = await ctx.db.insert("userProfiles", {
-        userId: user._id,
+        userId,
         ...profileData,
       });
     }
 
     // Update user's language preference
     if (args.preferredLanguage !== user.language) {
-      await ctx.db.patch(user._id, {
+      await ctx.db.patch(userId, {
         language: args.preferredLanguage,
       });
     }
@@ -598,23 +581,14 @@ export const getUserAlerts = query({
     unreadOnly: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
-      return [];
-    }
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .first();
-
-    if (!user) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       return [];
     }
 
     const alertsQuery = ctx.db
       .query("alerts")
-      .withIndex("by_userId", (q) => q.eq("userId", user._id));
+      .withIndex("by_userId", (q) => q.eq("userId", userId));
 
     const alerts = await alertsQuery.collect();
 
@@ -634,8 +608,8 @@ export const markAlertRead = mutation({
     alertId: v.id("alerts"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
@@ -658,8 +632,8 @@ export const dismissAlert = mutation({
     alertId: v.id("alerts"),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 

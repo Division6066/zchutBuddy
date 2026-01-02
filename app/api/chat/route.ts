@@ -6,7 +6,7 @@
  * Response: Streaming plain text
  *
  * Features:
- * - Authentication via Clerk
+ * - Authentication via Convex Auth (JWT cookie)
  * - Usage checking and limits
  * - Model routing based on subscription tier
  * - Streaming responses
@@ -14,7 +14,6 @@
 
 export const runtime = "edge";
 
-import { auth } from "@clerk/nextjs/server";
 import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 
@@ -117,42 +116,42 @@ export async function POST(request: Request): Promise<Response> {
     return errorResponse("Server configuration error", 500);
   }
 
-  // Authentication - check for Clerk user
-  const { userId: clerkUserId } = await auth();
-
   // For now, allow unauthenticated requests for guest mode
   // In production, you might want to add rate limiting for guests
+  // Authentication is handled by Convex Auth via cookies (the ConvexHttpClient
+  // will pick up the auth token from the request cookies automatically when
+  // queries are made that require authentication)
   let userTier = "free_trial";
-  const canUseApi = true;
   let usageCheckResult: { softCapReached?: boolean; hardCapReached?: boolean } = {};
+  let isAuthenticated = false;
 
-  // If authenticated, check subscription and usage
-  if (clerkUserId) {
-    try {
-      // Get user subscription via Convex
-      const subscription = await convex.query(api.subscriptions.getMySubscription);
-      if (subscription) {
-        userTier = subscription.tier;
-      }
-
-      // Check usage caps
-      usageCheckResult = await convex.query(api.usageTracking.checkUsageCaps);
-      if (usageCheckResult.hardCapReached) {
-        return errorResponse("הגעת למגבלת השימוש החודשית. שדרג את התוכנית שלך כדי להמשיך.", 429);
-      }
-
-      // Check daily chat limit
-      const dailyLimit = await convex.query(api.usageTracking.checkDailyChatLimit);
-      if (dailyLimit && !dailyLimit.canChat) {
-        return errorResponse(
-          `הגעת למגבלת ${dailyLimit.limit} שיחות ליום. נסה שוב מחר או שדרג את התוכנית.`,
-          429
-        );
-      }
-    } catch (error) {
-      console.error("Error checking user status:", error);
-      // Continue with defaults if Convex query fails
+  // Try to check subscription and usage - this will work if user is authenticated
+  try {
+    // Get user subscription via Convex
+    const subscription = await convex.query(api.subscriptions.getMySubscription);
+    if (subscription) {
+      userTier = subscription.tier;
+      isAuthenticated = true;
     }
+
+    // Check usage caps
+    usageCheckResult = await convex.query(api.usageTracking.checkUsageCaps);
+    if (usageCheckResult.hardCapReached) {
+      return errorResponse("הגעת למגבלת השימוש החודשית. שדרג את התוכנית שלך כדי להמשיך.", 429);
+    }
+
+    // Check daily chat limit
+    const dailyLimit = await convex.query(api.usageTracking.checkDailyChatLimit);
+    if (dailyLimit && !dailyLimit.canChat) {
+      return errorResponse(
+        `הגעת למגבלת ${dailyLimit.limit} שיחות ליום. נסה שוב מחר או שדרג את התוכנית.`,
+        429
+      );
+    }
+  } catch (error) {
+    // User is likely not authenticated or queries failed
+    // Continue with guest/free tier defaults
+    console.error("Error checking user status (may be unauthenticated):", error);
   }
 
   // Parse and validate request body

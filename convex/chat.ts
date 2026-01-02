@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/server";
@@ -7,25 +8,15 @@ import { type MutationCtx, mutation, type QueryCtx, query } from "./_generated/s
 // ============================================
 
 /**
- * Get the current user's ID from Clerk identity.
- * Throws if not authenticated or user not found.
+ * Get the current user's ID from Convex Auth.
+ * Throws if not authenticated.
  */
 async function getCurrentUserId(ctx: QueryCtx | MutationCtx): Promise<Id<"users">> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) {
     throw new Error("Not authenticated");
   }
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-    .unique();
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  return user._id;
+  return userId;
 }
 
 /**

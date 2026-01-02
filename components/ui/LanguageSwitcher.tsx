@@ -17,8 +17,7 @@
  * - Animated with Framer Motion
  */
 
-import { useAuth } from "@clerk/nextjs";
-import { useMutation } from "convex/react";
+import { useConvexAuth, useMutation } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, Globe } from "lucide-react";
 import * as React from "react";
@@ -84,7 +83,8 @@ export function LanguageSwitcher({
   value,
   onChange,
 }: LanguageSwitcherProps) {
-  const { isSignedIn } = useAuth();
+  const { isAuthenticated } = useConvexAuth();
+  const isSignedIn = isAuthenticated;
   const { setLocale: setContextLocale } = useTranslation();
   const contextLocale = useLocale();
   const { t } = useTranslation();
@@ -279,7 +279,8 @@ export function LanguageToggleIcon({
   const { setLocale } = useTranslation();
   const locale = useLocale();
   const { t } = useTranslation();
-  const { isSignedIn } = useAuth();
+  const { isAuthenticated } = useConvexAuth();
+  const isSignedIn = isAuthenticated;
   const updateProfile = useMutation(api.users.updateUserProfile);
 
   const toggleLanguage = useCallback(async () => {

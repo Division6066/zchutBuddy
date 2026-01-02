@@ -1,12 +1,13 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import type { Id } from "./_generated/dataModel";
 import { internalMutation, mutation } from "./_generated/server";
 
 // ============================================
-// DUMMY USER DEFINITIONS (inline to avoid circular imports)
+// DUMMY USER DEFINITIONS (for testing)
+// Note: These are internal test users only
 // ============================================
 
 interface DummyUserConfig {
-  clerkId: string;
   email: string;
   name: string;
   subscriptionTier: "free_trial" | "plus" | "pro" | "max";
@@ -25,25 +26,21 @@ interface DummyProfileConfig {
 
 const DUMMY_USERS: DummyUserConfig[] = [
   {
-    clerkId: "dummy_free_trial_user",
     email: "free.trial@zchuyotbuddy.test",
     name: "משתמש ניסיון",
     subscriptionTier: "free_trial",
   },
   {
-    clerkId: "dummy_plus_user",
     email: "plus.user@zchuyotbuddy.test",
     name: "משתמש פלוס",
     subscriptionTier: "plus",
   },
   {
-    clerkId: "dummy_pro_user",
     email: "pro.user@zchuyotbuddy.test",
     name: "משתמש פרו",
     subscriptionTier: "pro",
   },
   {
-    clerkId: "dummy_max_user",
     email: "max.user@zchuyotbuddy.test",
     name: "משתמש מקס",
     subscriptionTier: "max",
@@ -128,19 +125,14 @@ const ADMIN_EMAILS = ["levidavidspublic@proton.me"];
 export const seedDummyAccounts = mutation({
   args: {},
   handler: async (ctx): Promise<SeedResult> => {
-    const identity = await ctx.auth.getUserIdentity();
-
-    if (!identity) {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
       throw new Error("Not authenticated");
     }
 
     // Verify caller is admin by email
-    const adminUser = await ctx.db
-      .query("users")
-      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
-      .unique();
-
-    if (!adminUser || !ADMIN_EMAILS.includes(adminUser.email)) {
+    const adminUser = await ctx.db.get(userId);
+    if (!adminUser || !adminUser.email || !ADMIN_EMAILS.includes(adminUser.email)) {
       throw new Error("Admin access required");
     }
 
@@ -188,20 +180,20 @@ async function seedUsers(ctx: { db: any }): Promise<SeedResult> {
     if (existingUser) {
       // Update existing user
       await ctx.db.patch(existingUser._id, {
-        clerkId: userConfig.clerkId,
         name: userConfig.name,
         subscriptionTier: userConfig.subscriptionTier,
       });
       userId = existingUser._id;
       summary.usersUpdated.push(userConfig.email);
     } else {
-      // Create new user
+      // Create new user (for testing only - real users are created via Convex Auth)
       userId = await ctx.db.insert("users", {
-        clerkId: userConfig.clerkId,
         email: userConfig.email,
         name: userConfig.name,
         subscriptionTier: userConfig.subscriptionTier,
         createdAt: now,
+        language: "he",
+        onboardingCompleted: false,
       });
       summary.usersCreated.push(userConfig.email);
     }
@@ -209,7 +201,7 @@ async function seedUsers(ctx: { db: any }): Promise<SeedResult> {
     // Check if userProfile exists for this user
     const existingProfile = await ctx.db
       .query("userProfiles")
-      .withIndex("by_user", (q: any) => q.eq("userId", userId))
+      .withIndex("by_userId", (q: any) => q.eq("userId", userId))
       .unique();
 
     if (!existingProfile) {
