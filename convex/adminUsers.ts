@@ -86,7 +86,7 @@ export const getUserByEmail = query({
 
     const targetUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .withIndex("email", (q) => q.eq("email", email))
       .unique();
 
     if (!targetUser) {
@@ -137,7 +137,7 @@ export const adminSetSubscriptionByEmail = mutation({
 
     const targetUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .withIndex("email", (q) => q.eq("email", email))
       .unique();
 
     if (!targetUser) {
@@ -208,7 +208,7 @@ export const adminResetUsage = mutation({
 
     const targetUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .withIndex("email", (q) => q.eq("email", email))
       .unique();
 
     if (!targetUser) {
@@ -264,7 +264,7 @@ export const adminCreateAlert = mutation({
 
     const targetUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .withIndex("email", (q) => q.eq("email", email))
       .unique();
 
     if (!targetUser) {
@@ -312,7 +312,7 @@ export const adminDeleteUser = mutation({
 
     const targetUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q) => q.eq("email", email))
+      .withIndex("email", (q) => q.eq("email", email))
       .unique();
 
     if (!targetUser) {

@@ -172,7 +172,7 @@ async function seedUsers(ctx: { db: any }): Promise<SeedResult> {
     // Check if user already exists by email
     const existingUser = await ctx.db
       .query("users")
-      .withIndex("by_email", (q: any) => q.eq("email", userConfig.email))
+      .withIndex("email", (q: any) => q.eq("email", userConfig.email))
       .unique();
 
     let userId: Id<"users">;

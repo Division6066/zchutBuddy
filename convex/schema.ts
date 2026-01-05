@@ -35,7 +35,9 @@ export default defineSchema({
     subscriptionTier: v.optional(v.string()),
     updatedAt: v.optional(v.number()),
     trialEndsAt: v.optional(v.number()),
-  }).index("by_email", ["email"]),
+  })
+    // Required by Convex Auth (expects index named "email")
+    .index("email", ["email"]),
 
   // ============================================
   // SUBSCRIPTIONS

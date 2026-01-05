@@ -65,7 +65,7 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_clerk_id", ["clerkId"])
-    .index("by_email", ["email"])
+    .index("email", ["email"])
     .index("by_role", ["role"]),
 
   // Add more tables as needed
@@ -620,7 +620,7 @@ const users = await ctx.db
 // Get unique record
 const user = await ctx.db
   .query("users")
-  .withIndex("by_email", (q) => q.eq("email", "user@example.com"))
+  .withIndex("email", (q) => q.eq("email", "user@example.com"))
   .unique();
 
 // Get first record
