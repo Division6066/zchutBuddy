@@ -1,12 +1,12 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth } from "convex/react";
 import { UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
-import { useConvexAuth } from "convex/react";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
 
@@ -143,9 +143,7 @@ export default function SignUpPage() {
       <div className="text-center mb-8">
         <h1 className="text-2xl font-bold text-foreground mb-2">{t("auth.signUpTitle")}</h1>
         <p className="text-muted-foreground">
-          {step === "email"
-            ? "צור חשבון והתחל לגלות את הזכויות שלך"
-            : `קוד אימות נשלח ל-${email}`}
+          {step === "email" ? "צור חשבון והתחל לגלות את הזכויות שלך" : `קוד אימות נשלח ל-${email}`}
         </p>
       </div>
 
@@ -164,7 +162,7 @@ export default function SignUpPage() {
               placeholder="your@email.com"
               required={true}
               disabled={isLoading}
-              autoFocus
+              autoFocus={true}
             />
           </div>
 
@@ -205,7 +203,7 @@ export default function SignUpPage() {
               placeholder="000000"
               required={true}
               disabled={isLoading}
-              autoFocus
+              autoFocus={true}
             />
           </div>
 

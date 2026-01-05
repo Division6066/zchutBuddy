@@ -1,6 +1,6 @@
+import type { EmailConfig } from "@auth/core/providers/email";
 import Google from "@auth/core/providers/google";
 import { convexAuth } from "@convex-dev/auth/server";
-import type { EmailConfig } from "@auth/core/providers/email";
 
 // Custom Resend provider that avoids html-to-text dependencies
 function createResendProvider(): EmailConfig | null {
@@ -16,7 +16,7 @@ function createResendProvider(): EmailConfig | null {
     maxAge: 24 * 60 * 60, // 24 hours
     async sendVerificationRequest({ identifier: to, url, provider }) {
       const { host } = new URL(url);
-      
+
       // Simple HTML email without html-to-text dependency
       const html = `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -32,7 +32,7 @@ function createResendProvider(): EmailConfig | null {
           <p style="color: #9ca3af; font-size: 12px; margin-top: 24px;">אם לא ביקשת קישור זה, תוכל להתעלם מהמייל הזה.</p>
         </div>
       `;
-      
+
       const text = `שלום! לחץ על הקישור הבא כדי להתחבר: ${url}`;
 
       const res = await fetch("https://api.resend.com/emails", {
@@ -69,4 +69,3 @@ export const { auth, signIn, signOut, store } = convexAuth({
     ...(createResendProvider() ? [createResendProvider()!] : []),
   ],
 });
-

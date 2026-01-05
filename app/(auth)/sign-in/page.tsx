@@ -1,12 +1,12 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth } from "convex/react";
 import { UserCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
 import { useState } from "react";
-import { useConvexAuth } from "convex/react";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
 
@@ -162,7 +162,7 @@ export default function SignInPage() {
               placeholder="your@email.com"
               required={true}
               disabled={isLoading}
-              autoFocus
+              autoFocus={true}
             />
           </div>
 
@@ -203,7 +203,7 @@ export default function SignInPage() {
               placeholder="000000"
               required={true}
               disabled={isLoading}
-              autoFocus
+              autoFocus={true}
             />
           </div>
 

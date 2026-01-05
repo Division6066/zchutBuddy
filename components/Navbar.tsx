@@ -1,15 +1,15 @@
 "use client";
 
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { LogOut, Menu, User, UserCircle, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useConvexAuth, useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import SignInModal from "@/components/SignInModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { api } from "@/convex/_generated/api";
 import { debug } from "@/lib/debug";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { cn } from "@/lib/utils";
@@ -200,7 +200,9 @@ function NavbarContent() {
                       )}
                     </div>
                     <span className="text-sm font-medium text-[#111817] hidden sm:inline">
-                      {isGuest ? guestUser?.name : currentUser?.name || currentUser?.email?.split("@")[0]}
+                      {isGuest
+                        ? guestUser?.name
+                        : currentUser?.name || currentUser?.email?.split("@")[0]}
                     </span>
                   </Button>
 
@@ -214,9 +216,7 @@ function NavbarContent() {
                               : currentUser?.name || currentUser?.email?.split("@")[0]}
                           </p>
                           <p className="text-xs text-gray-500 truncate">
-                            {isGuest
-                              ? "מצב אורח - נתונים נשמרים מקומית"
-                              : currentUser?.email}
+                            {isGuest ? "מצב אורח - נתונים נשמרים מקומית" : currentUser?.email}
                           </p>
                           {isGuest && (
                             <p className="text-xs text-orange-500 mt-1">

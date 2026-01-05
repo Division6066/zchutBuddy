@@ -1,7 +1,7 @@
 "use client";
 
-import { useConvexAuth, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bell,

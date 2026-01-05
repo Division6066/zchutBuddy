@@ -1,7 +1,7 @@
 "use client";
 
-import { useConvexAuth, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import {
   Bell,
   BookMarked,
@@ -150,12 +150,9 @@ export default function DesktopSidebar() {
     api.subscriptions.getMySubscription,
     shouldRunAuthQueries ? {} : "skip"
   );
-  
+
   // Fetch user profile if authenticated
-  const userProfile = useQuery(
-    api.users.getCurrentUser,
-    shouldRunAuthQueries ? {} : "skip"
-  );
+  const userProfile = useQuery(api.users.getCurrentUser, shouldRunAuthQueries ? {} : "skip");
 
   // Don't render before mount (SSR safety)
   if (!mounted) {
@@ -165,8 +162,7 @@ export default function DesktopSidebar() {
   const isRTL = dir === "rtl";
 
   // User display info
-  const displayName =
-    userProfile?.name || (isGuest ? t("common.guest") : t("common.user"));
+  const displayName = userProfile?.name || (isGuest ? t("common.guest") : t("common.user"));
   const avatarUrl = userProfile?.imageUrl;
 
   // Usage calculations
