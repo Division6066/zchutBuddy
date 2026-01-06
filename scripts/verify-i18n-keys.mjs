@@ -9,9 +9,9 @@
  * Exit code: 0 if all keys match, 1 if there are mismatches
  */
 
-import { readFileSync } from "fs";
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
+import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const projectRoot = join(__dirname, "..");
@@ -47,14 +47,10 @@ function loadJson(path) {
   try {
     const content = readFileSync(path, "utf8");
     return JSON.parse(content);
-  } catch (error) {
-    console.error(`Error loading ${path}:`, error.message);
+  } catch (_error) {
     process.exit(1);
   }
 }
-
-// Main execution
-console.log("🔍 Verifying i18n key parity...\n");
 
 const hePath = join(projectRoot, "locales", "he", "common.json");
 const enPath = join(projectRoot, "locales", "en", "common.json");
@@ -75,31 +71,18 @@ let hasErrors = false;
 
 if (missingInEn.length > 0) {
   hasErrors = true;
-  console.log(`❌ Missing in English (${missingInEn.length} keys):`);
-  for (const key of missingInEn) {
-    console.log(`   - ${key}`);
+  for (const _key of missingInEn) {
   }
-  console.log();
 }
 
 if (missingInHe.length > 0) {
   hasErrors = true;
-  console.log(`❌ Missing in Hebrew (${missingInHe.length} keys):`);
-  for (const key of missingInHe) {
-    console.log(`   - ${key}`);
+  for (const _key of missingInHe) {
   }
-  console.log();
 }
 
-// Summary
-console.log("📊 Summary:");
-console.log(`   Hebrew keys:  ${heKeys.size}`);
-console.log(`   English keys: ${enKeys.size}`);
-
 if (hasErrors) {
-  console.log("\n❌ Key parity check FAILED");
   process.exit(1);
 } else {
-  console.log("\n✅ All keys match! Both locales are in sync.");
   process.exit(0);
 }

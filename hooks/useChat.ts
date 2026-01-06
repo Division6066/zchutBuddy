@@ -117,7 +117,9 @@ export function useChat(options: UseChatOptions = {}) {
    */
   const sendMessage = useCallback(
     async (content: string) => {
-      if (!content.trim() || state.isLoading) return;
+      if (!content.trim() || state.isLoading) {
+        return;
+      }
 
       // Clear any previous error
       setState((prev) => ({
@@ -135,7 +137,7 @@ export function useChat(options: UseChatOptions = {}) {
             title: content.slice(0, 50) + (content.length > 50 ? "..." : ""),
           });
           setState((prev) => ({ ...prev, sessionId }));
-        } catch (error) {
+        } catch (_error) {
           const errorMessage = "שגיאה ביצירת שיחה חדשה";
           setState((prev) => ({
             ...prev,
@@ -163,8 +165,7 @@ export function useChat(options: UseChatOptions = {}) {
       // Save user message to Convex
       try {
         await sendConvexMessage({ sessionId, content });
-      } catch (error) {
-        console.error("Failed to save user message:", error);
+      } catch (_error) {
         // Continue anyway - chat will work but message won't be persisted
       }
 
@@ -236,7 +237,9 @@ export function useChat(options: UseChatOptions = {}) {
 
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            break;
+          }
 
           const chunk = decoder.decode(value, { stream: true });
           fullContent += chunk;
@@ -275,9 +278,7 @@ export function useChat(options: UseChatOptions = {}) {
               content: fullContent,
               modelUsed: modelUsed || undefined,
             });
-          } catch (error) {
-            console.error("Failed to save assistant message:", error);
-          }
+          } catch (_error) {}
         }
 
         // Notify callback
@@ -380,9 +381,7 @@ export function useChat(options: UseChatOptions = {}) {
       if (state.sessionId) {
         try {
           await updateSessionTitle({ sessionId: state.sessionId, title });
-        } catch (error) {
-          console.error("Failed to update session title:", error);
-        }
+        } catch (_error) {}
       }
     },
     [state.sessionId, updateSessionTitle]

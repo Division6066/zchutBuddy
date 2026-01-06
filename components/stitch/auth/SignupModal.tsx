@@ -12,7 +12,9 @@ interface SignupModalProps {
  * Based on Stitch design patterns from welcome_to_zchuyotbuddy screens
  */
 export default function SignupModal({ isOpen, onClose }: SignupModalProps) {
-  if (!isOpen) return null;
+  if (!isOpen) {
+    return null;
+  }
 
   return (
     <div

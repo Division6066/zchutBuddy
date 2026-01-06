@@ -44,8 +44,7 @@ export default function ReviewPage() {
       setTimeout(() => {
         router.push("/dashboard");
       }, 2000);
-    } catch (error) {
-      console.error("Failed to complete onboarding:", error);
+    } catch (_error) {
       setIsCompleting(false);
     }
   };
@@ -105,7 +104,9 @@ export default function ReviewPage() {
     labels: Record<string, { he: string; en: string }>,
     value: string | undefined
   ): string => {
-    if (!value) return locale === "he" ? "לא צוין" : "Not specified";
+    if (!value) {
+      return locale === "he" ? "לא צוין" : "Not specified";
+    }
     return labels[value]?.[locale === "he" ? "he" : "en"] || value;
   };
 

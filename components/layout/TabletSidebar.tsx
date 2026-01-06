@@ -184,7 +184,7 @@ export default function TabletSidebar() {
         <nav className="flex-1 p-2 overflow-y-auto">
           <motion.ul className="space-y-1">
             {NAV_ITEMS.map((item, index) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
               const Icon = item.icon;
               const showBadge = item.hasBadge && unreadCount !== undefined && unreadCount > 0;
 

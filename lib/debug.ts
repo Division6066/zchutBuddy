@@ -70,7 +70,7 @@ class DebugLogger {
       return;
     }
 
-    const formattedMessage = this.formatMessage(level, data);
+    const _formattedMessage = this.formatMessage(level, data);
     const logData = {
       ...data,
       level,
@@ -82,13 +82,10 @@ class DebugLogger {
     switch (level) {
       case "debug":
       case "info":
-        console.log(formattedMessage, data.data || "");
         break;
       case "warn":
-        console.warn(formattedMessage, data.data || "");
         break;
       case "error":
-        console.error(formattedMessage, data.data || "");
         break;
     }
 

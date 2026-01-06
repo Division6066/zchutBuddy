@@ -377,7 +377,7 @@ export const saveFromChat = mutation({
 
     // Extract summary (first 200 chars)
     const summary =
-      messageContent.length > 200 ? messageContent.slice(0, 200) + "..." : messageContent;
+      messageContent.length > 200 ? `${messageContent.slice(0, 200)}...` : messageContent;
 
     return await ctx.db.insert("savedRights", {
       userId,

@@ -101,7 +101,7 @@ function NavbarContent() {
       // Hash link on home page
       return pathname === "/" && currentHash === href.slice(1);
     }
-    return pathname === href || pathname.startsWith(href + "/");
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   // Show loading state while auth is being determined

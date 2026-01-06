@@ -55,7 +55,7 @@ export default function RightsMapPage() {
     },
   ];
 
-  const getStatusColor = (status: Right["status"]) => {
+  const _getStatusColor = (status: Right["status"]) => {
     switch (status) {
       case "active":
         return "bg-success-bg border-success text-success";
@@ -66,7 +66,7 @@ export default function RightsMapPage() {
     }
   };
 
-  const getStatusIcon = (status: Right["status"]) => {
+  const _getStatusIcon = (status: Right["status"]) => {
     switch (status) {
       case "active":
         return "check_circle";
@@ -77,7 +77,7 @@ export default function RightsMapPage() {
     }
   };
 
-  const getStatusLabel = (status: Right["status"]) => {
+  const _getStatusLabel = (status: Right["status"]) => {
     switch (status) {
       case "active":
         return "פעיל";
@@ -94,7 +94,7 @@ export default function RightsMapPage() {
 
   const totalValue = activeRights.reduce((sum, r) => {
     const match = r.value?.match(/[\d,]+/);
-    return sum + (match ? parseInt(match[0].replace(",", "")) : 0);
+    return sum + (match ? parseInt(match[0].replace(",", ""), 10) : 0);
   }, 0);
 
   return (

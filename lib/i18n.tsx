@@ -1,13 +1,6 @@
 "use client";
 
-import React, {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from "react";
 
 type Locale = "en" | "he";
 

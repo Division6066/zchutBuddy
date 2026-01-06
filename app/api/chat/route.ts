@@ -76,7 +76,9 @@ interface ChatRequestBody {
  * Validates the request body
  */
 function validateRequestBody(body: unknown): body is ChatRequestBody {
-  if (!body || typeof body !== "object") return false;
+  if (!body || typeof body !== "object") {
+    return false;
+  }
   const { message } = body as Record<string, unknown>;
   return typeof message === "string" && message.trim().length > 0;
 }
@@ -123,7 +125,7 @@ export async function POST(request: Request): Promise<Response> {
   // queries are made that require authentication)
   let userTier = "free_trial";
   let usageCheckResult: { softCapReached?: boolean; hardCapReached?: boolean } = {};
-  let isAuthenticated = false;
+  let _isAuthenticated = false;
 
   // Try to check subscription and usage - this will work if user is authenticated
   try {
@@ -131,7 +133,7 @@ export async function POST(request: Request): Promise<Response> {
     const subscription = await convex.query(api.subscriptions.getMySubscription);
     if (subscription) {
       userTier = subscription.tier;
-      isAuthenticated = true;
+      _isAuthenticated = true;
     }
 
     // Check usage caps
@@ -148,11 +150,7 @@ export async function POST(request: Request): Promise<Response> {
         429
       );
     }
-  } catch (error) {
-    // User is likely not authenticated or queries failed
-    // Continue with guest/free tier defaults
-    console.error("Error checking user status (may be unauthenticated):", error);
-  }
+  } catch (_error) {}
 
   // Parse and validate request body
   let body: unknown;
@@ -198,8 +196,7 @@ export async function POST(request: Request): Promise<Response> {
     });
 
     if (!openRouterResponse.ok) {
-      const errorText = await openRouterResponse.text();
-      console.error(`OpenRouter error: ${openRouterResponse.status} ${errorText}`);
+      const _errorText = await openRouterResponse.text();
 
       if (openRouterResponse.status === 429) {
         return errorResponse("שירות AI עמוס. נסה שוב בעוד מספר שניות.", 429);
@@ -216,7 +213,7 @@ export async function POST(request: Request): Promise<Response> {
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
 
-    let totalContent = "";
+    let _totalContent = "";
 
     const transformStream = new TransformStream({
       transform(chunk, controller) {
@@ -225,20 +222,24 @@ export async function POST(request: Request): Promise<Response> {
 
         for (const line of lines) {
           // Skip empty lines and comments
-          if (!line.trim() || line.startsWith(":")) continue;
+          if (!line.trim() || line.startsWith(":")) {
+            continue;
+          }
 
           // Handle SSE data lines
           if (line.startsWith("data: ")) {
             const data = line.slice(6).trim();
 
             // Skip [DONE] marker
-            if (data === "[DONE]") continue;
+            if (data === "[DONE]") {
+              continue;
+            }
 
             try {
               const parsed = JSON.parse(data);
               const content = parsed.choices?.[0]?.delta?.content;
               if (content) {
-                totalContent += content;
+                _totalContent += content;
                 controller.enqueue(encoder.encode(content));
               }
             } catch {
@@ -262,8 +263,7 @@ export async function POST(request: Request): Promise<Response> {
         "X-Soft-Cap-Warning": usageCheckResult.softCapReached ? "true" : "false",
       },
     });
-  } catch (error) {
-    console.error("Chat API error:", error);
+  } catch (_error) {
     return errorResponse("שגיאה פנימית בשרת", 500);
   }
 }

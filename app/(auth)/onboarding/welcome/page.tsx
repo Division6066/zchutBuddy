@@ -42,7 +42,9 @@ export default function WelcomePage() {
 
   // Handle continue
   const handleContinue = async () => {
-    if (!termsAccepted) return;
+    if (!termsAccepted) {
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -52,8 +54,7 @@ export default function WelcomePage() {
         termsAcceptedAt: Date.now(),
       });
       router.push("/onboarding/basic-info");
-    } catch (error) {
-      console.error("Failed to save preferences:", error);
+    } catch (_error) {
       // Still navigate even if save fails
       router.push("/onboarding/basic-info");
     } finally {

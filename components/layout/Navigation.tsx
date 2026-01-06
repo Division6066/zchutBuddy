@@ -101,7 +101,7 @@ export function MainLayout({ children, showNav = true, className }: MainLayoutPr
   }, [handleSidebarToggle]);
 
   // Compute content margin classes based on device type
-  const getContentMarginClass = (): string => {
+  const _getContentMarginClass = (): string => {
     if (!mounted || !showNav) {
       return "";
     }

@@ -5,12 +5,7 @@
  * if preferred models are unavailable or if the user doesn't have access.
  */
 
-import {
-  AI_MODELS,
-  getDefaultModelForTier as getDefaultModel,
-  isModelAvailableForTier,
-  type ModelId,
-} from "./modelConfig";
+import { AI_MODELS, type ModelId } from "./modelConfig";
 import { SUBSCRIPTION_TIERS, type SubscriptionTier } from "./subscriptionConfig";
 
 // Re-export types for convenience

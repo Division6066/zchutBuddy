@@ -27,7 +27,7 @@
 
 /* Prevent flipping for icons that should remain unchanged */
 [dir="rtl"] .icon-no-flip {
-  transform: none !important;
+  transform: none;
 }
 
 /* ==========================================================================

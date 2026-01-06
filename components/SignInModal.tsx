@@ -66,7 +66,9 @@ export function SignInModal(props: SignInModalProps) {
 
   const handleSendCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email) {
+      return;
+    }
 
     setIsLoading(true);
     setError("");
@@ -95,7 +97,9 @@ export function SignInModal(props: SignInModalProps) {
 
   const handleVerifyCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code) return;
+    if (!code) {
+      return;
+    }
 
     setIsLoading(true);
     setError("");
@@ -113,7 +117,9 @@ export function SignInModal(props: SignInModalProps) {
   };
 
   const handleResendCode = async () => {
-    if (cooldown > 0) return;
+    if (cooldown > 0) {
+      return;
+    }
 
     setIsLoading(true);
     setError("");
@@ -142,8 +148,7 @@ export function SignInModal(props: SignInModalProps) {
   const signInWithGoogle = async () => {
     try {
       await signIn("google");
-    } catch (err) {
-      console.error("Google OAuth error:", err);
+    } catch (_err) {
       setError("שגיאה בהתחברות עם Google");
     }
   };

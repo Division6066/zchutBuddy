@@ -20,8 +20,7 @@
 import { useConvexAuth, useMutation } from "convex/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, Globe } from "lucide-react";
-import * as React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,

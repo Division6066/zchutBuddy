@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Providers } from "@/components/providers/providers";
 import { fontVariables } from "./fonts";
 
@@ -143,7 +144,9 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <Providers>{children}</Providers>
+        <ConvexAuthNextjsServerProvider>
+          <Providers>{children}</Providers>
+        </ConvexAuthNextjsServerProvider>
       </body>
     </html>
   );

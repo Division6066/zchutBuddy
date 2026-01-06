@@ -118,9 +118,15 @@ export default function BasicInfoPage() {
     if (saved) {
       try {
         const data = JSON.parse(saved) as Partial<BasicInfoForm>;
-        if (data.ageRange) setValue("ageRange", data.ageRange);
-        if (data.city) setValue("city", data.city);
-        if (data.hmo) setValue("hmo", data.hmo);
+        if (data.ageRange) {
+          setValue("ageRange", data.ageRange);
+        }
+        if (data.city) {
+          setValue("city", data.city);
+        }
+        if (data.hmo) {
+          setValue("hmo", data.hmo);
+        }
       } catch {
         // Ignore parse errors
       }
@@ -150,7 +156,9 @@ export default function BasicInfoPage() {
 
   // Filter cities based on search
   const filteredCities = useMemo(() => {
-    if (!citySearch) return ISRAELI_CITIES;
+    if (!citySearch) {
+      return ISRAELI_CITIES;
+    }
     const search = citySearch.toLowerCase();
     return ISRAELI_CITIES.filter(
       (city) =>
@@ -178,8 +186,7 @@ export default function BasicInfoPage() {
       // Clear localStorage after successful save
       localStorage.removeItem(STORAGE_KEY);
       router.push("/onboarding/situation");
-    } catch (error) {
-      console.error("Failed to save basic info:", error);
+    } catch (_error) {
     } finally {
       setIsSaving(false);
     }
@@ -272,7 +279,6 @@ export default function BasicInfoPage() {
                       onChange={(e) => setCitySearch(e.target.value)}
                       placeholder={locale === "he" ? "חפש עיר..." : "Search city..."}
                       className="w-full ps-10 pe-4 py-2 rounded-lg bg-muted border-0 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                      autoFocus={true}
                     />
                   </div>
                 </div>

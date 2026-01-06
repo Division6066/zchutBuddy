@@ -1,6 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { SUBSCRIPTION_TIERS, type SubscriptionTier } from "./lib/subscriptionConfig";
 
 /**
@@ -109,8 +110,116 @@ export const getOrCreateUser = mutation({
 });
 
 /**
- * Initialize a new user after first sign-in
- * Called after authentication to set up subscription, usage tracking, etc.
+ * Internal mutation to initialize a new user.
+ * Called from the Convex Auth afterUserCreatedOrUpdated callback.
+ * This is idempotent - safe to call multiple times.
+ */
+export const initializeNewUserInternal = internalMutation({
+  args: {
+    userId: v.id("users"),
+  },
+  handler: async (ctx, { userId }) => {
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      console.error(`[initializeNewUserInternal] User ${userId} not found`);
+      return { status: "user_not_found" };
+    }
+
+    // Check if already initialized (has subscription) - idempotent check
+    const existingSubscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (existingSubscription) {
+      console.log(`[initializeNewUserInternal] User ${userId} already initialized, updating lastLoginAt`);
+      await ctx.db.patch(userId, {
+        lastLoginAt: Date.now(),
+      });
+      return { status: "already_initialized" };
+    }
+
+    console.log(`[initializeNewUserInternal] Initializing new user ${userId}`);
+
+    // Get free trial configuration
+    const trialConfig = SUBSCRIPTION_TIERS.free_trial;
+    const now = Date.now();
+    const trialEnd = now + trialConfig.trialDays * 24 * 60 * 60 * 1000;
+
+    // Update user with app-specific fields
+    await ctx.db.patch(userId, {
+      language: "he", // Default to Hebrew
+      createdAt: now,
+      lastLoginAt: now,
+      onboardingCompleted: false,
+    });
+
+    // Create free trial subscription
+    const subscriptionId = await ctx.db.insert("subscriptions", {
+      userId,
+      tier: "free_trial",
+      status: "trialing",
+      trialStartedAt: now,
+      trialEndsAt: trialEnd,
+      priceInShekels: trialConfig.priceShekels,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Initialize usage tracking with tier limits
+    const usageId = await ctx.db.insert("usageTracking", {
+      userId,
+      periodStart: now,
+      periodEnd: trialEnd,
+      apiCreditsUsed: 0,
+      apiCreditsLimit: trialConfig.apiBudget,
+      crawlCreditsUsed: 0,
+      crawlCreditsLimit: trialConfig.limits.deepResearchPerMonth,
+      totalTokensUsed: 0,
+      softCapReached: false,
+      hardCapReached: false,
+      softCapAlertSent: false,
+      hardCapAlertSent: false,
+      updatedAt: now,
+    });
+
+    // Create empty user profile
+    const profileId = await ctx.db.insert("userProfiles", {
+      userId,
+      isAnonymous: false,
+      updatedAt: now,
+    });
+
+    // Create welcome alert for new users
+    const alertId = await ctx.db.insert("alerts", {
+      userId,
+      type: "system",
+      title: "ברוכים הבאים לזכויות באדי!",
+      message: "נעזור לך למצוא את כל הזכויות שמגיעות לך. התחל על ידי מילוי הפרופיל שלך.",
+      priority: "medium",
+      isRead: false,
+      isDismissed: false,
+      actionUrl: "/onboarding/welcome",
+      actionLabel: "התחל עכשיו",
+      createdAt: now,
+    });
+
+    console.log(`[initializeNewUserInternal] Created subscription=${subscriptionId}, usage=${usageId}, profile=${profileId}, alert=${alertId} for user ${userId}`);
+
+    return {
+      status: "initialized",
+      subscriptionId,
+      usageId,
+      profileId,
+      alertId,
+    };
+  },
+});
+
+/**
+ * Initialize a new user after first sign-in (public mutation).
+ * Called from client after authentication to set up subscription, usage tracking, etc.
+ * This is a wrapper around initializeNewUserInternal for client calls.
  */
 export const initializeNewUser = mutation({
   args: {},
@@ -276,11 +385,18 @@ export const updateUser = mutation({
     }
 
     const updateData: Record<string, unknown> = {};
-    if (args.name !== undefined) updateData.name = args.name;
-    if (args.imageUrl !== undefined) updateData.imageUrl = args.imageUrl;
-    if (args.language !== undefined) updateData.language = args.language;
-    if (args.onboardingCompleted !== undefined)
+    if (args.name !== undefined) {
+      updateData.name = args.name;
+    }
+    if (args.imageUrl !== undefined) {
+      updateData.imageUrl = args.imageUrl;
+    }
+    if (args.language !== undefined) {
+      updateData.language = args.language;
+    }
+    if (args.onboardingCompleted !== undefined) {
       updateData.onboardingCompleted = args.onboardingCompleted;
+    }
 
     if (Object.keys(updateData).length > 0) {
       await ctx.db.patch(userId, updateData);

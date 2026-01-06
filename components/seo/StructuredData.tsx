@@ -286,7 +286,9 @@ export function LocalBusinessSchema({
   telephone,
   openingHours,
 }: LocalBusinessSchemaProps): React.JSX.Element | null {
-  if (!address) return null;
+  if (!address) {
+    return null;
+  }
 
   const jsonLd = {
     "@context": "https://schema.org",

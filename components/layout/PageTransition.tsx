@@ -318,7 +318,6 @@ export function SlideIn({
         return { x: isRtl ? -distance : distance, y: 0 };
       case "top":
         return { x: 0, y: -distance };
-      case "bottom":
       default:
         return { x: 0, y: distance };
     }

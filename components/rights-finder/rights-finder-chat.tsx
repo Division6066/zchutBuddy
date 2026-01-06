@@ -81,7 +81,7 @@ export function RightsFinderChat({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, streamingContent, scrollToBottom]);
+  }, [scrollToBottom]);
 
   // ----------------------------------------
   // Create session on mount if needed
@@ -94,8 +94,7 @@ export function RightsFinderChat({
           const newSessionId = await createChatSession({ type: "rights_finder" });
           setCurrentSessionId(newSessionId);
           onSessionCreated?.(newSessionId);
-        } catch (err) {
-          console.error("Failed to create session:", err);
+        } catch (_err) {
           setError("שגיאה ביצירת שיחה חדשה");
         } finally {
           setIsCreatingSession(false);
@@ -111,7 +110,9 @@ export function RightsFinderChat({
   const handleSend = useCallback(
     async (content: string) => {
       const trimmedContent = content.trim();
-      if (!trimmedContent || !currentSessionId || isLoading) return;
+      if (!trimmedContent || !currentSessionId || isLoading) {
+        return;
+      }
 
       setError(null);
       setInputText("");
@@ -147,7 +148,9 @@ export function RightsFinderChat({
 
         while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            break;
+          }
 
           const chunk = decoder.decode(value, { stream: true });
           fullText += chunk;
@@ -163,8 +166,7 @@ export function RightsFinderChat({
         }
 
         setStreamingContent("");
-      } catch (err) {
-        console.error("Send message error:", err);
+      } catch (_err) {
         setError("שגיאה בשליחת ההודעה. נסה שוב.");
         setStreamingContent("");
       } finally {

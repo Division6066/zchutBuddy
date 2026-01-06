@@ -32,10 +32,7 @@ export default function RightsFinderPage() {
   } = useChat({
     type: "rights_finder",
     preferredModel: preferredModel || undefined,
-    onSoftCapWarning: () => {
-      // Could show a toast notification here
-      console.log("Soft cap warning triggered");
-    },
+    onSoftCapWarning: () => {},
   });
 
   // Welcome message
@@ -58,11 +55,13 @@ export default function RightsFinderPage() {
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isStreaming]);
+  }, [scrollToBottom]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || isLoading) return;
+    if (!input.trim() || isLoading) {
+      return;
+    }
 
     const message = input.trim();
     setInput("");

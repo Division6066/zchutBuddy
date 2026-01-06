@@ -1,5 +1,3 @@
-import Image from "next/image";
-
 /**
  * Hero illustration with floating status badges
  */

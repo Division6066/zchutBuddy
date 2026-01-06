@@ -72,7 +72,7 @@ export default function TodayPage() {
     }
   };
 
-  const getPriorityIcon = (priority: Task["priority"]) => {
+  const _getPriorityIcon = (priority: Task["priority"]) => {
     switch (priority) {
       case "high":
         return "priority_high";

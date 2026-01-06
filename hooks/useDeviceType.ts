@@ -105,9 +105,13 @@ function detectBrowser(userAgent: string): { name: string; version: string } {
 
   for (const { name, pattern, versionPattern } of BROWSER_PATTERNS) {
     // Skip Chrome detection if it's actually Edge or Opera
-    if (name === "chrome" && (isEdge || isOpera)) continue;
+    if (name === "chrome" && (isEdge || isOpera)) {
+      continue;
+    }
     // Skip Safari detection if it's Chrome-based (Chrome includes Safari in UA)
-    if (name === "safari" && isChromeBased) continue;
+    if (name === "safari" && isChromeBased) {
+      continue;
+    }
 
     if (pattern.test(userAgent)) {
       const versionMatch = userAgent.match(versionPattern);
@@ -131,7 +135,9 @@ function detectOS(userAgent: string): string {
 }
 
 function detectTouchDevice(): boolean {
-  if (typeof window === "undefined") return false;
+  if (typeof window === "undefined") {
+    return false;
+  }
 
   return (
     "ontouchstart" in window ||

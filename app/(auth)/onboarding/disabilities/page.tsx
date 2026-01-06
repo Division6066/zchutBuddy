@@ -87,12 +87,21 @@ export default function DisabilitiesPage() {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        if (data.hasDisability !== undefined) setHasDisability(data.hasDisability);
-        if (data.disabilities) setDisabilities(data.disabilities);
-        if (data.severityPerDisability) setSeverityPerDisability(data.severityPerDisability);
-        if (data.disabilityPercentage !== undefined)
+        if (data.hasDisability !== undefined) {
+          setHasDisability(data.hasDisability);
+        }
+        if (data.disabilities) {
+          setDisabilities(data.disabilities);
+        }
+        if (data.severityPerDisability) {
+          setSeverityPerDisability(data.severityPerDisability);
+        }
+        if (data.disabilityPercentage !== undefined) {
           setDisabilityPercentage(data.disabilityPercentage);
-        if (data.disabilityRecognizedBy) setDisabilityRecognizedBy(data.disabilityRecognizedBy);
+        }
+        if (data.disabilityRecognizedBy) {
+          setDisabilityRecognizedBy(data.disabilityRecognizedBy);
+        }
       } catch {
         // Ignore
       }
@@ -156,10 +165,16 @@ export default function DisabilitiesPage() {
   // Calculate overall severity from individual severities
   const getOverallSeverity = (): string | undefined => {
     const values = Object.values(severityPerDisability);
-    if (values.length === 0) return undefined;
+    if (values.length === 0) {
+      return undefined;
+    }
     const max = Math.max(...values);
-    if (max === 1) return "mild";
-    if (max === 2) return "moderate";
+    if (max === 1) {
+      return "mild";
+    }
+    if (max === 2) {
+      return "moderate";
+    }
     return "severe";
   };
 
@@ -177,8 +192,7 @@ export default function DisabilitiesPage() {
       });
       localStorage.removeItem(STORAGE_KEY);
       router.push("/onboarding/review");
-    } catch (error) {
-      console.error("Failed to save disabilities:", error);
+    } catch (_error) {
     } finally {
       setIsSaving(false);
     }
@@ -298,7 +312,9 @@ export default function DisabilitiesPage() {
               </label>
               {disabilities.map((disValue) => {
                 const type = DISABILITY_TYPES.find((d) => d.value === disValue);
-                if (!type) return null;
+                if (!type) {
+                  return null;
+                }
                 const currentSeverity = severityPerDisability[disValue] || 0;
 
                 return (

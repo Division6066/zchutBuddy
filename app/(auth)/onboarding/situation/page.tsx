@@ -67,14 +67,27 @@ export default function SituationPage() {
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        if (data.employmentStatus) setEmploymentStatus(data.employmentStatus);
-        if (data.idfService) setIdfService(data.idfService);
-        if (data.isIdfDisabled) setIsIdfDisabled(data.isIdfDisabled);
-        if (data.isRecognizedIdfDisabled) setIsRecognizedIdfDisabled(data.isRecognizedIdfDisabled);
-        if (data.receivingDisabilityBenefit)
+        if (data.employmentStatus) {
+          setEmploymentStatus(data.employmentStatus);
+        }
+        if (data.idfService) {
+          setIdfService(data.idfService);
+        }
+        if (data.isIdfDisabled) {
+          setIsIdfDisabled(data.isIdfDisabled);
+        }
+        if (data.isRecognizedIdfDisabled) {
+          setIsRecognizedIdfDisabled(data.isRecognizedIdfDisabled);
+        }
+        if (data.receivingDisabilityBenefit) {
           setReceivingDisabilityBenefit(data.receivingDisabilityBenefit);
-        if (data.hasChildrenUnder18) setHasChildrenUnder18(data.hasChildrenUnder18);
-        if (data.isRenting) setIsRenting(data.isRenting);
+        }
+        if (data.hasChildrenUnder18) {
+          setHasChildrenUnder18(data.hasChildrenUnder18);
+        }
+        if (data.isRenting) {
+          setIsRenting(data.isRenting);
+        }
       } catch {
         // Ignore
       }
@@ -154,8 +167,7 @@ export default function SituationPage() {
       });
       localStorage.removeItem(STORAGE_KEY);
       router.push("/onboarding/disabilities");
-    } catch (error) {
-      console.error("Failed to save situation:", error);
+    } catch (_error) {
     } finally {
       setIsSaving(false);
     }

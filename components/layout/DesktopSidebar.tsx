@@ -7,14 +7,12 @@ import {
   BookMarked,
   CheckSquare,
   ExternalLink,
-  FileText,
   HelpCircle,
   Home,
   LogOut,
   MessageSquare,
   Search,
   Settings,
-  Shield,
   Sparkles,
   User,
 } from "lucide-react";
@@ -274,7 +272,7 @@ export default function DesktopSidebar() {
           {/* Main Section */}
           <NavSection title={t("sidebar.main")}>
             {NAV_SECTIONS.main.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <NavItem
                   key={item.id}
@@ -290,7 +288,7 @@ export default function DesktopSidebar() {
           {/* Features Section */}
           <NavSection title={t("sidebar.features")}>
             {NAV_SECTIONS.features.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
                 <NavItem
                   key={item.id}
@@ -306,7 +304,7 @@ export default function DesktopSidebar() {
           {/* Account Section */}
           <NavSection title={t("sidebar.account")}>
             {NAV_SECTIONS.account.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
+              const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
               const badge = item.hasBadge ? (unreadCount ?? 0) : undefined;
               return (
                 <NavItem

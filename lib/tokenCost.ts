@@ -30,13 +30,17 @@ export const MODEL_PRICING: Record<
  * Mixed: weighted average based on character count
  */
 export function estimateTokens(text: string): number {
-  if (!text) return 0;
+  if (!text) {
+    return 0;
+  }
 
   // Count Hebrew characters (Unicode range for Hebrew)
   const hebrewChars = (text.match(/[\u0590-\u05FF]/g) || []).length;
   const totalChars = text.length;
 
-  if (totalChars === 0) return 0;
+  if (totalChars === 0) {
+    return 0;
+  }
 
   // Hebrew estimation (characters / 2.5)
   const hebrewTokens = hebrewChars / 2.5;

@@ -229,7 +229,7 @@ export function formatPhoneNumber(phone: string): string {
 
   // Remove country code if present
   if (cleaned.startsWith("972")) {
-    cleaned = "0" + cleaned.slice(3);
+    cleaned = `0${cleaned.slice(3)}`;
   }
 
   // Format as 05X-XXX-XXXX

@@ -265,8 +265,6 @@ export function ContentLoader({ type = "text", count = 1, className }: ContentLo
             </div>
           </div>
         );
-
-      case "text":
       default:
         return <SkeletonText key={index} lines={3} />;
     }

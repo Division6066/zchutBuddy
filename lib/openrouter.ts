@@ -75,12 +75,14 @@ export function getOpenRouterModelId(modelId: string): string {
  * Mixed: weighted average based on character count
  */
 export function estimateTokens(text: string): number {
-  if (!text) return 0;
+  if (!text) {
+    return 0;
+  }
 
   // Count Hebrew characters (Unicode range)
   const hebrewChars = (text.match(/[\u0590-\u05FF]/g) || []).length;
   const totalChars = text.length;
-  const hebrewRatio = hebrewChars / totalChars;
+  const _hebrewRatio = hebrewChars / totalChars;
 
   // Hebrew estimation
   const hebrewTokens = hebrewChars / 2.5;
@@ -295,7 +297,9 @@ export async function chat(params: Omit<StreamChatParams, "stream">): Promise<{
 export async function checkModelAvailability(modelId: string): Promise<boolean> {
   try {
     const apiKey = process.env.OPENROUTER_API_KEY;
-    if (!apiKey) return false;
+    if (!apiKey) {
+      return false;
+    }
 
     const openRouterModel = getOpenRouterModelId(modelId);
 

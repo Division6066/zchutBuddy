@@ -147,8 +147,12 @@ export const getUrgentAlerts = query({
       )
       .sort((a, b) => {
         // Urgent first, then high
-        if (a.priority === "urgent" && b.priority !== "urgent") return -1;
-        if (b.priority === "urgent" && a.priority !== "urgent") return 1;
+        if (a.priority === "urgent" && b.priority !== "urgent") {
+          return -1;
+        }
+        if (b.priority === "urgent" && a.priority !== "urgent") {
+          return 1;
+        }
         return b.createdAt - a.createdAt;
       });
   },

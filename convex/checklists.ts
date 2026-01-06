@@ -88,9 +88,15 @@ export const updateChecklist = mutation({
     const now = Date.now();
 
     const updateData: Record<string, unknown> = { updatedAt: now };
-    if (title !== undefined) updateData.title = title;
-    if (description !== undefined) updateData.description = description;
-    if (dueDate !== undefined) updateData.dueDate = dueDate;
+    if (title !== undefined) {
+      updateData.title = title;
+    }
+    if (description !== undefined) {
+      updateData.description = description;
+    }
+    if (dueDate !== undefined) {
+      updateData.dueDate = dueDate;
+    }
 
     await ctx.db.patch(checklistId, updateData);
     return checklistId;
@@ -187,8 +193,12 @@ export const updateItem = mutation({
     await getOwnedChecklistOrThrow(ctx, item.checklistId);
 
     const updateData: Record<string, unknown> = {};
-    if (title !== undefined) updateData.title = title;
-    if (description !== undefined) updateData.description = description;
+    if (title !== undefined) {
+      updateData.title = title;
+    }
+    if (description !== undefined) {
+      updateData.description = description;
+    }
 
     if (Object.keys(updateData).length > 0) {
       await ctx.db.patch(itemId, updateData);
