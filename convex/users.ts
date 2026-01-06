@@ -217,6 +217,115 @@ export const initializeNewUserInternal = internalMutation({
 });
 
 /**
+ * Admin function to manually initialize an existing user.
+ * Use this for users created before the initialization logic was in place.
+ * Run from Convex Dashboard: internal.users.manuallyInitializeUser({ userId: "..." })
+ */
+export const manuallyInitializeUser = internalMutation({
+  args: { userId: v.id("users") },
+  handler: async (ctx, { userId }) => {
+    console.log(`[manuallyInitializeUser] Manually initializing user ${userId}`);
+    
+    const user = await ctx.db.get(userId);
+    if (!user) {
+      throw new Error(`User ${userId} not found`);
+    }
+
+    // Check if already initialized
+    const existingSubscription = await ctx.db
+      .query("subscriptions")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    if (existingSubscription) {
+      console.log(`[manuallyInitializeUser] User ${userId} already has subscription, skipping`);
+      return { status: "already_initialized", subscriptionId: existingSubscription._id };
+    }
+
+    // Get free trial configuration
+    const trialConfig = SUBSCRIPTION_TIERS.free_trial;
+    const now = Date.now();
+    const trialEnd = now + trialConfig.trialDays * 24 * 60 * 60 * 1000;
+
+    // Update user with app-specific fields
+    await ctx.db.patch(userId, {
+      language: user.language || "he",
+      createdAt: user.createdAt || now,
+      lastLoginAt: now,
+      onboardingCompleted: false,
+    });
+
+    // Create free trial subscription
+    const subscriptionId = await ctx.db.insert("subscriptions", {
+      userId,
+      tier: "free_trial",
+      status: "trialing",
+      trialStartedAt: now,
+      trialEndsAt: trialEnd,
+      priceInShekels: trialConfig.priceShekels,
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    // Initialize usage tracking with tier limits
+    const usageId = await ctx.db.insert("usageTracking", {
+      userId,
+      periodStart: now,
+      periodEnd: trialEnd,
+      apiCreditsUsed: 0,
+      apiCreditsLimit: trialConfig.apiBudget,
+      crawlCreditsUsed: 0,
+      crawlCreditsLimit: trialConfig.limits.deepResearchPerMonth,
+      totalTokensUsed: 0,
+      softCapReached: false,
+      hardCapReached: false,
+      softCapAlertSent: false,
+      hardCapAlertSent: false,
+      updatedAt: now,
+    });
+
+    // Create empty user profile if doesn't exist
+    const existingProfile = await ctx.db
+      .query("userProfiles")
+      .withIndex("by_userId", (q) => q.eq("userId", userId))
+      .first();
+
+    let profileId = existingProfile?._id;
+    if (!existingProfile) {
+      profileId = await ctx.db.insert("userProfiles", {
+        userId,
+        isAnonymous: false,
+        updatedAt: now,
+      });
+    }
+
+    // Create welcome alert
+    const alertId = await ctx.db.insert("alerts", {
+      userId,
+      type: "system",
+      title: "ברוכים הבאים לזכויות באדי!",
+      message: "נעזור לך למצוא את כל הזכויות שמגיעות לך. התחל על ידי מילוי הפרופיל שלך.",
+      priority: "medium",
+      isRead: false,
+      isDismissed: false,
+      actionUrl: "/onboarding/welcome",
+      actionLabel: "התחל עכשיו",
+      createdAt: now,
+    });
+
+    console.log(`[manuallyInitializeUser] Created subscription=${subscriptionId}, usage=${usageId}, profile=${profileId}, alert=${alertId} for user ${userId}`);
+
+    return {
+      status: "initialized",
+      subscriptionId,
+      usageId,
+      profileId,
+      alertId,
+    };
+  },
+});
+
+/**
  * Initialize a new user after first sign-in (public mutation).
  * Called from client after authentication to set up subscription, usage tracking, etc.
  * This is a wrapper around initializeNewUserInternal for client calls.

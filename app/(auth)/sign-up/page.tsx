@@ -6,7 +6,7 @@ import { UserCircle, Mail, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
 
@@ -24,9 +24,15 @@ export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // Redirect if already authenticated
+  // Redirect if already authenticated (using useEffect to handle post-auth redirect properly)
+  useEffect(() => {
+    if (isAuthenticated && !isAuthLoading) {
+      router.push("/onboarding");
+    }
+  }, [isAuthenticated, isAuthLoading, router]);
+
+  // Early return to prevent flash of content
   if (isAuthenticated && !isAuthLoading) {
-    router.push("/onboarding");
     return null;
   }
 
