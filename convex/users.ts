@@ -132,7 +132,9 @@ export const initializeNewUserInternal = internalMutation({
       .first();
 
     if (existingSubscription) {
-      console.log(`[initializeNewUserInternal] User ${userId} already initialized, updating lastLoginAt`);
+      console.log(
+        `[initializeNewUserInternal] User ${userId} already initialized, updating lastLoginAt`
+      );
       await ctx.db.patch(userId, {
         lastLoginAt: Date.now(),
       });
@@ -204,7 +206,9 @@ export const initializeNewUserInternal = internalMutation({
       createdAt: now,
     });
 
-    console.log(`[initializeNewUserInternal] Created subscription=${subscriptionId}, usage=${usageId}, profile=${profileId}, alert=${alertId} for user ${userId}`);
+    console.log(
+      `[initializeNewUserInternal] Created subscription=${subscriptionId}, usage=${usageId}, profile=${profileId}, alert=${alertId} for user ${userId}`
+    );
 
     return {
       status: "initialized",
@@ -225,7 +229,7 @@ export const manuallyInitializeUser = internalMutation({
   args: { userId: v.id("users") },
   handler: async (ctx, { userId }) => {
     console.log(`[manuallyInitializeUser] Manually initializing user ${userId}`);
-    
+
     const user = await ctx.db.get(userId);
     if (!user) {
       throw new Error(`User ${userId} not found`);
@@ -313,7 +317,9 @@ export const manuallyInitializeUser = internalMutation({
       createdAt: now,
     });
 
-    console.log(`[manuallyInitializeUser] Created subscription=${subscriptionId}, usage=${usageId}, profile=${profileId}, alert=${alertId} for user ${userId}`);
+    console.log(
+      `[manuallyInitializeUser] Created subscription=${subscriptionId}, usage=${usageId}, profile=${profileId}, alert=${alertId} for user ${userId}`
+    );
 
     return {
       status: "initialized",

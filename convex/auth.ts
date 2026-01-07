@@ -18,6 +18,26 @@ function createResendProvider(): EmailConfig | null {
     async sendVerificationRequest({ identifier: to, url, provider }) {
       const { host } = new URL(url);
 
+      // Log the magic link URL for debugging
+      const timestamp = new Date().toISOString();
+      const hasRedirectTo = url.includes("redirectTo");
+      console.log(`[AUTH:INFO] ${timestamp} | MagicLink | URL`, {
+        email: to,
+        hasRedirectTo,
+        message: "Magic link URL generated",
+        url: url.substring(0, 150) + (url.length > 150 ? "..." : ""),
+      });
+
+      // Extract redirectTo parameter for logging
+      const redirectMatch = url.match(/redirectTo=([^&]*)/);
+      const redirectTo = redirectMatch ? decodeURIComponent(redirectMatch[1]) : "not specified";
+
+      console.log(`[AUTH:INFO] ${timestamp} | MagicLink | Params`, {
+        email: to,
+        redirectTo,
+        message: "Magic link parameters",
+      });
+
       // Simple HTML email without html-to-text dependency
       const html = `
         <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -53,8 +73,21 @@ function createResendProvider(): EmailConfig | null {
 
       if (!res.ok) {
         const error = await res.json();
-        throw new Error(`Resend error: ${JSON.stringify(error)}`);
+        const errorMsg = `Resend error: ${JSON.stringify(error)}`;
+        console.error(`[AUTH:ERROR] ${timestamp} | MagicLink | Send`, {
+          email: to,
+          error: errorMsg,
+          message: "Failed to send magic link email",
+        });
+        throw new Error(errorMsg);
       }
+
+      // Log successful email send
+      console.log(`[AUTH:INFO] ${timestamp} | MagicLink | Send`, {
+        email: to,
+        redirectTo,
+        message: "Magic link email sent successfully",
+      });
     },
   };
 }

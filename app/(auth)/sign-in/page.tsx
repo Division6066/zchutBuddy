@@ -2,11 +2,12 @@
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth } from "convex/react";
-import { UserCircle, Mail, CheckCircle } from "lucide-react";
+import { CheckCircle, Mail, UserCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { authDebug } from "@/lib/auth-debug";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
 
@@ -18,15 +19,43 @@ export default function SignInPage() {
   const { loginAsGuest } = useGuestAuth();
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Log callback parameters on mount
+  useEffect(() => {
+    const code = searchParams.get("code");
+    const callbackEmail = searchParams.get("email");
+    const redirectParam = searchParams.get("redirectTo");
+
+    if (code) {
+      authDebug.logCallback({
+        provider: "resend",
+        hasCode: true,
+        hasRedirectTo: !!redirectParam,
+        message: `Callback detected on sign-in page`,
+      });
+    }
+  }, [searchParams]);
+
   // Redirect if already authenticated (using useEffect to handle post-auth redirect properly)
   useEffect(() => {
     if (isAuthenticated && !isAuthLoading) {
+      authDebug.logAuthState({
+        isAuthenticated: true,
+        isLoading: false,
+        message: "User authenticated on sign-in page, redirecting to dashboard",
+      });
+      authDebug.logRedirect({
+        source: "SignInPage",
+        target: "/dashboard",
+        reason: "Already authenticated, redirecting from sign-in",
+        authenticated: true,
+      });
       router.push("/dashboard");
     }
   }, [isAuthenticated, isAuthLoading, router]);
@@ -50,13 +79,32 @@ export default function SignInPage() {
     setIsLoading(true);
     setError("");
 
+    authDebug.logSignIn({
+      email,
+      redirectTo: "/dashboard",
+      message: "Sending magic link email",
+    });
+
     try {
       // Send magic link email with redirectTo for after sign-in
-      await signIn("resend", { email, redirectTo: "/dashboard" });
+      const result = await signIn("resend", { email, redirectTo: "/dashboard" });
+      authDebug.debug({
+        component: "SignIn",
+        message: "Magic link sent successfully",
+        email,
+        redirectTo: "/dashboard",
+      });
       setStep("sent");
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error.message || "שגיאה בשליחת קישור ההתחברות");
+      const errorMessage = error.message || "שגיאה בשליחת קישור ההתחברות";
+      authDebug.error({
+        component: "SignIn",
+        message: "Failed to send magic link",
+        email,
+        error: errorMessage,
+      });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -66,11 +114,30 @@ export default function SignInPage() {
     setIsLoading(true);
     setError("");
 
+    authDebug.logSignIn({
+      email,
+      redirectTo: "/dashboard",
+      message: "Resending magic link email",
+    });
+
     try {
       await signIn("resend", { email, redirectTo: "/dashboard" });
+      authDebug.debug({
+        component: "SignIn",
+        message: "Magic link resent successfully",
+        email,
+        redirectTo: "/dashboard",
+      });
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error.message || "שגיאה בשליחת קישור חדש");
+      const errorMessage = error.message || "שגיאה בשליחת קישור חדש";
+      authDebug.error({
+        component: "SignIn",
+        message: "Failed to resend magic link",
+        email,
+        error: errorMessage,
+      });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

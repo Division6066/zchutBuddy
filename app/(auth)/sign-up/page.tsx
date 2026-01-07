@@ -2,11 +2,12 @@
 
 import { useAuthActions } from "@convex-dev/auth/react";
 import { useConvexAuth } from "convex/react";
-import { UserCircle, Mail, CheckCircle } from "lucide-react";
+import { CheckCircle, Mail, UserCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { authDebug } from "@/lib/auth-debug";
 import { useGuestAuth } from "@/lib/guest-auth";
 import { useTranslation } from "@/lib/i18n";
 
@@ -18,15 +19,43 @@ export default function SignUpPage() {
   const { loginAsGuest } = useGuestAuth();
   const { t } = useTranslation();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [step, setStep] = useState<AuthStep>("email");
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // Log callback parameters on mount
+  useEffect(() => {
+    const code = searchParams.get("code");
+    const callbackEmail = searchParams.get("email");
+    const redirectParam = searchParams.get("redirectTo");
+
+    if (code) {
+      authDebug.logCallback({
+        provider: "resend",
+        hasCode: true,
+        hasRedirectTo: !!redirectParam,
+        message: `Callback detected on sign-up page`,
+      });
+    }
+  }, [searchParams]);
+
   // Redirect if already authenticated (using useEffect to handle post-auth redirect properly)
   useEffect(() => {
     if (isAuthenticated && !isAuthLoading) {
+      authDebug.logAuthState({
+        isAuthenticated: true,
+        isLoading: false,
+        message: "User authenticated on sign-up page, redirecting to onboarding",
+      });
+      authDebug.logRedirect({
+        source: "SignUpPage",
+        target: "/onboarding",
+        reason: "Already authenticated, redirecting from sign-up",
+        authenticated: true,
+      });
       router.push("/onboarding");
     }
   }, [isAuthenticated, isAuthLoading, router]);
@@ -50,13 +79,32 @@ export default function SignUpPage() {
     setIsLoading(true);
     setError("");
 
+    authDebug.logSignIn({
+      email,
+      redirectTo: "/onboarding",
+      message: "Sending magic link email for sign-up",
+    });
+
     try {
       // Send magic link email with redirectTo for after sign-up
       await signIn("resend", { email, redirectTo: "/onboarding" });
+      authDebug.debug({
+        component: "SignUp",
+        message: "Magic link sent successfully",
+        email,
+        redirectTo: "/onboarding",
+      });
       setStep("sent");
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error.message || "שגיאה בשליחת קישור ההרשמה");
+      const errorMessage = error.message || "שגיאה בשליחת קישור ההרשמה";
+      authDebug.error({
+        component: "SignUp",
+        message: "Failed to send magic link",
+        email,
+        error: errorMessage,
+      });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -66,11 +114,30 @@ export default function SignUpPage() {
     setIsLoading(true);
     setError("");
 
+    authDebug.logSignIn({
+      email,
+      redirectTo: "/onboarding",
+      message: "Resending magic link email for sign-up",
+    });
+
     try {
       await signIn("resend", { email, redirectTo: "/onboarding" });
+      authDebug.debug({
+        component: "SignUp",
+        message: "Magic link resent successfully",
+        email,
+        redirectTo: "/onboarding",
+      });
     } catch (err: unknown) {
       const error = err as { message?: string };
-      setError(error.message || "שגיאה בשליחת קישור חדש");
+      const errorMessage = error.message || "שגיאה בשליחת קישור חדש";
+      authDebug.error({
+        component: "SignUp",
+        message: "Failed to resend magic link",
+        email,
+        error: errorMessage,
+      });
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -166,7 +233,9 @@ export default function SignUpPage() {
           <div className="bg-accent/50 rounded-xl p-4 text-sm text-muted-foreground">
             <div className="flex items-start gap-3">
               <CheckCircle className="size-5 text-primary flex-shrink-0 mt-0.5" />
-              <p className="text-right">לחץ על הקישור במייל כדי להשלים את ההרשמה. הקישור תקף ל-24 שעות.</p>
+              <p className="text-right">
+                לחץ על הקישור במייל כדי להשלים את ההרשמה. הקישור תקף ל-24 שעות.
+              </p>
             </div>
           </div>
 
