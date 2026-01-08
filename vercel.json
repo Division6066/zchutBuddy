@@ -1,0 +1,80 @@
+{
+  "buildCommand": "bun run build",
+  "installCommand": "bun install",
+  "devCommand": "bun dev",
+  "framework": "nextjs",
+  "nodeVersion": "20.x",
+  "env": {
+    "NEXT_PUBLIC_CONVEX_URL": {
+      "description": "Convex deployment URL"
+    },
+    "OPENROUTER_API_KEY": {
+      "description": "OpenRouter API key for AI models"
+    },
+    "SITE_URL": {
+      "description": "Base URL of the application (set automatically or update manually)"
+    },
+    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": {
+      "description": "Clerk publishable API key"
+    },
+    "CLERK_SECRET_KEY": {
+      "description": "Clerk secret API key"
+    },
+    "APP_PUBLIC_URL": {
+      "description": "Public app URL (optional, defaults to SITE_URL)"
+    }
+  },
+  "buildOutputDirectory": ".next",
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/stitch/home",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/stitch/about",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/stitch/pricing",
+      "destination": "/pricing",
+      "permanent": true
+    },
+    {
+      "source": "/stitch/app",
+      "destination": "/dashboard",
+      "permanent": true
+    },
+    {
+      "source": "/stitch/rights-map",
+      "destination": "/rights",
+      "permanent": true
+    },
+    {
+      "source": "/stitch/profile-setup",
+      "destination": "/profile",
+      "permanent": true
+    }
+  ]
+}
+
