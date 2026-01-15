@@ -14,14 +14,11 @@
     "SITE_URL": {
       "description": "Base URL of the application (set automatically or update manually)"
     },
-    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": {
-      "description": "Clerk publishable API key"
-    },
-    "CLERK_SECRET_KEY": {
-      "description": "Clerk secret API key"
-    },
     "APP_PUBLIC_URL": {
       "description": "Public app URL (optional, defaults to SITE_URL)"
+    },
+    "AUTH_RESEND_KEY": {
+      "description": "Resend API key for password reset emails (optional)"
     }
   },
   "buildOutputDirectory": ".next",
